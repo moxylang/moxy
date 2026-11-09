@@ -75,13 +75,14 @@ Debian, Fedora and Arch packages are attached to each [release](https://github.c
 
 ### From source
 
-You need a C compiler and `make`. [goose](https://github.com/wess/goose), the build and package engine, is a submodule that compiles straight into the `moxy` binary. `moxy` is the only executable you need.
+You need a C compiler and `make`. The compiler is written in Moxy; `make` bootstraps it from `bootstrap/moxy.c`, the C it generates for itself, so no existing `moxy` is required. [goose](https://github.com/wess/goose), the build and package engine, is a submodule that compiles straight into the `moxy` binary. `moxy` is the only executable you need.
 
 ```sh
 git clone --recursive https://github.com/wess/moxy.git
 cd moxy
 make            # builds build/moxy
 make test       # runs the test suite
+make verify     # checks that build/moxy rebuilds itself identically
 make install    # installs to /usr/local/bin (PREFIX=... to change)
 ```
 

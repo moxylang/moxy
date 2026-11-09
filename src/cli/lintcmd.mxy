@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "index.mxy"
+#include "conf/index.mxy"
+#include "diag/index.mxy"
+#include "load/index.mxy"
+#include "sema/index.mxy"
+
+int cmd_lint(int argc, char **argv) {
+    StrList files = {0};
+    for (int i = 0; i < argc; i++) collect_mxy(argv[i], &files);
+    if (!argc) collect_mxy(".", &files);
+    char cwd[4096];
+    char *found = mxyconf_find(getcwd(cwd, sizeof(cwd)) ? cwd : ".", NULL);
+    MoxyConfig cfg = found ? mxyconf_load(found) : mxyconf_defaults();
+    int mode = (cfg.lint_unused_vars ? LINT_UNUSED : 0) | (cfg.lint_shadow_vars ? LINT_SHADOW : 0) |
+               (cfg.lint_empty_blocks ? LINT_EMPTY : 0);
+    if (!mode) mode = LINT_ON;
+    int issues = 0, errors = 0;
+    for (int i = 0; i < files.len; i++) {
+        load_add_include_dir(path_dir(files.items[i]));
+        if (check_file(files.items[i], mode)) errors++;
+        issues += diag_warnings();
+    }
+    if (issues || errors)
+        fprintf(stderr, "\n  %d warning%s, %d file%s with errors\n", issues, issues == 1 ? "" : "s", errors,
+                errors == 1 ? "" : "s");
+    return issues || errors ? 1 : 0;
+}

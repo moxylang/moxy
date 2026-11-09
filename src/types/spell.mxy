@@ -1,0 +1,247 @@
+#include <string.h>
+
+#include "index.mxy"
+
+static const char *prim_c(TypeKind k) {
+    switch (k) {
+    case TY_VOID: return "void";
+    case TY_BOOL: return "bool";
+    case TY_CHAR: return "char";
+    case TY_SCHAR: return "signed char";
+    case TY_UCHAR: return "unsigned char";
+    case TY_SHORT: return "short";
+    case TY_USHORT: return "unsigned short";
+    case TY_INT: return "int";
+    case TY_UINT: return "unsigned int";
+    case TY_LONG: return "long";
+    case TY_ULONG: return "unsigned long";
+    case TY_LLONG: return "long long";
+    case TY_ULLONG: return "unsigned long long";
+    case TY_FLOAT: return "float";
+    case TY_DOUBLE: return "double";
+    case TY_LDOUBLE: return "long double";
+    default: return NULL;
+    }
+}
+
+static const char *prim_m(TypeKind k) {
+    switch (k) {
+    case TY_SCHAR: return "schar";
+    case TY_UCHAR: return "uchar";
+    case TY_USHORT: return "ushort";
+    case TY_UINT: return "uint";
+    case TY_ULONG: return "ulong";
+    case TY_LLONG: return "llong";
+    case TY_ULLONG: return "ullong";
+    case TY_LDOUBLE: return "ldouble";
+    default: return prim_c(k);
+    }
+}
+
+static const char *prim_moxy(TypeKind k) {
+    return prim_c(k);
+}
+
+char *type_mangle(Type *t) {
+    t = type_unqual(t);
+    if (prim_m(t->kind)) return xstrdup(prim_m(t->kind));
+    char *a, *b, *r;
+    switch (t->kind) {
+    case TY_STRING: return xstrdup("str");
+    case TY_PTR:
+        a = type_mangle(t->base);
+        r = xfmt("ptr_%s", a);
+        free(a);
+        return r;
+    case TY_ARRAY:
+        a = type_mangle(t->base);
+        r = xfmt("arr%ld_%s", t->len < 0 ? 0 : t->len, a);
+        free(a);
+        return r;
+    case TY_LIST:
+        a = type_mangle(t->base);
+        r = xfmt("list_%s", a);
+        free(a);
+        return r;
+    case TY_MAP:
+        a = type_mangle(t->key);
+        b = type_mangle(t->base);
+        r = xfmt("map_%s_%s", a, b);
+        free(a);
+        free(b);
+        return r;
+    case TY_RESULT:
+        a = type_mangle(t->base);
+        r = xfmt("res_%s", a);
+        free(a);
+        return r;
+    case TY_FUTURE:
+        a = type_mangle(t->base);
+        r = xfmt("fut_%s", a);
+        free(a);
+        return r;
+    case TY_CLOSURE: case TY_FUNC: {
+        Buf buf = {0};
+        buf_put(&buf, t->kind == TY_CLOSURE ? "fn" : "cfn");
+        for (int i = 0; i < t->params.len; i++) {
+            a = type_mangle(t->params.items[i]);
+            buf_fmt(&buf, "_%s", a);
+            free(a);
+        }
+        a = type_mangle(t->base);
+        buf_fmt(&buf, "_to_%s", a);
+        free(a);
+        return buf_take(&buf);
+    }
+    case TY_STRUCT: case TY_ENUM: case TY_CENUM: case TY_NAMED:
+        return xstrdup(t->cname ? t->cname : "anon");
+    case TY_NULL: return xstrdup("null");
+    default: return xstrdup("unknown");
+    }
+}
+
+char *type_str(Type *t) {
+    if (!t) return xstrdup("?");
+    Type *u = type_unqual(t);
+    const char *q = (t->quals & Q_CONST) && u->kind != TY_PTR ? "const " : "";
+    if (prim_moxy(u->kind)) return xfmt("%s%s", q, prim_moxy(u->kind));
+    char *a, *b, *r;
+    switch (u->kind) {
+    case TY_STRING: return xstrdup("string");
+    case TY_PTR:
+        a = type_str(u->base);
+        r = xfmt("%s*", a);
+        free(a);
+        return r;
+    case TY_ARRAY:
+        a = type_str(u->base);
+        r = u->len >= 0 ? xfmt("%s[%ld]", a, u->len) : xfmt("%s[]", a);
+        free(a);
+        return r;
+    case TY_LIST:
+        a = type_str(u->base);
+        r = xfmt("%s[]", a);
+        free(a);
+        return r;
+    case TY_MAP:
+        a = type_str(u->key);
+        b = type_str(u->base);
+        r = xfmt("map[%s, %s]", a, b);
+        free(a);
+        free(b);
+        return r;
+    case TY_RESULT:
+        a = type_str(u->base);
+        r = xfmt("Result<%s>", a);
+        free(a);
+        return r;
+    case TY_FUTURE:
+        a = type_str(u->base);
+        r = xfmt("Future<%s>", a);
+        free(a);
+        return r;
+    case TY_CLOSURE: case TY_FUNC: {
+        Buf buf = {0};
+        buf_put(&buf, u->kind == TY_CLOSURE ? "fn(" : "function(");
+        for (int i = 0; i < u->params.len; i++) {
+            a = type_str(u->params.items[i]);
+            buf_fmt(&buf, "%s%s", i ? ", " : "", a);
+            free(a);
+        }
+        a = type_str(u->base);
+        buf_fmt(&buf, ") -> %s", a);
+        free(a);
+        return buf_take(&buf);
+    }
+    case TY_STRUCT: case TY_ENUM: case TY_CENUM: case TY_NAMED:
+        return xstrdup(u->name ? u->name : "anonymous");
+    case TY_NULL: return xstrdup("null");
+    default: return xstrdup("unknown C value");
+    }
+}
+
+static char *join(const char *base, const char *inner) {
+    if (!*inner) return xstrdup(base);
+    return xfmt("%s %s", base, inner);
+}
+
+char *type_cdecl(Type *t, const char *name) {
+    Type *u = type_unqual(t);
+    int is_const = t->quals & Q_CONST;
+    int is_volatile = t->quals & Q_VOLATILE;
+    const char *cq = is_const ? "const " : "";
+    const char *vq = is_volatile ? "volatile " : "";
+    char *inner, *res;
+    switch (u->kind) {
+    case TY_PTR: {
+        inner = xfmt("*%s%s%s", is_const ? "const " : "", is_volatile ? "volatile " : "", name);
+        Type *b = type_unqual(u->base);
+        if (b->kind == TY_ARRAY || b->kind == TY_FUNC) {
+            char *wrapped = xfmt("(%s)", inner);
+            free(inner);
+            inner = wrapped;
+        }
+        res = type_cdecl(u->base, inner);
+        free(inner);
+        return res;
+    }
+    case TY_ARRAY:
+        inner = u->len >= 0 ? xfmt("%s[%ld]", name, u->len) : u->cname ? xfmt("%s[%s]", name, u->cname) : xfmt("%s[]", name);
+        res = type_cdecl(u->base, inner);
+        free(inner);
+        return res;
+    case TY_FUNC: {
+        Buf b = {0};
+        buf_fmt(&b, "%s(", name);
+        if (!u->params.len && !u->variadic) buf_put(&b, "void");
+        for (int i = 0; i < u->params.len; i++) {
+            char *p = type_cdecl(u->params.items[i], "");
+            buf_fmt(&b, "%s%s", i ? ", " : "", p);
+            free(p);
+        }
+        if (u->variadic) buf_put(&b, u->params.len ? ", ..." : "...");
+        buf_put(&b, ")");
+        res = type_cdecl(u->base, buf_str(&b));
+        buf_free(&b);
+        return res;
+    }
+    default:
+        break;
+    }
+    const char *base = prim_c(u->kind);
+    char *owned = NULL;
+    if (!base) {
+        switch (u->kind) {
+        case TY_STRING: base = "mxy_str"; break;
+        case TY_LIST: base = "mxy_list *"; break;
+        case TY_MAP: base = "mxy_map *"; break;
+        case TY_CLOSURE: base = "mxy_fn *"; break;
+        case TY_FUTURE: base = "mxy_future *"; break;
+        case TY_RESULT: {
+            char *m = type_mangle(u->base);
+            owned = xfmt("mxy_res_%s", m);
+            free(m);
+            base = owned;
+            break;
+        }
+        case TY_STRUCT:
+            owned = u->is_ref ? xfmt("%s *", u->cname) : xstrdup(u->cname ? u->cname : "struct __mxy_anon");
+            base = owned;
+            break;
+        case TY_ENUM: case TY_NAMED:
+            base = u->cname;
+            break;
+        case TY_CENUM:
+            base = u->cname ? u->cname : "int";
+            break;
+        case TY_NULL: base = "void *"; break;
+        default: base = "__auto_type"; break;
+        }
+    }
+    char *full = xfmt("%s%s%s", cq, vq, base);
+    if (str_ends(full, "*") && *name) res = xfmt("%s%s", full, name);
+    else res = join(full, name);
+    free(full);
+    free(owned);
+    return res;
+}

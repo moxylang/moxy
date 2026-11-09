@@ -1,0 +1,322 @@
+#include <string.h>
+
+#include "index.mxy"
+
+Node *parse_block(void) {
+    int saved_arm = P.in_arm;
+    P.in_arm = 0;
+    Token *open = expect(P_LBRACE, "'{'");
+    Node *b = mk(N_BLOCK, open->loc);
+    while (!at(P_RBRACE)) {
+        if (at(T_EOF)) fail(open->loc, "unclosed '{' — reached end of file");
+        vec_push(b->list, parse_stmt());
+    }
+    next();
+    P.in_arm = saved_arm;
+    return b;
+}
+
+static Node *paren_cond(void) {
+    expect(P_LPAREN, "'('");
+    int saved = P.no_struct_lit;
+    P.no_struct_lit = 0;
+    Node *e = parse_expr();
+    P.no_struct_lit = saved;
+    expect(P_RPAREN, "')'");
+    return e;
+}
+
+static void end_expr_stmt(void) {
+    if (accept(P_SEMI)) return;
+    if (P.in_arm && (at(P_COMMA) || at(P_RBRACE))) return;
+    if (at(P_RBRACE) || peek()->bol || at(T_EOF)) return;
+    expect(P_SEMI, "';'");
+}
+
+static Node *expr_stmt(void) {
+    Node *e = parse_expr();
+    Node *s = mk(N_EXPR, e->loc);
+    s->a = e;
+    end_expr_stmt();
+    return s;
+}
+
+Node *parse_local_decls(void) {
+    Node *group = parse_decl_group(0);
+    return group;
+}
+
+static Node *parse_for(Token *kw) {
+    if (!at(P_LPAREN)) {
+        Token *v1 = expect(T_IDENT, "a loop variable");
+        Node *n = mk(N_FORIN, kw->loc);
+        n->name = xstrdup(v1->text);
+        if (accept(P_COMMA)) n->name2 = xstrdup(expect(T_IDENT, "a second loop variable")->text);
+        if (!at_word("in")) fail(peek()->loc, "expected 'in' in for-in loop");
+        next();
+        int saved = P.no_struct_lit;
+        P.no_struct_lit = 1;
+        Node *iter = parse_expr();
+        if (at(P_DOTDOT) || at(P_DOTDOTEQ)) {
+            Token *op = next();
+            Node *r = mk(N_RANGE, op->loc);
+            r->a = iter;
+            r->b = parse_expr();
+            if (op->kind == P_DOTDOTEQ) r->flags |= F_INCLUSIVE;
+            iter = r;
+        }
+        P.no_struct_lit = saved;
+        n->a = iter;
+        n->d = parse_stmt();
+        return n;
+    }
+    next();
+    Node *n = mk(N_FOR, kw->loc);
+    if (!accept(P_SEMI)) {
+        if (is_decl_start()) {
+            n->a = parse_local_decls();
+        } else {
+            n->a = mk(N_EXPR, peek()->loc);
+            n->a->a = parse_expr();
+            expect(P_SEMI, "';'");
+        }
+    }
+    if (!at(P_SEMI)) n->b = parse_expr();
+    expect(P_SEMI, "';'");
+    if (!at(P_RPAREN)) n->c = parse_expr();
+    expect(P_RPAREN, "')'");
+    n->d = parse_stmt();
+    return n;
+}
+
+static int match_ahead(void) {
+    if (!at_word("match") || types_has("match")) return 0;
+    Token *n = peek_at(1);
+    if (n->kind == P_LPAREN) {
+        int close = match_paren(P.pos + 1);
+        return close > 0 && P.toks[close + 1].kind == P_LBRACE;
+    }
+    switch (n->kind) {
+    case T_IDENT: case T_INT: case T_STR: case T_CHAR: case K_TRUE: case K_FALSE:
+    case P_STAR: case P_BANG: case P_MINUS: case P_LBRACKET:
+        return !(n->kind == T_IDENT && (peek_at(2)->kind == P_ASSIGN || peek_at(2)->kind == P_SEMI));
+    default:
+        return 0;
+    }
+}
+
+static Node *parse_pattern(Node *arm) {
+    Token *t = peek();
+    if ((t->kind == T_IDENT && strcmp(t->text, "_") == 0) || t->kind == K_DEFAULT || t->kind == K_ELSE) {
+        next();
+        arm->name = xstrdup("_");
+        return arm;
+    }
+    if (t->kind == T_IDENT && peek_at(1)->kind != P_DOT && peek_at(1)->kind != P_ARROW) {
+        int save = P.pos;
+        next();
+        Buf b = {0};
+        buf_put(&b, t->text);
+        while (at(P_COLONCOLON) && peek_at(1)->kind == T_IDENT) {
+            next();
+            buf_put(&b, "::");
+            buf_put(&b, next()->text);
+        }
+        char *path = buf_take(&b);
+        int is_variant = strchr(path, ':') || strcmp(path, "Ok") == 0 || strcmp(path, "Err") == 0 ||
+                         (at(P_LPAREN) && path[0] >= 'A' && path[0] <= 'Z');
+        if (at(P_LPAREN) && is_variant) {
+            next();
+            arm->name = path;
+            while (!at(P_RPAREN)) {
+                Token *bt = expect(T_IDENT, "a binding name or '_'");
+                Node *bind = mk(N_IDENT, bt->loc);
+                bind->name = xstrdup(bt->text);
+                vec_push(arm->list, bind);
+                if (!accept(P_COMMA)) break;
+            }
+            expect(P_RPAREN, "')'");
+            return arm;
+        }
+        if (is_variant) {
+            arm->name = path;
+            return arm;
+        }
+        free(path);
+        P.pos = save;
+    }
+    arm->b = parse_ternary();
+    return arm;
+}
+
+static Node *parse_arm_body(void) {
+    if (at(P_LBRACE)) {
+        Node *b = parse_block();
+        accept(P_COMMA);
+        return b;
+    }
+    switch (peek()->kind) {
+    case K_RETURN: case K_BREAK: case K_CONTINUE: case K_IF: case K_WHILE: case K_FOR:
+    case K_DO: case K_SWITCH: case K_GOTO: case P_SEMI: {
+        int saved = P.in_arm;
+        P.in_arm = 1;
+        Node *s = parse_stmt();
+        P.in_arm = saved;
+        accept(P_COMMA);
+        return s;
+    }
+    default:
+        break;
+    }
+    Node *e = parse_assign();
+    Node *s = mk(N_EXPR, e->loc);
+    s->a = e;
+    accept(P_SEMI);
+    if (!accept(P_COMMA) && !at(P_RBRACE) && !peek()->bol)
+        expect(P_COMMA, "',' or '}' after match arm");
+    return s;
+}
+
+static Node *parse_match(void) {
+    Token *kw = next();
+    Node *m = mk(N_MATCH, kw->loc);
+    int saved = P.no_struct_lit;
+    P.no_struct_lit = 1;
+    m->a = parse_expr();
+    P.no_struct_lit = saved;
+    expect(P_LBRACE, "'{' to start match arms");
+    while (!at(P_RBRACE)) {
+        if (at(T_EOF)) fail(kw->loc, "unclosed match");
+        Node *arm = mk(N_ARM, peek()->loc);
+        parse_pattern(arm);
+        expect(P_FATARROW, "'=>' after match pattern");
+        arm->a = parse_arm_body();
+        vec_push(m->list, arm);
+    }
+    next();
+    return m;
+}
+
+static int defer_ahead(void) {
+    if (!at_word("defer") || types_has("defer")) return 0;
+    TokKind k = peek_at(1)->kind;
+    if (k == P_LBRACE) return 1;
+    if (k != T_IDENT && k != P_STAR && k != K_RETURN) return 0;
+    TokKind k2 = peek_at(2)->kind;
+    return !(k == T_IDENT && (k2 == P_SEMI || k2 == P_ASSIGN));
+}
+
+Node *parse_stmt(void) {
+    Token *t = peek();
+    switch (t->kind) {
+    case T_DIRECTIVE: {
+        next();
+        Node *d = mk(N_DIRECTIVE, t->loc);
+        d->text = xstrdup(t->text);
+        return d;
+    }
+    case P_LBRACE:
+        return parse_block();
+    case P_SEMI:
+        next();
+        return mk(N_EMPTY, t->loc);
+    case K_IF: {
+        next();
+        Node *n = mk(N_IF, t->loc);
+        n->a = paren_cond();
+        n->b = parse_stmt();
+        if (accept(K_ELSE)) n->c = parse_stmt();
+        return n;
+    }
+    case K_WHILE: {
+        next();
+        Node *n = mk(N_WHILE, t->loc);
+        n->a = paren_cond();
+        n->b = parse_stmt();
+        return n;
+    }
+    case K_DO: {
+        next();
+        Node *n = mk(N_DO, t->loc);
+        n->a = parse_stmt();
+        expect(K_WHILE, "'while' after do body");
+        n->b = paren_cond();
+        expect(P_SEMI, "';'");
+        return n;
+    }
+    case K_FOR:
+        next();
+        return parse_for(t);
+    case K_SWITCH: {
+        next();
+        Node *n = mk(N_SWITCH, t->loc);
+        n->a = paren_cond();
+        n->b = parse_stmt();
+        return n;
+    }
+    case K_CASE: {
+        next();
+        Node *n = mk(N_CASE, t->loc);
+        n->a = parse_ternary();
+        if (accept(P_ELLIPSIS)) n->b = parse_ternary();
+        expect(P_COLON, "':' after case value");
+        return n;
+    }
+    case K_DEFAULT:
+        next();
+        expect(P_COLON, "':' after default");
+        return mk(N_DEFAULT, t->loc);
+    case K_BREAK:
+        next();
+        end_expr_stmt();
+        return mk(N_BREAK, t->loc);
+    case K_CONTINUE:
+        next();
+        end_expr_stmt();
+        return mk(N_CONTINUE, t->loc);
+    case K_RETURN: {
+        next();
+        Node *n = mk(N_RETURN, t->loc);
+        if (!at(P_SEMI) && !(P.in_arm && (at(P_COMMA) || at(P_RBRACE))))
+            n->a = at(P_LBRACE) ? parse_initializer() : P.in_arm ? parse_assign() : parse_expr();
+        end_expr_stmt();
+        return n;
+    }
+    case K_GOTO: {
+        next();
+        Node *n = mk(N_GOTO, t->loc);
+        n->name = xstrdup(expect(T_IDENT, "a label")->text);
+        expect(P_SEMI, "';'");
+        return n;
+    }
+    case K_STATIC_ASSERT: {
+        next();
+        Node *n = mk(N_STATIC_ASSERT, t->loc);
+        expect(P_LPAREN, "'('");
+        n->a = parse_assign();
+        if (accept(P_COMMA)) n->b = parse_assign();
+        expect(P_RPAREN, "')'");
+        expect(P_SEMI, "';'");
+        return n;
+    }
+    default:
+        break;
+    }
+    if (t->kind == T_IDENT && peek_at(1)->kind == P_COLON) {
+        next();
+        next();
+        Node *n = mk(N_LABEL, t->loc);
+        n->name = xstrdup(t->text);
+        n->a = at(P_RBRACE) ? mk(N_EMPTY, t->loc) : parse_stmt();
+        return n;
+    }
+    if (match_ahead()) return parse_match();
+    if (defer_ahead()) {
+        next();
+        Node *n = mk(N_DEFER, t->loc);
+        n->a = parse_stmt();
+        return n;
+    }
+    if (is_decl_start()) return parse_local_decls();
+    return expr_stmt();
+}

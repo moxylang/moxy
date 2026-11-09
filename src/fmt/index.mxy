@@ -1,0 +1,6 @@
+#include "conf/index.mxy"
+
+/* reformat Moxy source; line breaks are kept, spacing and indentation normalized */
+char *fmt_source(const char *src, const MoxyConfig *cfg);
+
+#include "fmt.mxy"

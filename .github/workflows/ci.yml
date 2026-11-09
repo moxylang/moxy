@@ -19,6 +19,9 @@ jobs:
       - name: Build
         run: make -j4
 
+      - name: Verify self-hosting
+        run: make verify
+
       - name: Test
         run: ./build/moxy test tests
 

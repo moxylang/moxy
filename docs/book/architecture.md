@@ -35,15 +35,15 @@ The lexer produces tokens with source locations. Notes:
 
 ### 3. Parse (`src/parse`)
 
-The parser is a recursive-descent parser for C11 declarations and statements plus Moxy syntax, producing one AST (`src/ast/ast.h`). Nothing is passed through as raw text: everything is parsed, so typos are reported at the right place.
+The parser is a recursive-descent parser for C11 declarations and statements plus Moxy syntax, producing one AST (`src/ast/index.mxy`). Nothing is passed through as raw text: everything is parsed, so typos are reported at the right place.
 
 | File | Contents |
 |---|---|
-| `state.c` | token cursor, and the type-name table: a prescan registers every struct, union and enum tag, typedef and `@type` name, so declarations parse before their types are defined |
-| `types.c` | declaration specifiers, C declarators (pointers, arrays, nested function pointers), Moxy types, struct and enum bodies |
-| `expr.c` | precedence climbing, casts and compound literals, lambdas, interpolation (sub-lexed), pipes desugared to calls |
-| `stmt.c` | statements, `for`-in, `match` arms and patterns, `defer`, labels |
-| `top.c` | declarations, namespaces, `using`, and conditional directives |
+| `state.mxy` | token cursor, and the type-name table: a prescan registers every struct, union and enum tag, typedef and `@type` name, so declarations parse before their types are defined |
+| `types.mxy` | declaration specifiers, C declarators (pointers, arrays, nested function pointers), Moxy types, struct and enum bodies |
+| `expr.mxy` | precedence climbing, casts and compound literals, lambdas, interpolation (sub-lexed), pipes desugared to calls |
+| `stmt.mxy` | statements, `for`-in, `match` arms and patterns, `defer`, labels |
+| `top.mxy` | declarations, namespaces, `using`, and conditional directives |
 
 Each top-level declaration records the preprocessor condition it sits under, for example `defined(DEBUG) && !(X)`, so code generation can reproduce `#if` blocks around everything it emits, even after reordering.
 
@@ -53,12 +53,12 @@ Sema resolves every name and computes a type for every expression.
 
 | File | Contents |
 |---|---|
-| `scope.c` | scope stack and namespace scopes; captures are recorded on lambdas when a name resolves to an enclosing function's local |
-| `resolve.c` | type syntax to `Type`; struct, union and enum registration; typedefs |
-| `decl.c` | three passes: declare everything, resolve signatures and fields, then check initializers and bodies |
-| `expr.c`, `init.c`, `call.c`, `method.c` | expressions, initializer lists, calls and enum constructors, builtin methods on `string`, lists, maps and `Result` |
-| `conv.c` | assignability; inserts `N_CONV` nodes for implicit conversions (C string to `string`, function to closure, capture-free lambda to C function pointer) |
-| `stmt.c`, `match.c`, `lambda.c` | statements, exhaustiveness checking, lambda return inference, lint checks |
+| `scope.mxy` | scope stack and namespace scopes; captures are recorded on lambdas when a name resolves to an enclosing function's local |
+| `resolve.mxy` | type syntax to `Type`; struct, union and enum registration; typedefs |
+| `decl.mxy` | three passes: declare everything, resolve signatures and fields, then check initializers and bodies |
+| `expr.mxy`, `init.mxy`, `call.mxy`, `method.mxy` | expressions, initializer lists, calls and enum constructors, builtin methods on `string`, lists, maps and `Result` |
+| `conv.mxy` | assignability; inserts `N_CONV` nodes for implicit conversions (C string to `string`, function to closure, capture-free lambda to C function pointer) |
+| `stmt.mxy`, `match.mxy`, `lambda.mxy` | statements, exhaustiveness checking, lambda return inference, lint checks |
 
 Identifiers that Moxy can't resolve are treated as C (`TY_UNKNOWN`): they pass through, and the C compiler checks them. Values of unknown type can't become lists, maps or other managed values.
 
@@ -79,27 +79,27 @@ program: functions with #line directives
 
 Functions are generated first and type definitions last, so every type a function needs (such as `Result<Point>`) is known when the types section is written.
 
-**Expressions** (`expr.c`, `call.c`, `lvalue.c`) return the C text plus whether the value is *owned* (+1) or *borrowed* (+0). Each statement has a context holding a prelude (statements that must run first) and temporaries to release afterwards. `&&`, `||` and `?:` with preludes on one side are lowered to `if` statements to keep short-circuit evaluation.
+**Expressions** (`expr.mxy`, `call.mxy`, `lvalue.mxy`) return the C text plus whether the value is *owned* (+1) or *borrowed* (+0). Each statement has a context holding a prelude (statements that must run first) and temporaries to release afterwards. `&&`, `||` and `?:` with preludes on one side are lowered to `if` statements to keep short-circuit evaluation.
 
-**Statements** (`stmt.c`, `loop.c`, `match.c`) keep a stack of cleanup scopes (managed locals and `defer` statements):
+**Statements** (`stmt.mxy`, `loop.mxy`, `match.mxy`) keep a stack of cleanup scopes (managed locals and `defer` statements):
 
 - leaving a block releases its scope;
 - `return` releases all scopes, moving out a returned local;
 - `break` and `continue` release only the scopes they leave.
 
-**Types and helpers** (`types.c`, `helpers.c`): user structs, tagged enums and `Result<T>` structs are emitted in dependency order. Every type that is stored in a collection or printed gets a *value witness*, a table of copy, drop, equality, hash, compare and format functions. That lets one runtime implementation of lists and maps serve every element type.
+**Types and helpers** (`types.mxy`, `helpers.mxy`): user structs, tagged enums and `Result<T>` structs are emitted in dependency order. Every type that is stored in a collection or printed gets a *value witness*, a table of copy, drop, equality, hash, compare and format functions. That lets one runtime implementation of lists and maps serve every element type.
 
-**Functions** (`func.c`):
+**Functions** (`func.mxy`):
 
 - Lambdas become functions that take their closure as the first argument; captured variables live in an environment struct after the closure header.
 - Named functions used as closures get a thunk and a static, immortal closure object.
 - `Future<T>` functions are split into a body, an argument struct, a thread entry, and a launcher that returns the future handle.
 
-**Libraries** (`header.c`): library builds also write a C header exposing plain structs and the functions whose signatures C can express.
+**Libraries** (`header.mxy`): library builds also write a C header exposing plain structs and the functions whose signatures C can express.
 
 ### 6. Runtime (`runtime/*.h`)
 
-The runtime is C, embedded into every generated program (`scripts/genembed.sh` turns it into `src/embed/embed.c`). All functions are `static`, so separate translation units never collide.
+The runtime is C, embedded into every generated program (`scripts/genembed.sh` turns it into `src/embed/data.mxy`). All functions are `static`, so separate translation units never collide.
 
 | File | Contents |
 |---|---|
@@ -113,26 +113,43 @@ The runtime is C, embedded into every generated program (`scripts/genembed.sh` t
 | `future.h` | thread-per-call futures |
 | `process.h` | `args()`, assertions, file reading |
 
-## Command line (`src/cli`, `src/main.c`)
+## Command line (`src/cli`, `src/main.mxy`)
 
-`main.c` handles the commands that work on files (`moxy file.mxy`, `run file.mxy`, `build file.mxy`, `check`, `test`, `fmt`, `lint`, `emit`), and hands everything else to `goose_main`. `-p member` changes into a workspace member first.
+`main.mxy` handles the commands that work on files (`moxy file.mxy`, `run file.mxy`, `build file.mxy`, `check`, `test`, `fmt`, `lint`, `emit`), and hands everything else to `goose_main`. `-p member` changes into a workspace member first.
 
 | File | Contents |
 |---|---|
-| `project.c` | the goose callbacks: `on_build` compiles the entry file (`src/main.mxy`, or `src/lib.mxy` for libraries) with include paths from configured includes and dependencies, adds extra C sources and dependency C sources, and links or archives; also `on_run`, `on_test`, `on_install`, the `new` template, and the `build:` keys `cc`, `cflags`, `ldflags` |
-| `compile.c` (also) | `source_dirs` lists the directory of every loaded `.mxy` file; builds pass them as `-I` so C headers next to sources resolve |
-| `test.c` | finds tests, compiles each in-process, runs it, and compares against `.out`, `.code` or `.err` files |
-| `compile.c` | the pipeline in one call; errors jump back with `longjmp` instead of exiting, so one bad file doesn't stop a test run |
+| `project.mxy` | the goose callbacks: `on_build` compiles the entry file (`src/main.mxy`, or `src/lib.mxy` for libraries) with include paths from configured includes and dependencies, adds extra C sources and dependency C sources, and links or archives; also `on_run`, `on_test`, `on_install`, the `new` template, and the `build:` keys `cc`, `cflags`, `ldflags` |
+| `compile.mxy` (also) | `source_dirs` lists the directory of every loaded `.mxy` file; builds pass them as `-I` so C headers next to sources resolve |
+| `test.mxy` | finds tests, compiles each in-process, runs it, and compares against `.out`, `.code` or `.err` files |
+| `compile.mxy` | the pipeline in one call; errors jump back with `longjmp` instead of exiting, so one bad file doesn't stop a test run |
 
 ## Formatter and linter
 
 - `src/fmt` is token-based: it keeps your line breaks and comments, and normalizes spacing and indentation. It is idempotent.
 - The linter runs sema with lint flags (unused variables, shadowing, empty blocks); `moxyfmt.yaml` toggles them.
 
+## Self-hosting
+
+The compiler is written in Moxy. Each directory under `src/` is a module: `index.mxy` holds its types and declarations and includes the module's implementation files, and `src/main.mxy` pulls in the rest. The whole compiler is one translation unit, so `static` names must be unique across `src/`.
+
+`bootstrap/moxy.c` is the C that an earlier `moxy` generated from `src/`. `make` builds from it in three steps:
+
+| Step | Built from | By |
+|---|---|---|
+| `build/stage0/moxy` | `bootstrap/moxy.c` | `$(HOSTCC)` |
+| `build/stage1/moxy` | `src/` | stage0, then `$(HOSTCC)` |
+| `build/moxy` | `src/` | stage1, then `$(CC)` |
+
+The bootstrap stages always build for the host, so `CC`, `CFLAGS` and `LDFLAGS` only affect `build/moxy`, and cross builds work as before. `make verify` checks that `build/moxy` regenerates exactly the C it was built from. `make seed` copies that C to `bootstrap/moxy.c`.
+
+`src/` may only use features that the compiler in `bootstrap/moxy.c` understands. To use a new language feature in the compiler itself, land the feature, run `make seed`, then use it. If a change breaks the compiler's ability to build itself, `bootstrap/moxy.c` is the known-good starting point.
+
 ## Testing the compiler
 
 ```sh
 make test                                          # build, then run tests/ and examples
+make verify                                        # build/moxy reproduces its own C
 make sanitize && ./build/asan/moxy test --sanitize tests
 ```
 

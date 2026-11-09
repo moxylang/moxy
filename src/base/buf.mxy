@@ -1,0 +1,66 @@
+#include "index.mxy"
+
+#include <stdio.h>
+#include <string.h>
+
+static void reserve(Buf *b, size_t extra) {
+    if (b->len + extra + 1 <= b->cap) return;
+    size_t cap = b->cap ? b->cap : 64;
+    while (cap < b->len + extra + 1) cap *= 2;
+    b->data = xrealloc(b->data, cap);
+    b->cap = cap;
+}
+
+void buf_putn(Buf *b, const char *s, size_t n) {
+    reserve(b, n);
+    memcpy(b->data + b->len, s, n);
+    b->len += n;
+    b->data[b->len] = '\0';
+}
+
+void buf_put(Buf *b, const char *s) {
+    buf_putn(b, s, strlen(s));
+}
+
+void buf_putc(Buf *b, char c) {
+    buf_putn(b, &c, 1);
+}
+
+void buf_vfmt(Buf *b, const char *fmt, va_list ap) {
+    if (!fmt) return;
+    va_list cp;
+    va_copy(cp, ap);
+    char probe[1];
+    int n = vsnprintf(probe, sizeof(probe), fmt, cp);
+    va_end(cp);
+    if (n <= 0) return;
+    reserve(b, (size_t)n);
+    vsnprintf(b->data + b->len, (size_t)n + 1, fmt, ap);
+    b->len += (size_t)n;
+}
+
+void buf_fmt(Buf *b, const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    buf_vfmt(b, fmt, ap);
+    va_end(ap);
+}
+
+const char *buf_str(Buf *b) {
+    if (!b->data) reserve(b, 0), b->data[0] = '\0';
+    return b->data;
+}
+
+char *buf_take(Buf *b) {
+    buf_str(b);
+    char *p = b->data;
+    b->data = NULL;
+    b->len = b->cap = 0;
+    return p;
+}
+
+void buf_free(Buf *b) {
+    free(b->data);
+    b->data = NULL;
+    b->len = b->cap = 0;
+}

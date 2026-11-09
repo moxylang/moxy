@@ -43,9 +43,17 @@ MXY_INLINE mxy_str mxy_str_retain(mxy_str s) {
     return s;
 }
 
+/* literals are immortal (rc < 0) and never reach free(); gcc cannot see through the atomic check */
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfree-nonheap-object"
+#endif
 MXY_INLINE void mxy_str_release(mxy_str s) {
     if (s && mxy_rc_dec(&MXY_STRHDR(s)->rc)) free(MXY_STRHDR(s));
 }
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 
 MXY_INLINE int64_t mxy_str_len(mxy_str s) { return s ? MXY_STRHDR(s)->len : 0; }
 

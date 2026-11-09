@@ -1,0 +1,9 @@
+/* standard library modules, keyed by include path ("std/io.mxy") */
+const char *embed_std(const char *path);
+const char *embed_std_name(int index);
+int embed_std_count(void);
+
+/* the C runtime prepended to every generated program */
+const char *embed_runtime(void);
+
+#include "data.mxy"

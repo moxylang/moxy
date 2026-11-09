@@ -48,10 +48,13 @@ A rewrite of the compiler and runtime. Most 0.2 programs compile unchanged; the 
 - No fixed-size limits in the compiler: programs of any size, any number of declarations, statements, list items, enum variants, parameters, or string length.
 - List indexing is bounds-checked, and missing map keys panic with the key, instead of reading garbage.
 - A managed local declared directly under a `case` label, or a managed field in a union, is a compile error.
+- `p->field` works when `p` points to a type from a C header, as it does for values of those types.
+- `_Noreturn` is kept in the generated C, and assignments used as conditions keep their parentheses, so the generated C compiles without warnings under `-Wall -Wextra`.
 
 ### Tooling
 
 - `moxy` is the only executable: goose is linked in as a library. Build moxy with `make`.
+- The compiler is written in Moxy and compiles itself. `make` bootstraps from `bootstrap/moxy.c`, so building from source still needs only a C compiler; `make verify` checks that the result reproduces itself exactly.
 - `moxy test` runs `tests/**/*.mxy` and `*.test.mxy`, with `.out`, `.code` and `.err` expectations and `--sanitize`. The `_test.mxy` naming still works.
 - `moxy check`, `moxy emit`, `moxy run -- args`, and `-p member` for workspaces.
 - Library projects build `lib<name>.a` plus a C header.

@@ -1,0 +1,187 @@
+#include <string.h>
+
+#include "diag/index.mxy"
+#include "index.mxy"
+
+Type *check_init(Node **slot, Type *t);
+
+static const char *last_segment(const char *path) {
+    const char *last = path;
+    for (const char *p = path; (p = strstr(p, "::")); p += 2) last = p + 2;
+    return last;
+}
+
+static void bind(Node *arm, int i, Type *t) {
+    Node *b = arm->list.items[i];
+    if (strcmp(b->name, "_") == 0) return;
+    Sym *s = sym_new(S_VAR, b->name, b->loc);
+    s->type = t;
+    s->owner = cur_fn;
+    b->sym = s;
+    b->type = t;
+    scope_declare(cur_scope, s);
+}
+
+static void arm_body(Node *arm) {
+    check_stmt(arm->a);
+}
+
+static int variant_index(Type *e, Node *v) {
+    Type *u = type_unqual(e);
+    for (int i = 0; i < u->decl->list.len; i++)
+        if (u->decl->list.items[i] == v) return i;
+    return -1;
+}
+
+static void match_enum(Node *n, Type *t) {
+    Type *u = type_unqual(t);
+    int nv = u->decl->list.len;
+    int *seen = xcalloc((size_t)nv + 1, sizeof(int));
+    int wildcard = 0;
+    for (int i = 0; i < n->list.len; i++) {
+        Node *arm = n->list.items[i];
+        scope_push(SC_BLOCK);
+        if (wildcard) diag_warn(arm->loc, "unreachable match arm after '_'");
+        if (strcmp(arm->name ? arm->name : "", "_") == 0) {
+            wildcard = 1;
+        } else {
+            const char *vname = NULL;
+            if (arm->name) {
+                vname = last_segment(arm->name);
+                if (strchr(arm->name, ':')) {
+                    char *prefix = xstrndup(arm->name, strlen(arm->name) - strlen(vname) - 2);
+                    Sym *es = lookup_quiet(prefix);
+                    if (!es || !es->type || !type_eq(es->type, t))
+                        diag_error(arm->loc, "pattern '%s' does not belong to %s", arm->name, u->name);
+                    free(prefix);
+                }
+            } else if (arm->b && arm->b->kind == N_IDENT) {
+                vname = arm->b->name;
+                arm->name = xstrdup(vname);
+                arm->b = NULL;
+            }
+            Node *v = vname ? find_variant(t, vname) : NULL;
+            if (!v) {
+                diag_error(arm->loc, "%s has no variant '%s'", u->name, vname ? vname : "?");
+            } else {
+                int idx = variant_index(t, v);
+                if (seen[idx]) diag_warn(arm->loc, "%s::%s is matched more than once", u->name, v->name);
+                seen[idx] = 1;
+                arm->d = v;
+                arm->op = idx;
+                if (arm->list.len > v->params.len)
+                    diag_error(arm->loc, "%s::%s carries %d value%s, the pattern binds %d", u->name, v->name,
+                               v->params.len, v->params.len == 1 ? "" : "s", arm->list.len);
+                for (int k = 0; k < arm->list.len && k < v->params.len; k++)
+                    bind(arm, k, v->params.items[k].type->resolved);
+            }
+        }
+        arm_body(arm);
+        scope_pop();
+    }
+    if (!wildcard) {
+        Buf missing = {0};
+        for (int i = 0; i < nv; i++) {
+            if (seen[i]) continue;
+            Node *v = u->decl->list.items[i];
+            buf_fmt(&missing, "%s%s::%s", missing.len ? ", " : "", u->name, v->name);
+        }
+        if (missing.len) {
+            diag_error(n->loc, "match is not exhaustive; missing %s", buf_str(&missing));
+            diag_hint("add the missing arms or a '_ =>' arm");
+        }
+        buf_free(&missing);
+    }
+    free(seen);
+}
+
+static void match_result(Node *n, Type *t) {
+    Type *u = type_unqual(t);
+    int ok = 0, err = 0, wildcard = 0;
+    for (int i = 0; i < n->list.len; i++) {
+        Node *arm = n->list.items[i];
+        scope_push(SC_BLOCK);
+        const char *name = arm->name ? arm->name : "";
+        if (strcmp(name, "_") == 0) {
+            wildcard = 1;
+        } else if (strcmp(name, "Ok") == 0) {
+            ok = 1;
+            arm->op = 0;
+            if (arm->list.len > 1) diag_error(arm->loc, "Ok binds one value");
+            if (arm->list.len && type_unqual(u->base)->kind != TY_VOID) bind(arm, 0, u->base);
+        } else if (strcmp(name, "Err") == 0) {
+            err = 1;
+            arm->op = 1;
+            if (arm->list.len > 1) diag_error(arm->loc, "Err binds one message");
+            if (arm->list.len) bind(arm, 0, ty_string);
+        } else {
+            diag_error(arm->loc, "patterns for a Result are Ok(value), Err(message) and _");
+        }
+        arm_body(arm);
+        scope_pop();
+    }
+    if (!wildcard && !(ok && err)) {
+        diag_error(n->loc, "match is not exhaustive; missing %s", ok ? "Err(...)" : err ? "Ok(...)" : "Ok and Err");
+        diag_hint("add the missing arm or a '_ =>' arm");
+    }
+}
+
+static void match_values(Node *n, Type *t) {
+    Type *u = type_unqual(t);
+    int wildcard = 0, has_true = 0, has_false = 0;
+    for (int i = 0; i < n->list.len; i++) {
+        Node *arm = n->list.items[i];
+        scope_push(SC_BLOCK);
+        if (arm->name && strcmp(arm->name, "_") == 0) {
+            wildcard = 1;
+        } else if (!arm->b) {
+            diag_error(arm->loc, "this pattern does not fit a value of this type");
+        } else {
+            Type *pt = check_expr(&arm->b, t);
+            if (u->kind == TY_STRING) {
+                coerce(&arm->b, ty_string, "pattern");
+            } else if (!type_is_unknownish(u) && !type_is_unknownish(pt) &&
+                       !(type_is_integer(pt) && type_is_integer(u)) && !type_eq(pt, u)) {
+                char *a = type_str(pt), *b = type_str(t);
+                diag_error(arm->b->loc, "pattern of type %s cannot match %s", a, b);
+                free(a);
+                free(b);
+            }
+            if (arm->b->kind == N_BOOL) {
+                if (arm->b->op) has_true = 1;
+                else has_false = 1;
+            }
+        }
+        arm_body(arm);
+        scope_pop();
+    }
+    int exhaustive = wildcard || (u->kind == TY_BOOL && has_true && has_false);
+    if (!exhaustive) {
+        diag_error(n->loc, "match on %s needs a '_ =>' arm", u->kind == TY_STRING ? "strings" : "this value");
+    }
+}
+
+void check_match(Node *n) {
+    Type *t = check_expr(&n->a, NULL);
+    Type *u = type_unqual(t);
+    switch (u->kind) {
+    case TY_ENUM:
+        match_enum(n, t);
+        break;
+    case TY_RESULT:
+        match_result(n, t);
+        break;
+    default:
+        if (type_is_integer(u) || u->kind == TY_STRING || type_is_unknownish(u) || type_is_float(u)) {
+            match_values(n, t);
+            break;
+        }
+        {
+            char *s = type_str(t);
+            diag_error(n->a->loc, "cannot match on a value of type %s", s);
+            free(s);
+        }
+        break;
+    }
+    if (type_is_managed(t)) cur_fn->has_cleanup = 1;
+}

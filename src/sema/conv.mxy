@@ -1,0 +1,194 @@
+#include <string.h>
+
+#include "diag/index.mxy"
+#include "index.mxy"
+
+Node *wrap_conv(Node *n, Type *to, int kind) {
+    Node *c = node_new(N_CONV, n->loc);
+    c->a = n;
+    c->type = to;
+    c->op = kind;
+    return c;
+}
+
+static int sig_match(Type *a, Type *b) {
+    a = type_unqual(a);
+    b = type_unqual(b);
+    if (!type_eq(a->base, b->base) || a->params.len != b->params.len) return 0;
+    for (int i = 0; i < a->params.len; i++)
+        if (!type_eq(a->params.items[i], b->params.items[i])) return 0;
+    return 1;
+}
+
+int assignable(Type *to, Type *from) {
+    Type *t = type_unqual(to), *f = type_unqual(from);
+    if (!t || !f || type_eq(t, f)) return 1;
+    if (t->kind == TY_UNKNOWN || t->kind == TY_NAMED) return 1;
+    if (type_is_arith(t) && type_is_arith(f)) return 1;
+    return 0;
+}
+
+static Type *func_of(Type *t) {
+    t = type_unqual(t);
+    if (t->kind == TY_FUNC) return t;
+    if (t->kind == TY_PTR && type_unqual(t->base)->kind == TY_FUNC) return type_unqual(t->base);
+    return NULL;
+}
+
+int coerce(Node **slot, Type *to, const char *what) {
+    Node *n = *slot;
+    Type *from = n->type;
+    if (!to || !from) return 1;
+    Type *t = type_unqual(to), *f = type_unqual(from);
+    if (t->kind == TY_UNKNOWN || type_eq(t, f)) return 1;
+    switch (t->kind) {
+    case TY_STRING:
+        if (f->kind == TY_NULL) return 1;
+        if (type_is_char_ptr(f) || f->kind == TY_UNKNOWN || f->kind == TY_NAMED) {
+            *slot = wrap_conv(n, to, CV_CSTR_TO_STR);
+            return 1;
+        }
+        break;
+    case TY_LIST: case TY_MAP: case TY_FUTURE:
+        if (f->kind == TY_NULL) return 1;
+        break;
+    case TY_CLOSURE: {
+        if (f->kind == TY_NULL) return 1;
+        Type *fn = func_of(f);
+        if (fn && sig_match(t, fn)) {
+            *slot = wrap_conv(n, to, CV_FN_TO_CLOSURE);
+            return 1;
+        }
+        break;
+    }
+    case TY_STRUCT:
+        if (t->is_ref && f->kind == TY_NULL) return 1;
+        if (f->kind == TY_UNKNOWN || f->kind == TY_NAMED) return 1;
+        if (!t->decl && f->kind == TY_STRUCT && f->name && t->name && strcmp(f->name, t->name) == 0) return 1;
+        break;
+    case TY_ENUM:
+        if (t->simple && (type_is_integer(f) || type_is_unknownish(f))) return 1;
+        break;
+    case TY_PTR: {
+        Type *tb = type_unqual(t->base);
+        if (f->kind == TY_STRING && (type_is_char_ptr(t) || tb->kind == TY_VOID)) return 1;
+        if (f->kind == TY_CLOSURE && n->kind == N_LAMBDA && tb->kind == TY_FUNC) {
+            if (n->captures.len) {
+                diag_error(n->loc, "%s: this lambda captures '%s' and cannot become a plain C function pointer",
+                           what, n->captures.items[0]->name);
+                diag_hint("declare the parameter as a closure, e.g. fn(int) -> int, to accept capturing lambdas");
+                return 0;
+            }
+            n->builtin = 1;
+            *slot = wrap_conv(n, to, CV_LAMBDA_FNPTR);
+            return 1;
+        }
+        if (f->kind == TY_STRUCT && f->is_ref && tb->kind == TY_VOID) return 1;
+        if (type_is_ptrlike(f) || type_is_integer(f) || type_is_unknownish(f)) return 1;
+        break;
+    }
+    case TY_NAMED:
+        if (!type_is_managed(f) || f->kind == TY_STRING) return 1;
+        break;
+    case TY_CENUM:
+        if (type_is_integer(f) || type_is_unknownish(f)) return 1;
+        break;
+    case TY_RESULT:
+        break;
+    default:
+        if (type_is_arith(t)) {
+            if (type_is_arith(f) || type_is_unknownish(f)) return 1;
+            if (t->kind == TY_BOOL && (type_is_ptrlike(f) || f->kind == TY_STRING)) return 1;
+            if (type_is_integer(t) && type_is_ptrlike(f)) return 1;
+        }
+        break;
+    }
+    if (f->kind == TY_UNKNOWN || f->kind == TY_NAMED) {
+        if (type_is_managed(t)) {
+            char *ts = type_str(to);
+            diag_error(n->loc, "%s: cannot use a C value of unknown type as %s", what, ts);
+            diag_hint("declare the C function with an extern prototype so Moxy knows its type");
+            free(ts);
+            return 0;
+        }
+        return 1;
+    }
+    char *ts = type_str(to), *fs = type_str(from);
+    diag_error(n->loc, "%s: expected %s, found %s", what, ts, fs);
+    if (t->kind == TY_STRING && type_is_arith(f)) diag_hint("convert with string(value) or use \"\\(value)\"");
+    free(ts);
+    free(fs);
+    return 0;
+}
+
+int is_lvalue(Node *n) {
+    switch (n->kind) {
+    case N_IDENT:
+        return n->sym && n->sym->kind == S_VAR;
+    case N_UNARY:
+        return n->op == P_STAR;
+    case N_INDEX:
+        return type_unqual(n->a->type)->kind != TY_STRING;
+    case N_MEMBER:
+        return n->builtin == B_NONE;
+    case N_COMPOUND:
+        return 1;
+    default:
+        return n->type && type_is_unknownish(n->type) && n->kind == N_CALL;
+    }
+}
+
+static Sym *root_sym(Node *n) {
+    for (;;) {
+        switch (n->kind) {
+        case N_IDENT:
+            return n->sym;
+        case N_MEMBER:
+            if (n->op == P_ARROW) return NULL;
+            if (n->a->type && type_unqual(n->a->type)->kind == TY_STRUCT && type_unqual(n->a->type)->is_ref)
+                return NULL;
+            n = n->a;
+            continue;
+        case N_INDEX: {
+            Type *t = type_unqual(n->a->type);
+            if (t && (t->kind == TY_LIST || t->kind == TY_MAP || t->kind == TY_ARRAY)) {
+                n = n->a;
+                continue;
+            }
+            return NULL;
+        }
+        default:
+            return NULL;
+        }
+    }
+}
+
+void mark_mutated(Node *target) {
+    Sym *s = root_sym(target);
+    if (!s || s->kind != S_VAR) return;
+    if (s->owner && s->owner != cur_fn && cur_fn && cur_fn->is_lambda) {
+        diag_error(target->loc, "cannot modify '%s' inside a lambda; captured values are copies", s->name);
+        diag_hint("copy it into a local inside the lambda, or pass it in as a parameter");
+        return;
+    }
+    s->mutated = 1;
+}
+
+/* conditions accept numbers, pointers and strings (null checks) */
+Type *check_cond(Node **slot) {
+    Type *t = check_expr(slot, NULL);
+    Type *u = type_unqual(t);
+    if (!u) return t;
+    if (u->kind == TY_VOID) {
+        diag_error((*slot)->loc, "a void value cannot be used as a condition");
+    } else if (u->kind == TY_LIST || u->kind == TY_MAP) {
+        diag_error((*slot)->loc, "a %s cannot be used as a condition", u->kind == TY_LIST ? "list" : "map");
+        diag_hint("use .is_empty() or .len");
+    } else if (u->kind == TY_STRUCT && !u->is_ref) {
+        diag_error((*slot)->loc, "a struct value cannot be used as a condition");
+    } else if (u->kind == TY_RESULT) {
+        diag_error((*slot)->loc, "a Result cannot be used as a condition");
+        diag_hint("use .is_ok() or match on it");
+    }
+    return t;
+}

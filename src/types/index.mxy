@@ -1,0 +1,104 @@
+#include "ast/index.mxy"
+
+typedef enum {
+    TY_VOID,
+    TY_BOOL,
+    TY_CHAR,
+    TY_SCHAR,
+    TY_UCHAR,
+    TY_SHORT,
+    TY_USHORT,
+    TY_INT,
+    TY_UINT,
+    TY_LONG,
+    TY_ULONG,
+    TY_LLONG,
+    TY_ULLONG,
+    TY_FLOAT,
+    TY_DOUBLE,
+    TY_LDOUBLE,
+    TY_PTR,     /* base */
+    TY_ARRAY,   /* base, len (-1 when unknown) */
+    TY_FUNC,    /* base = return, params, variadic */
+    TY_STRUCT,  /* struct or union; decl, is_union, is_ref */
+    TY_CENUM,   /* C enum (an int) */
+    TY_ENUM,    /* Moxy enum; decl (N_ENUM), simple */
+    TY_STRING,
+    TY_LIST,    /* base = element */
+    TY_MAP,     /* key, base = value */
+    TY_RESULT,  /* base */
+    TY_FUTURE,  /* base */
+    TY_CLOSURE, /* base = return, params */
+    TY_NAMED,   /* opaque C type from a header: name */
+    TY_UNKNOWN, /* value from C whose type Moxy can't see */
+    TY_NULL,    /* type of null */
+} TypeKind;
+
+typedef struct {
+    Type **items;
+    int len;
+    int cap;
+} TypeList;
+
+struct Type {
+    TypeKind kind;
+    int quals;
+    Type *base;
+    Type *key;
+    long len;
+    TypeList params;
+    int variadic;
+    char *name;   /* user-facing name */
+    char *cname;  /* C spelling for named types */
+    Node *decl;
+    int is_union;
+    int is_ref;
+    int simple;   /* Moxy enum without payloads */
+    int managed;  /* cached: -1 unknown */
+    int id;
+    Type *unqual;
+};
+
+extern Type *ty_void, *ty_bool, *ty_char, *ty_schar, *ty_uchar, *ty_short, *ty_ushort, *ty_int,
+    *ty_uint, *ty_long, *ty_ulong, *ty_llong, *ty_ullong, *ty_float, *ty_double, *ty_ldouble,
+    *ty_string, *ty_unknown, *ty_null, *ty_size;
+
+void types_init(void);
+Type *type_new(TypeKind kind);
+Type *type_ptr(Type *base);
+Type *type_array(Type *base, long len);
+Type *type_list(Type *elem);
+Type *type_map(Type *key, Type *val);
+Type *type_result(Type *inner);
+Type *type_future(Type *inner);
+Type *type_closure(Type *ret, TypeList params);
+Type *type_func(Type *ret, TypeList params, int variadic);
+Type *type_named(const char *name);
+Type *type_qual(Type *t, int quals);
+Type *type_unqual(Type *t);
+
+int type_eq(Type *a, Type *b);
+int type_is_integer(Type *t);
+int type_is_float(Type *t);
+int type_is_arith(Type *t);
+int type_is_scalar(Type *t);
+int type_is_ptrlike(Type *t);
+int type_is_char_ptr(Type *t);
+int type_is_unknownish(Type *t);
+int type_is_managed(Type *t);
+int type_is_refcounted(Type *t);
+int type_rank(Type *t);
+Type *type_common(Type *a, Type *b);
+
+/* Moxy-syntax name for diagnostics */
+char *type_str(Type *t);
+/* identifier-safe mangling ("list_int") */
+char *type_mangle(Type *t);
+/* C declaration of `name` with type t (name may be "") */
+char *type_cdecl(Type *t, const char *name);
+
+/* struct field lookup (searches anonymous members); NULL if missing */
+Node *type_field(Type *s, const char *name, Type **ftype, char **path);
+
+#include "spell.mxy"
+#include "types.mxy"

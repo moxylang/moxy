@@ -1,0 +1,319 @@
+#include <stdio.h>
+#include <string.h>
+
+#include "diag/index.mxy"
+#include "index.mxy"
+
+static const struct { const char *name; Type **type; } builtins[] = {
+    {"void", &ty_void}, {"bool", &ty_bool}, {"char", &ty_char}, {"signed char", &ty_schar},
+    {"unsigned char", &ty_uchar}, {"short", &ty_short}, {"unsigned short", &ty_ushort},
+    {"int", &ty_int}, {"unsigned int", &ty_uint}, {"long", &ty_long},
+    {"unsigned long", &ty_ulong}, {"long long", &ty_llong}, {"unsigned long long", &ty_ullong},
+    {"float", &ty_float}, {"double", &ty_double}, {"long double", &ty_ldouble},
+    {"string", &ty_string},
+};
+
+static int anon_counter;
+
+static const char *tag_word(int tag) {
+    return tag == K_UNION ? "union" : tag == K_ENUM ? "enum" : "struct";
+}
+
+static Type *typedef_type(Sym *s) {
+    if (s->type) return s->type;
+    if (!s->decl || s->decl->kind != N_TYPEDEF) return ty_unknown;
+    if (s->resolving) {
+        diag_error(s->loc, "typedef '%s' refers to itself", s->name);
+        return ty_unknown;
+    }
+    s->resolving = 1;
+    Type *t = resolve_type(s->decl->tref);
+    s->resolving = 0;
+    s->type = t;
+    return t;
+}
+
+static Type *resolve_name(TypeRef *tr) {
+    for (size_t i = 0; i < sizeof(builtins) / sizeof(builtins[0]); i++)
+        if (strcmp(builtins[i].name, tr->name) == 0) return *builtins[i].type;
+    if (strcmp(tr->name, "auto") == 0) return ty_unknown;
+    Sym *s = lookup_quiet(tr->name);
+    if (s && s->kind == S_TYPE) {
+        s->used = 1;
+        return typedef_type(s);
+    }
+    if (s && s->kind != S_TYPE && !strstr(tr->name, "::")) {
+        Sym *tag = lookup_tag(tr->name);
+        if (tag) return tag->type;
+    }
+    if (strstr(tr->name, "::")) {
+        diag_error(tr->loc, "unknown type '%s'", tr->name);
+        return ty_unknown;
+    }
+    Sym *tag = lookup_tag(tr->name);
+    if (tag && tag->type && tag->type->decl) return tag->type;
+    return type_named(tr->name);
+}
+
+static int const_eval(Node *e, long *out) {
+    if (!e) return 0;
+    long a, b;
+    switch (e->kind) {
+    case N_INT: {
+        char *end;
+        *out = strtol(e->text, &end, 0);
+        return 1;
+    }
+    case N_CHAR:
+        if (e->text[0] != '\\') {
+            *out = (unsigned char)e->text[0];
+            return 1;
+        }
+        return 0;
+    case N_UNARY:
+        if (!const_eval(e->a, &a)) return 0;
+        if (e->op == P_MINUS) *out = -a;
+        else if (e->op == P_PLUS) *out = a;
+        else if (e->op == P_TILDE) *out = ~a;
+        else return 0;
+        return 1;
+    case N_BINARY:
+        if (!const_eval(e->a, &a) || !const_eval(e->b, &b)) return 0;
+        switch (e->op) {
+        case P_PLUS: *out = a + b; return 1;
+        case P_MINUS: *out = a - b; return 1;
+        case P_STAR: *out = a * b; return 1;
+        case P_SLASH: if (!b) return 0; *out = a / b; return 1;
+        case P_PERCENT: if (!b) return 0; *out = a % b; return 1;
+        case P_SHL: *out = a << b; return 1;
+        case P_SHR: *out = a >> b; return 1;
+        case P_PIPE: *out = a | b; return 1;
+        case P_AMP: *out = a & b; return 1;
+        default: return 0;
+        }
+    default:
+        return 0;
+    }
+}
+
+char *const_text(Node *e) {
+    if (!e) return NULL;
+    char *a, *b, *r;
+    switch (e->kind) {
+    case N_INT: case N_FLOAT: return xstrdup(e->text);
+    case N_CHAR: return xfmt("'%s'", e->text);
+    case N_BOOL: return xstrdup(e->op ? "1" : "0");
+    case N_IDENT: {
+        Sym *s = lookup_quiet(e->name);
+        return xstrdup(s ? s->cname : e->name);
+    }
+    case N_UNARY:
+        a = const_text(e->a);
+        if (!a) return NULL;
+        r = xfmt("(%s%s)", tok_spell((TokKind)e->op), a);
+        free(a);
+        return r;
+    case N_BINARY:
+        a = const_text(e->a);
+        b = const_text(e->b);
+        if (!a || !b) return NULL;
+        r = xfmt("(%s %s %s)", a, tok_spell((TokKind)e->op), b);
+        free(a);
+        free(b);
+        return r;
+    case N_TERNARY: {
+        char *c = const_text(e->a);
+        a = const_text(e->b);
+        b = const_text(e->c);
+        if (!c || !a || !b) return NULL;
+        return xfmt("(%s ? %s : %s)", c, a, b);
+    }
+    case N_SIZEOF:
+        if (e->tref) {
+            a = type_cdecl(resolve_type(e->tref), "");
+            r = xfmt("sizeof(%s)", a);
+            free(a);
+            return r;
+        }
+        a = const_text(e->a);
+        return a ? xfmt("sizeof(%s)", a) : NULL;
+    case N_CAST:
+        a = type_cdecl(resolve_type(e->tref), "");
+        b = const_text(e->a);
+        if (!b) return NULL;
+        return xfmt("((%s)%s)", a, b);
+    default:
+        return NULL;
+    }
+}
+
+Type *define_struct(Node *decl, const char *typedef_name) {
+    if (decl->type) return decl->type;
+    Type *t = NULL;
+    Sym *existing = decl->name ? lookup_tag(decl->name) : NULL;
+    if (existing && existing->type && existing->type->kind == TY_STRUCT) t = existing->type;
+    if (!t) t = type_new(TY_STRUCT);
+    t->is_union = (decl->flags & F_UNION) != 0;
+    if (decl->flags & F_REF) t->is_ref = 1;
+    if (decl->name) {
+        t->name = xstrdup(decl->name);
+        t->cname = cname_for(decl->ns, decl->name);
+    } else if (typedef_name) {
+        t->name = xstrdup(typedef_name);
+        t->cname = cname_for(decl->ns, typedef_name);
+    } else {
+        t->name = xstrdup("anonymous struct");
+        t->cname = xfmt("__mxy_anon%d", ++anon_counter);
+    }
+    if (decl->flags & F_BODY) {
+        if (t->decl && t->decl != decl && (t->decl->flags & F_BODY) &&
+            !((t->decl->cond || decl->cond) && !str_eq(t->decl->cond, decl->cond)))
+            diag_error(decl->loc, "redefinition of %s '%s'", tag_word(t->is_union ? K_UNION : K_STRUCT), t->name);
+        t->decl = decl;
+        decl->type = t;
+        vec_push(prog.structs, decl);
+    } else {
+        decl->type = t;
+    }
+    if (decl->name) {
+        Sym *tag = existing ? existing : sym_new(S_TYPE, decl->name, decl->loc);
+        tag->type = t;
+        tag->cname = xstrdup(t->cname);
+        declare_tag(decl->name, tag);
+        Scope *s = ns_scope(decl->ns);
+        Sym *ord = scope_get(s, decl->name);
+        if (!ord) {
+            Sym *alias = sym_new(S_TYPE, decl->name, decl->loc);
+            alias->type = t;
+            alias->cname = xstrdup(t->cname);
+            alias->decl = decl;
+            scope_declare(s, alias);
+        }
+    }
+    return t;
+}
+
+Type *define_cenum(Node *decl) {
+    if (decl->type) return decl->type;
+    Type *t = NULL;
+    Sym *existing = decl->name ? lookup_tag(decl->name) : NULL;
+    if (existing && existing->type) t = existing->type;
+    if (!t) t = type_new(TY_CENUM);
+    t->kind = TY_CENUM;
+    t->name = xstrdup(decl->name ? decl->name : "enum");
+    t->cname = decl->name ? xfmt("enum %s", cname_for(decl->ns, decl->name)) : NULL;
+    decl->type = t;
+    if (decl->flags & F_BODY) {
+        t->decl = decl;
+        vec_push(prog.cenums, decl);
+        Scope *s = ns_scope(decl->ns);
+        for (int i = 0; i < decl->list.len; i++) {
+            Node *en = decl->list.items[i];
+            Sym *c = sym_new(S_CONST, en->name, en->loc);
+            c->type = ty_int;
+            c->cname = cname_for(decl->ns, en->name);
+            c->decl = en;
+            c->global = 1;
+            scope_declare(s, c);
+        }
+    }
+    if (decl->name) {
+        Sym *tag = existing ? existing : sym_new(S_TYPE, decl->name, decl->loc);
+        tag->type = t;
+        declare_tag(decl->name, tag);
+        Scope *s = ns_scope(decl->ns);
+        if (!scope_get(s, decl->name)) {
+            Sym *alias = sym_new(S_TYPE, decl->name, decl->loc);
+            alias->type = t;
+            scope_declare(s, alias);
+        }
+    }
+    return t;
+}
+
+static Type *resolve_tag(TypeRef *tr) {
+    if (tr->def) {
+        if (!tr->def->ns) tr->def->ns = xstrdup(cur_scope ? cur_scope->ns : "");
+        if (tr->tag == K_ENUM) return define_cenum(tr->def);
+        Type *t = define_struct(tr->def, NULL);
+        return t;
+    }
+    Sym *s = lookup_tag(tr->name);
+    if (s && s->type) return s->type;
+    Type *t = type_new(tr->tag == K_ENUM ? TY_CENUM : TY_STRUCT);
+    t->is_union = tr->tag == K_UNION;
+    t->name = xstrdup(tr->name);
+    t->cname = xfmt("%s %s", tag_word(tr->tag), tr->name);
+    Sym *tag = sym_new(S_TYPE, tr->name, tr->loc);
+    tag->type = t;
+    declare_tag(tr->name, tag);
+    return t;
+}
+
+Type *resolve_type(TypeRef *tr) {
+    if (tr->resolved) return tr->resolved;
+    Type *t;
+    switch (tr->kind) {
+    case TR_NAME:
+        t = resolve_name(tr);
+        break;
+    case TR_PTR:
+        t = type_ptr(resolve_type(tr->inner));
+        break;
+    case TR_ARRAY: {
+        Type *elem = resolve_type(tr->inner);
+        long len = -1;
+        if (tr->size && !const_eval(tr->size, &len)) len = -1;
+        t = type_array(elem, len);
+        if (len < 0 && tr->size) {
+            char *txt = const_text(tr->size);
+            if (txt) {
+                /* keep the C spelling of sizes Moxy cannot evaluate (macros) */
+                t->cname = txt;
+            } else {
+                diag_error(tr->size->loc, "array size must be a constant expression");
+            }
+        }
+        break;
+    }
+    case TR_FUNC: {
+        TypeList params = {0};
+        for (int i = 0; i < tr->params.len; i++) {
+            Type *p = resolve_type(tr->params.items[i]);
+            Type *u = type_unqual(p);
+            if (u->kind == TY_ARRAY) p = type_ptr(u->base);
+            else if (u->kind == TY_FUNC) p = type_ptr(u);
+            vec_push(params, p);
+        }
+        t = type_func(resolve_type(tr->inner), params, tr->variadic);
+        break;
+    }
+    case TR_LIST:
+        t = type_list(resolve_type(tr->inner));
+        break;
+    case TR_MAP:
+        t = type_map(resolve_type(tr->key), resolve_type(tr->inner));
+        break;
+    case TR_RESULT:
+        t = type_result(resolve_type(tr->inner));
+        break;
+    case TR_FUTURE:
+        t = type_future(resolve_type(tr->inner));
+        prog.threads = 1;
+        break;
+    case TR_CLOSURE: {
+        TypeList params = {0};
+        for (int i = 0; i < tr->params.len; i++) vec_push(params, resolve_type(tr->params.items[i]));
+        t = type_closure(resolve_type(tr->inner), params);
+        break;
+    }
+    case TR_TAG:
+        t = resolve_tag(tr);
+        break;
+    default:
+        t = ty_unknown;
+    }
+    t = type_qual(t, tr->quals & (Q_CONST | Q_VOLATILE));
+    tr->resolved = t;
+    return t;
+}
