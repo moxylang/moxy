@@ -2,7 +2,7 @@
 
 #include "internal.h"
 
-char *strip_parens(char *s);
+char *cond_text(Node *cond, char *s);
 
 static int dirty(Ctx *c) { return c->pre.len || c->temps.len; }
 
@@ -47,7 +47,7 @@ static void gen_while(Node *n, Buf *b, int indent) {
     ctx_free(&c);
     gscope_push(GS_LOOP);
     if (!complex) {
-        line_at(b, indent, n->loc, "while (%s) {", strip_parens(v));
+        line_at(b, indent, n->loc, "while (%s) {", cond_text(n->a, v));
     } else {
         line_at(b, indent, n->loc, "while (1) {");
         inline_cond(n->a, b, indent + 1);
@@ -73,7 +73,7 @@ static void gen_do(Node *n, Buf *b, int indent) {
         inline_cond(n->b, b, indent + 1);
         raw_line(b, indent, "} while (1);");
     } else {
-        raw_line(b, indent, "} while (%s);", strip_parens(v));
+        raw_line(b, indent, "} while (%s);", cond_text(n->b, v));
     }
     gscope_pop(b, indent);
 }
@@ -105,7 +105,7 @@ static void gen_for(Node *n, Buf *b, int indent) {
     gscope_push(GS_LOOP);
     char *label = step_complex ? fresh("cont") : NULL;
     vec_last(gscopes).continue_label = label;
-    line_at(b, in, n->loc, "for (; %s; %s) {", cond && !cond_complex ? strip_parens(cond) : "",
+    line_at(b, in, n->loc, "for (; %s; %s) {", cond && !cond_complex ? cond_text(n->b, cond) : "",
             step && !step_complex ? step : "");
     if (cond_complex) inline_cond(n->b, b, in + 1);
     body_in_loop(n->d, b, in + 1);

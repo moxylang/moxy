@@ -157,6 +157,12 @@ char *strip_parens(char *s) {
     if (n < 2 || s[0] != '(' || s[n - 1] != ')') return s;
     int depth = 0;
     for (size_t i = 0; i < n; i++) {
+        if (s[i] == '"' || s[i] == '\'') {
+            char q = s[i];
+            for (i++; i < n && s[i] != q; i++)
+                if (s[i] == '\\') i++;
+            continue;
+        }
         if (s[i] == '(') depth++;
         else if (s[i] == ')') depth--;
         if (depth == 0 && i < n - 1) return s;
@@ -164,13 +170,16 @@ char *strip_parens(char *s) {
     return xstrndup(s + 1, n - 2);
 }
 
+/* a condition without redundant parentheses; an assignment keeps them, as C expects */
+char *cond_text(Node *cond, char *s) { return cond->kind == N_ASSIGN ? s : strip_parens(s); }
+
 static char *cond_value(Node *cond, Buf *b, int indent) {
     Ctx c;
     ctx_init(&c, indent);
     char *v = gen_value(cond, &c);
     if (!c.pre.len && !c.temps.len) {
         ctx_free(&c);
-        return strip_parens(v);
+        return cond_text(cond, v);
     }
     char *name = fresh("c");
     char *line = xfmt("bool %s = (%s) ? 1 : 0;", name, v);

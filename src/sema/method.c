@@ -220,6 +220,7 @@ Type *check_member(Node **slot) {
         return ft;
     }
     if (type_is_unknownish(u)) return ty_unknown;
+    if (n->op == P_ARROW && u->kind == TY_PTR && type_is_unknownish(u->base)) return ty_unknown;
     char *ts = type_str(t);
     diag_error(n->loc, "%s has no field '%s'", ts, n->name);
     free(ts);

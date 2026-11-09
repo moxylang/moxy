@@ -32,10 +32,11 @@ static char *params_decl(ParamList *params, TypeList *types, int variadic, const
 }
 
 static const char *storage(Node *fn) {
+    int nr = (fn->flags & F_NORETURN) != 0;
     if (fn == prog.main) return "static ";
-    if (fn->flags & F_INLINE) return "static inline ";
-    if (fn->flags & F_STATIC) return "static ";
-    return "";
+    if (fn->flags & F_INLINE) return nr ? "static inline _Noreturn " : "static inline ";
+    if (fn->flags & F_STATIC) return nr ? "static _Noreturn " : "static ";
+    return nr ? "_Noreturn " : "";
 }
 
 static void retain_params(ParamList *params, Buf *b, int indent) {
