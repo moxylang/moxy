@@ -9,8 +9,8 @@ class Moxy < Formula
 
   # source tarballs do not include submodules, so goose is pinned here
   resource "goose" do
-    url "https://github.com/wess/goose/archive/70460c29d4148141967b122e101ac8e763232d12.tar.gz"
-    sha256 "f6040d02843d94c135ac9ed9baa2d58b61cf7ecb08854652639f186b5b425c7c"
+    url "https://github.com/wess/goose/archive/ab6f2efab9e5b8af655a6bffa39017b9b1e7fda2.tar.gz"
+    sha256 "436ebb7e90cc7c828dbd5bc10aa60369362d464f384e8ec8260b5277204b661f"
   end
 
   def install

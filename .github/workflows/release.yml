@@ -252,7 +252,7 @@ jobs:
           source=("${url}/archive/v${pkgver}.tar.gz")
           sha256sums=('SKIP')
 
-          _goose=70460c29d4148141967b122e101ac8e763232d12
+          _goose=ab6f2efab9e5b8af655a6bffa39017b9b1e7fda2
           source+=("goose.tar.gz::https://github.com/wess/goose/archive/${_goose}.tar.gz")
           sha256sums+=('SKIP')
 
