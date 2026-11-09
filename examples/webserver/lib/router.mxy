@@ -1,7 +1,7 @@
 // Route table and dispatch
 // Linear scan matching on method + path
 
-typedef void (*RouteHandler)(int, HttpRequest*);
+typedef void(*RouteHandler)(int, HttpRequest *);
 
 typedef struct {
     char method[16];

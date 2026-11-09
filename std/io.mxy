@@ -1,18 +1,35 @@
-#include <stdio.h>
-#include <stdlib.h>
+// std/io.mxy — console and file input/output
+extern string mxy_read_line();
+extern string mxy_read_file(string path, int *ok);
+extern bool mxy_write_file(string path, string data, const char *mode);
 
-void eprintln(string msg) {
-  fprintf(stderr, "%s\n", msg);
+void eprint(string msg) { fprintf(stderr, "%s\n", msg); }
+void eprintln(string msg) { eprint(msg); }
+
+// the next line from standard input, or null at end of input
+string readln() { return mxy_read_line(); }
+
+Result<string> read_file(string path) {
+    int ok = 0;
+    string data = mxy_read_file(path, &ok);
+    if (!ok) { return Err("cannot read \(path)"); }
+    return Ok(data);
 }
 
-string readln() {
-  char buf[1024];
-  if (fgets(buf, sizeof(buf), stdin) == NULL) {
-    return "";
-  }
-  int len = strlen(buf);
-  if (len > 0 && buf[len - 1] == '\n') {
-    buf[len - 1] = '\0';
-  }
-  return strdup(buf);
+Result<void> write_file(string path, string data) {
+    if (!mxy_write_file(path, data, "wb")) { return Err("cannot write \(path)"); }
+    return Ok();
+}
+
+Result<void> append_file(string path, string data) {
+    if (!mxy_write_file(path, data, "ab")) { return Err("cannot append to \(path)"); }
+    return Ok();
+}
+
+string[] read_lines(string path) {
+    Result<string> text = read_file(path);
+    match text {
+        Ok(s) => return s.lines(),
+        Err(e) => return[],
+    }
 }

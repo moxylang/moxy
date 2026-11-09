@@ -1,0 +1,2 @@
+union Bad { int a; string s; };
+void main() {}

@@ -1,0 +1,4 @@
+int main() {
+    print("exiting with 3");
+    return 3;
+}

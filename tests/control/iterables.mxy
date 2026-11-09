@@ -1,0 +1,43 @@
+// for-in works over any expression, not only variables
+struct Bag { int[] items; }
+
+int[] make(int n) {
+    int[] out = [];
+    for i in 1..=n { out.push(i * i); }
+    return out;
+}
+
+void main() {
+    int sum = 0;
+    for x in make(4) { sum += x; }
+    assert(sum == 30);
+
+    Bag bag = Bag{.items = [5, 6, 7] };
+    int count = 0;
+    for v in bag.items { count += v; }
+    assert(count == 18);
+
+    for i, v in[10, 20, 30] {
+        if (i == 2) { assert(v == 30); }
+    }
+
+    string word = "";
+    for c in "moxy".upper() { word = word + string(c); }
+    assert(word == "MOXY");
+
+    map[string, int] m = { "a": 1, "b": 2 };
+    int keys = 0;
+    for k in m.keys() { keys += k.len; }
+    assert(keys == 2);
+
+    int fixed[4] = { 1, 2, 3, 4 };
+    int acc = 0;
+    for v in fixed { acc += v; }
+    assert(acc == 10);
+
+    int inner = 0;
+    for i in 0..3 {
+        for j in i..3 { inner += 1; }
+    }
+    assert(inner == 6);
+}

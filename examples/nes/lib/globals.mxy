@@ -39,10 +39,10 @@ u8 ppu_ctrl;
 u8 ppu_mask;
 u8 ppu_status;
 u8 ppu_oamaddr;
-u16 ppu_v;    // current VRAM address (15 bits)
-u16 ppu_t;    // temporary VRAM address
-u8 ppu_x;    // fine X scroll (3 bits)
-u8 ppu_w;    // write toggle
+u16 ppu_v; // current VRAM address (15 bits)
+u16 ppu_t; // temporary VRAM address
+u8 ppu_x; // fine X scroll (3 bits)
+u8 ppu_w; // write toggle
 u8 ppu_data_buf;
 
 // PPU memory
@@ -61,7 +61,7 @@ int ppu_nmi_delay;
 // Cartridge
 static u8 prg_rom_data[524288]; // max 512KB PRG
 static u8 chr_rom_data[262144]; // max 256KB CHR
-static u8 chr_ram[8192];        // 8KB CHR-RAM for mapper 0 w/o CHR-ROM
+static u8 chr_ram[8192]; // 8KB CHR-RAM for mapper 0 w/o CHR-ROM
 int prg_size;
 int chr_size;
 int chr_is_ram;

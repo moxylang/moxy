@@ -55,20 +55,20 @@ void render_input() {
     //   Up/Down/Left/Right = Arrow keys
     const u8 *keys = SDL_GetKeyboardState(NULL);
     ctrl_state = 0;
-    if (keys[SDL_SCANCODE_Z])      { ctrl_state |= 0x01; } // A
-    if (keys[SDL_SCANCODE_X])      { ctrl_state |= 0x02; } // B
+    if (keys[SDL_SCANCODE_Z]) { ctrl_state |= 0x01; } // A
+    if (keys[SDL_SCANCODE_X]) { ctrl_state |= 0x02; } // B
     if (keys[SDL_SCANCODE_RSHIFT]) { ctrl_state |= 0x04; } // Select
     if (keys[SDL_SCANCODE_RETURN]) { ctrl_state |= 0x08; } // Start
-    if (keys[SDL_SCANCODE_UP])     { ctrl_state |= 0x10; } // Up
-    if (keys[SDL_SCANCODE_DOWN])   { ctrl_state |= 0x20; } // Down
-    if (keys[SDL_SCANCODE_LEFT])   { ctrl_state |= 0x40; } // Left
-    if (keys[SDL_SCANCODE_RIGHT])  { ctrl_state |= 0x80; } // Right
+    if (keys[SDL_SCANCODE_UP]) { ctrl_state |= 0x10; } // Up
+    if (keys[SDL_SCANCODE_DOWN]) { ctrl_state |= 0x20; } // Down
+    if (keys[SDL_SCANCODE_LEFT]) { ctrl_state |= 0x40; } // Left
+    if (keys[SDL_SCANCODE_RIGHT]) { ctrl_state |= 0x80; } // Right
     if (keys[SDL_SCANCODE_ESCAPE]) { nes_running = 0; }
 }
 
 void render_cleanup() {
-    if (nes_texture)  { SDL_DestroyTexture(nes_texture); }
+    if (nes_texture) { SDL_DestroyTexture(nes_texture); }
     if (nes_renderer) { SDL_DestroyRenderer(nes_renderer); }
-    if (nes_window)   { SDL_DestroyWindow(nes_window); }
+    if (nes_window) { SDL_DestroyWindow(nes_window); }
     SDL_Quit();
 }

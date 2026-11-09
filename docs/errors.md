@@ -1,603 +1,236 @@
-# Moxy Error Reference
+# Diagnostics
 
-Moxy produces Rust-style diagnostics with source snippets, caret pointers, and color-coded labels. Every error follows this format:
+Moxy checks your program before any C is generated, and reports problems like this:
 
 ```
-error: <message>
-  --> file.mxy:12:5
+error: match is not exhaustive; missing Color::Blue
+  --> src/main.mxy:4:5
    |
-12 | some code here
-   |     ^
-  = help: <suggestion>
+ 4 |     match c {
+   |     ^^^^^
+  = help: add the missing arms or a '_ =>' arm
 ```
 
-Errors are printed to stderr and cause the compiler to exit with code 1. Warnings are non-fatal but still printed with source context.
+- **error** stops compilation with exit code 1. A syntax error stops at the first one; type errors are all reported, followed by a count.
+- **warning** is printed and compilation continues.
+- **note** points at a related location, such as the first definition of a duplicate.
+- **help** lines suggest a fix.
 
----
+The path is relative to the current directory, and errors inside included files name that file and its line. Colors are used when stderr is a terminal (set `NO_COLOR` to disable them).
 
-## Parse Errors
+**Errors from the C compiler.** Names Moxy doesn't know are assumed to come from C headers. When one of them is wrong (a misspelled C function, a wrong argument to a C API), the C compiler reports it. The generated code carries `#line` directives, so those messages also point at your `.mxy` file and line.
 
-### `expected X, found Y`
+**Runtime errors.** Bounds and key checks happen at run time and stop the program with a *panic* (exit code 101). A failed `assert` exits with code 1. See [Runtime panics](#runtime-panics).
 
-The generic token-mismatch error. The parser expected one token kind but found another. Several specific cases produce tailored hints.
+In the messages below, `<name>`, `<type>` and `<n>` stand for the actual values. Types are written in Moxy syntax: `int[]`, `map[string, int]`, `Result<int>`, `fn(int) -> int`.
 
-#### `expected ';', found ','`
+## Lexing and includes
 
-**Hint:** `in match arms, wrap statements in braces: { statement; }`
+| Message | Cause |
+|---|---|
+| `unterminated string literal` | a string has no closing `"` on its line; strings can't span lines (use `"a\n"` or adjacent literals) |
+| `unterminated character literal` | a `'` without its closing `'` |
+| `unterminated block comment` | `/*` without `*/` |
+| `unexpected character '<c>'` | a byte that isn't part of the language, often a stray Unicode character |
+| `unterminated '\(' in string interpolation` | `"\(x"` is missing the closing `)` |
+| `unexpected <token> in interpolation` | `"\(a b)"`: the interpolated part must be one expression |
+| `cannot find '<file>'` | `#include "x.mxy"` wasn't found next to the including file, in an include directory or dependency, or in the standard library |
+| `cannot read '<file>'` | the file exists but couldn't be read |
 
-**Cause:** Using a comma where a semicolon is needed, usually inside a match arm that contains a statement rather than a simple expression.
+## Syntax
 
-```mxy
-// bad
-match result {
-    Ok(v) => print(v),   // comma after statement
-}
+| Message | Cause |
+|---|---|
+| `expected <thing>, found <token>` | the general parse error; the most common case is `expected ';'`, which points just after the previous token and suggests adding `;` |
+| `unclosed '{' — reached end of file` | a block was never closed |
+| `unexpected '<token>' in expression` | an expression was expected, for example `int x = ;` |
+| `unexpected end of file in expression` | the file ended mid-expression |
+| `expected a declaration` | something at file level that isn't a declaration, function or directive |
+| `expected a name in declaration, found '<token>'` | e.g. `int = 5;` |
+| `expected a name or '{' after 'struct'` | `struct` with neither a tag nor a body |
+| `expected a type`, `expected a parameter type`, `expected a field declaration` | a type was required here |
+| `functions cannot be defined inside other functions` | nested function definitions; use a lambda |
+| `lambda parameters need names` | `(int) => ...` should be `(int x) => ...` |
+| `expected a function call after '\|>'` | the right side of a pipe must be a call, a name or a member |
+| `expected 'in' in for-in loop` | `for x of xs` or a missing `in` |
+| `'string' is a type; did you mean string(value)?` | `string` used where a value is expected |
+| `unclosed match` | a `match` block was never closed |
+| `#else without #if`, `#elif without #if`, `#endif without #if`, `unterminated #if block` | unbalanced conditional directives |
 
-// good
-match result {
-    Ok(v) => { print(v); }
-}
+A `;` can be left off an expression statement when the next token starts a new line. Declarations always need their `;`:
+
+```c
+int x = 5          // error: expected ';'
+print(x)           // fine
 ```
 
-#### `expected ';', found '}'`
-
-**Hint:** `add ';' before '}'`
-
-**Cause:** Missing semicolon at the end of the last statement before a closing brace.
-
-```mxy
-// bad
-void main() {
-    int x = 5
-}
-
-// good
-void main() {
-    int x = 5;
-}
-```
-
-#### `expected ';'` (general)
-
-**Hint:** `add ';' at end of statement`
-
-**Cause:** A statement is missing its terminating semicolon.
-
-```mxy
-// bad
-int x = 5
-int y = 10;
-
-// good
-int x = 5;
-int y = 10;
-```
-
-#### `expected '{', found '='`
-
-**Hint:** `function bodies must be wrapped in { }`
-
-**Cause:** Attempting to use `=` for a function body instead of braces. Moxy uses C-style function syntax.
-
-```mxy
-// bad
-int add(int a, int b) = a + b;
-
-// good
-int add(int a, int b) {
-    return a + b;
-}
-```
-
-#### `expected ')', found ...`
-
-**Hint:** `unclosed '(' -- add ')' to match`
-
-**Cause:** An opening parenthesis has no matching closing parenthesis.
-
-```mxy
-// bad
-print(x + y;
-
-// good
-print(x + y);
-```
-
-#### `expected ']', found ...`
-
-**Hint:** `unclosed '[' -- add ']' to match`
-
-**Cause:** An opening bracket has no matching closing bracket.
-
-```mxy
-// bad
-int[] nums = [1, 2, 3;
-
-// good
-int[] nums = [1, 2, 3];
-```
-
-#### `expected '}', found ...`
-
-**Hint:** `unclosed '{' -- add '}' to match`
-
-**Cause:** An opening brace has no matching closing brace.
-
-```mxy
-// bad
-void main() {
-    print("hello")
-
-// good
-void main() {
-    print("hello");
-}
-```
-
-#### `expected '(', found identifier`
-
-**Hint:** `expected '(' after function name`
-
-**Cause:** A function call is missing its opening parenthesis.
-
-```mxy
-// bad
-print "hello";
-
-// good
-print("hello");
-```
-
----
-
-### `unexpected X in expression`
-
-The parser encountered a token that cannot begin or continue an expression. Several specific identifiers trigger helpful hints.
-
-#### `unexpected identifier in expression` (when identifier is `str`)
-
-**Hint:** `did you mean 'string'?`
-
-**Cause:** Using `str` (Rust/Python style) instead of Moxy's `string` type.
-
-```mxy
-// bad
-str name = "alice";
-
-// good
-string name = "alice";
-```
-
-#### `unexpected identifier in expression` (when identifier is `boolean`)
-
-**Hint:** `did you mean 'bool'?`
-
-**Cause:** Using `boolean` (Java style) instead of Moxy's `bool` type.
-
-```mxy
-// bad
-boolean flag = true;
-
-// good
-bool flag = true;
-```
-
-#### `unexpected identifier in expression` (when identifier is `integer`)
-
-**Hint:** `did you mean 'int'?`
-
-**Cause:** Using `integer` instead of Moxy's `int` type.
-
-```mxy
-// bad
-integer count = 0;
-
-// good
-int count = 0;
-```
-
-#### `unexpected identifier in expression` (when identifier is `println`)
-
-**Hint:** `did you mean 'print'?`
-
-**Cause:** Using `println` (Rust/Java style) instead of Moxy's `print`.
-
-```mxy
-// bad
-println("hello");
-
-// good
-print("hello");
-```
-
-#### `unexpected identifier in expression` (when identifier is `fn`, `func`, or `function`)
-
-**Hint:** `moxy uses C-style function syntax: int add(int a, int b) { ... }`
-
-**Cause:** Attempting to declare a function using a keyword from another language.
-
-```mxy
-// bad
-fn add(a, b) { return a + b; }
-func add(a, b) { return a + b; }
-
-// good
-int add(int a, int b) {
-    return a + b;
-}
-```
-
-#### `unexpected identifier in expression` (when identifier is `let`, `var`, or `val`)
-
-**Hint:** `moxy uses C-style declarations: int x = 42;`
-
-**Cause:** Attempting to declare a variable using a keyword from another language (JavaScript, Swift, Kotlin, etc.).
-
-```mxy
-// bad
-let x = 42;
-var name = "alice";
-
-// good
-int x = 42;
-string name = "alice";
-```
-
-#### `unexpected '=>' in expression`
-
-**Hint:** `'=>' is used in match arms and lambda expressions`
-
-**Cause:** A fat arrow appeared where the parser did not expect one, outside a match arm or lambda context.
-
-#### `unexpected end of file in expression`
-
-**Hint:** `unexpected end of file -- check for missing '}'`
-
-**Cause:** The source ended while the parser was still inside an expression. Usually caused by an unclosed brace somewhere above.
-
----
-
-### `unknown type 'str'`
-
-**Hint:** `did you mean 'string'?`
-
-**Cause:** Using `str` as a type name in a declaration. Moxy's string type is `string`.
-
-```mxy
-// bad
-str name = "alice";
-
-// good
-string name = "alice";
-```
-
-### `unknown type 'boolean'`
-
-**Hint:** `did you mean 'bool'?`
-
-**Cause:** Using `boolean` as a type name. Moxy's boolean type is `bool`.
-
-```mxy
-// bad
-boolean flag = true;
-
-// good
-bool flag = true;
-```
-
-### `unknown type 'integer'`
-
-**Hint:** `did you mean 'int'?`
-
-**Cause:** Using `integer` as a type name. Moxy's integer type is `int`.
-
-```mxy
-// bad
-integer count = 0;
-
-// good
-int count = 0;
-```
-
----
-
-### `'let' is not a moxy keyword` / `'var' is not a moxy keyword` / `'val' is not a moxy keyword`
-
-**Hint:** `moxy uses C-style declarations: int x = 42;`
-
-**Cause:** These keywords from JavaScript, Swift, Kotlin, etc. are not valid in Moxy. Use C-style type-first declarations.
-
-```mxy
-// bad
-let x = 42;
-var y = "hello";
-val z = true;
-
-// good
-int x = 42;
-string y = "hello";
-bool z = true;
-```
-
-### `'fn' is not a moxy keyword` / `'func' is not a moxy keyword` / `'function' is not a moxy keyword` / `'def' is not a moxy keyword`
-
-**Hint:** `moxy uses C-style function syntax: int add(int a, int b) { ... }`
-
-**Cause:** These function declaration keywords from Rust, Go, JavaScript, Python, etc. are not valid in Moxy. Use C-style return-type-first function declarations.
-
-```mxy
-// bad
-fn greet() { print("hi"); }
-func greet() { print("hi"); }
-def greet() { print("hi"); }
-
-// good
-void greet() {
-    print("hi");
-}
-```
-
----
-
-### `Future<T> requires --enable-async flag`
-
-**Hint:** `run with: moxy --enable-async ...`
-
-**Cause:** The source uses `Future<T>` but the `--enable-async` flag was not passed. Async/futures support requires explicit opt-in.
-
-```bash
-# bad
-moxy run myfile.mxy
-
-# good
-moxy --enable-async run myfile.mxy
-```
-
-### `'await' requires --enable-async flag`
-
-**Hint:** `run with: moxy --enable-async ...`
-
-**Cause:** The source uses `await` but the `--enable-async` flag was not passed.
-
-```bash
-# bad
-moxy run myfile.mxy
-
-# good
-moxy --enable-async run myfile.mxy
-```
-
-### `expected function call after '|>'`
-
-**Hint:** `pipe operator requires a function call on the right side`
-
-**Cause:** The right-hand side of the pipe operator `|>` is not a function call or identifier that can be called.
-
-```mxy
-// bad
-x |> 5;
-x |> + 1;
-
-// good
-x |> double;
-x |> add(1);
-```
-
----
-
-## Preprocessor Errors
-
-### `moxy: cannot open 'X'`
-
-**Cause:** The file passed to `moxy` does not exist or cannot be read.
-
-```bash
-$ moxy run missing.mxy
-moxy: cannot open 'missing.mxy'
-```
-
-**Fix:** Check the file path. Make sure the file exists and has read permissions.
-
-### `moxy: cannot find 'X' (checked disk and stdlib)`
-
-**Cause:** An `#include "file.mxy"` directive references a `.mxy` file that was not found in the source directory or the embedded standard library.
-
-```mxy
-// bad
-#include "nonexistent.mxy"
-```
-
-**Fix:** Verify the include path is correct. The preprocessor looks for `.mxy` includes relative to the including file's directory, then checks the embedded stdlib.
-
----
-
-## Runtime / Build Errors
-
-### `moxy: failed to create temp directory`
-
-**Cause:** The `run` or `build` command could not create a temporary directory under `/tmp/` for compilation. This is typically a permissions or disk space issue.
-
-### `moxy: failed to write temp file`
-
-**Cause:** The transpiled C code could not be written to the temp directory. Check disk space and `/tmp/` permissions.
-
-### `moxy: cannot write 'X'`
-
-**Cause:** The `transpile_to_file` step could not open the output `.c` file for writing. This occurs during project-mode builds when writing to `build/gen/`.
-
-### `moxy: exec failed`
-
-**Cause:** After successful compilation, the `run` command could not execute the compiled binary via `execv`. This is a system-level failure (permissions, missing dynamic libraries, etc.).
-
-### C compiler errors
-
-When Moxy invokes `cc` (or the `CC` environment variable) to compile the generated C code, any errors from the C compiler are passed through directly to stderr. These are **not** Moxy errors. They appear as standard C compiler diagnostics and usually indicate a bug in the transpiler or an unsupported construct.
-
-**Example:**
+## Declarations and types
+
+| Message | Cause |
+|---|---|
+| `'<name>' is already declared` | two different things share a name in the same namespace |
+| `function '<name>' is defined twice` (+ note) | two bodies for one function; definitions in different `#if` branches are allowed |
+| `global '<name>' is defined twice` | two initialized definitions of one global |
+| `redefinition of struct '<name>'` | two bodies for one struct outside of different `#if` branches |
+| `struct '<name>' cannot contain itself` | a struct field of its own type by value; use a pointer or a `ref struct` |
+| `typedef '<name>' refers to itself` | a cyclic typedef |
+| `unknown type '<ns::name>'` | a namespaced type that doesn't exist; plain unknown names are treated as C types |
+| `unknown namespace '<name>'` | `using x;` where `x` isn't a namespace |
+| `array size must be a constant expression` | `int a[n];` with a runtime `n`; use a list |
+| `variables cannot have type void`, `cannot store a void value` | |
+| `'auto' declarations need an initializer` | `auto x;` |
+| `cannot infer a type from null`, `cannot infer a type for '<name>'` | `auto x = null;` |
+| `'weak' is only allowed on struct fields` | |
+| `weak fields must hold a ref struct` | `weak int x;` or `weak` on a value struct |
+| `unions cannot hold managed values like strings, lists or maps` | use a Moxy `enum` with payloads instead |
+| `ref unions are not supported` | |
+| `static locals of managed types need a literal or null initializer` | `static string s = make();` |
+| `main must return void or int` | |
+| `main takes no parameters, (string[] args), or (int argc, char **argv)` | |
+
+## Expressions
+
+| Message | Cause |
+|---|---|
+| `<context>: expected <type>, found <type>` | a value of the wrong type in an initializer, assignment, argument, return or element; `<context>` says which |
+| `<context>: cannot use a C value of unknown type as <type>` | the result of an undeclared C function can't become a list, map or other managed value; declare the function with an `extern` prototype so Moxy knows its type |
+| `cannot add a number to a string` | `"n=" + 5`; use `"n=\(5)"` or `string(5)` |
+| `'<op>' between string and <type>` | another operator mixing strings and other types |
+| `'<op>' is not defined for strings` | e.g. `s * 2`; use `s.repeat(2)` |
+| `'<op>' is not defined between <type> and <type>` | e.g. adding a list to an int, or `==` on structs |
+| `only '+=' works on strings` | `s -= "x"` |
+| `strings are immutable; build a new string instead` | `s[0] = 'x'` |
+| `the left side of an assignment must be a variable, field or element` | |
+| `'<name>' is read-only` | assigning to a property such as `xs.len` |
+| `'<op>' needs a variable` | `5++` |
+| `'-' needs a number, found <type>`, `'~' needs an integer` | |
+| `cannot dereference a value of type <type>` | `*x` on a non-pointer |
+| `cannot index a value of type <type>`, `index must be an integer` | |
+| `cannot cast <type> to <type>` | casts between managed types, or from a managed type to a plain one |
+| `cannot cast to string; use string(value) to format a value` | `(string)42` |
+| `the branches of '?:' have different types: <type> and <type>` | |
+| `a void value cannot be used as a condition`, `a list cannot be used as a condition` (+ help: use `.is_empty()`), `a Result cannot be used as a condition`, `a struct value cannot be used as a condition` | |
+| `cannot infer the element type of an empty list` | `auto xs = [];`; write `int[] xs = [];` |
+| `cannot infer the type of this initializer` | a `{...}` where no type is known |
+| `map literals need 'key: value' entries` | `map[string, int] m = {1, 2};` |
+| `too many values for <struct>`, `too many values in initializer for <type>` | |
+| `unexpected initializer for a struct / an array / a list` | e.g. `"k": v` entries in a struct initializer |
+| `'{}' cannot initialize <type>` | `Result<int> r = {};` |
+| `<Type> has no field '<name>'` | |
+| `'->' needs a pointer; use '.' on struct values`, `'.' on a pointer; use '->'` | `ref struct` values accept either |
+| `'<name>' is a type, not a value` (+ help: construct it with `Name{ ... }`) | |
+| `'<name>' is a namespace, not a value` | |
+| `unknown name 'A::B'`, `unknown function 'A::B'` | a path that resolves to nothing |
+| `cannot interpolate a void value`, `cannot print a void value`, `cannot convert a void value to a string` | |
+| `ranges are only valid in for-in loops` | `int[] r = 0..5;` |
+
+**Warning** `'<name>' is not declared in Moxy code; assuming it comes from C` (+ help: `did you mean '<other>'?`) appears when an unknown name is one or two edits away from a Moxy name. If it really is a C name you can ignore it; otherwise it's almost always a typo.
+
+## Calls and methods
+
+| Message | Cause |
+|---|---|
+| `<function> takes <n> argument(s), got <n>` | |
+| `<method>() takes <n> argument(s), got <n>` | builtin methods on strings, lists, maps and Results |
+| `<Type> has no method '<name>'`, `<Type> has no field or method '<name>'` | |
+| `'<name>' is a method; call it as <name>()` | `xs.push` without parentheses (`.len` is the exception: it's a property) |
+| `cannot call <method>() on a temporary value` (+ help: store it in a variable first) | `make().push(1)`: mutating methods need a variable, field or element |
+| `<name> is not callable (type <type>)`, `field '<name>' is not a function` | |
+| `construct <T> with <T>{ ... } instead of calling it`, `'<T>' is a type, not a function` | `Point(1, 2)` |
+| `cannot sort a list of <type>` | `sort()` needs numbers or strings |
+| `map needs a function that returns a value`, `filter needs a function that returns bool`, `<method> expects a function like (x) => ...`, `<method> expects a function taking <type>` | |
+| `await needs a Future, found <type>` | |
+| `assert takes a condition and an optional message`, `panic takes one message`, `string(...) takes one value` | |
+| `'<T>' is not a struct defined in Moxy` | `T{...}` literals need a Moxy struct |
+
+### Enums and Result
+
+| Message | Cause |
+|---|---|
+| `<Enum> has no variant '<name>'` | |
+| `<Enum>::<V> takes <n> value(s), got <n>` | constructor arity |
+| `<Enum>::<V> carries <n> value(s); pass them in parentheses` | `Shape::Circle` without its payload |
+| `Ok(...) needs a Result<T> context` (+ help) | `auto r = Ok(5);`; give `r` a type or return it from a `Result` function |
+| `Ok(...) needs a value`, `Ok() of Result<void> takes no value`, `Err(...) needs a message` | |
+| `this function must return a value` | `return;` in a non-void function |
+| `a void function cannot return a value` | |
+
+## match
+
+| Message | Cause |
+|---|---|
+| `match is not exhaustive; missing <Enum>::<V>, ...` (+ help) | add the missing arms or `_ =>` |
+| `match is not exhaustive; missing Err(...)` / `Ok(...)` / `Ok and Err` | |
+| `match on strings needs a '_ =>' arm`, `match on this value needs a '_ =>' arm` | numbers, chars and strings can't be exhausted |
+| `cannot match on a value of type <type>` | e.g. structs or lists |
+| `pattern '<path>' does not belong to <Enum>` | `Color::Red` used to match a `Shape` |
+| `<Enum>::<V> carries <n> value(s), the pattern binds <n>` | too many bindings |
+| `patterns for a Result are Ok(value), Err(message) and _` | |
+| `Ok binds one value`, `Err binds one message` | |
+| `pattern of type <type> cannot match <type>`, `this pattern does not fit a value of this type` | |
+| warning `<Enum>::<V> is matched more than once` | |
+| warning `unreachable match arm after '_'` | |
+
+## Control flow
+
+| Message | Cause |
+|---|---|
+| `break outside of a loop or switch`, `continue outside of a loop` | |
+| `return is not allowed inside defer`, `break is not allowed inside defer`, `continue is not allowed inside defer` | deferred code runs during cleanup and can't jump |
+| `switch needs an integer, found <type>` (+ help for strings: use `match`) | |
+| `cannot iterate over a value of type <type>` | for-in works on lists, maps, strings, C arrays and ranges |
+| `cannot iterate over an array of unknown length` | |
+| `range bounds must be integers`, `a range loop has one variable` | |
+| `function declarations inside functions are not supported` | |
+
+## Memory and ownership rules
+
+These protect the automatic memory management (see [memory.md](book/memory.md)):
+
+| Message | Cause and fix |
+|---|---|
+| `cannot modify '<name>' inside a lambda; captured values are copies` | the lambda received a copy of `<name>`, so assigning to it would change nothing outside; pass the value as a parameter, or use a `ref struct` for shared state |
+| `<context>: this lambda captures '<name>' and cannot become a plain C function pointer` (+ help) | a C function pointer has nowhere to keep the captured value; declare the parameter as a closure, `fn(int) -> int` |
+| `'<name>' needs its own block inside a switch` (+ help) | a `case` label can jump past the variable's initialization; write `case 1: { string s = ...; break; }` |
+| `unions cannot hold managed values like strings, lists or maps` | a union can't know which member to release; use an `enum` with payloads |
+| warning `'<function>' uses goto together with managed values or defer; goto skips automatic cleanup` | `goto` jumps don't release values or run `defer` |
+
+## Lint warnings
+
+`moxy lint` (and the matching `moxyfmt.yaml` settings) adds:
+
+| Warning | Setting |
+|---|---|
+| `unused variable '<name>'` (names starting with `_` are exempt) | `lint: unused_vars` |
+| `'<name>' shadows a variable declared at line <n>` | `lint: shadow_vars` |
+| `empty if body`, `empty while body`, `empty for body` | `lint: empty_blocks` |
+
+## Runtime panics
+
+A panic prints its message and the source location, then exits with code 101:
 
 ```
-out.c:14:5: error: implicit declaration of function 'unknown_func'
+panic: index 10 out of range for list of length 3
+  at src/main.mxy:5:13
 ```
 
-**Fix:** Check whether the function or type is defined. For C standard library functions, add the appropriate `#include <header.h>` directive. If the error is from valid Moxy code, it may be a transpiler bug.
+| Message | Cause |
+|---|---|
+| `index <i> out of range for list of length <n>` | `xs[i]`, `insert`, `remove`, `first`, `last` |
+| `slice [<a>, <b>) out of range for list of length <n>` | `xs.slice(a, b)` |
+| `pop from an empty list` | |
+| `key <key> not found in map` | `m[k]` or `m.get(k)` with a missing key; use `get_or` or `has` |
+| `string index <i> out of range (length <n>)`, `string slice [<a>, <b>) out of range (length <n>)` | |
+| `unwrap of Err: <message>` | `r.unwrap()` on an error |
+| `call of a null closure` | calling an unset `fn(...)` variable |
+| `await on a null future` | |
+| `values of type <type> cannot be sorted` | |
+| `out of memory` | allocation failed |
+| `<message>` | `panic("message")` |
 
----
+A failed assertion prints the condition (or your message) and exits with code 1:
 
-## Lint Warnings
-
-Lint warnings are produced by `moxy lint` and are non-fatal. They use the same source-snippet format as errors but with a yellow `warning` label.
-
-### `unused variable 'X'`
-
-**Cause:** A variable was declared but never referenced in the scope. Variables whose names begin with `_` are exempt from this check.
-
-```mxy
-// triggers warning
-void main() {
-    int x = 5;    // warning: unused variable 'x'
-    print("hi");
-}
-
-// suppressed (underscore prefix)
-void main() {
-    int _x = 5;   // no warning
-    print("hi");
-}
 ```
-
-**Config:** Controlled by `lint.unused_vars` in `moxyfmt.yaml`. Default: `true`.
-
-### `variable 'X' shadows outer declaration`
-
-**Cause:** A variable in an inner scope has the same name as a variable in an outer scope, which can cause confusion.
-
-```mxy
-// triggers warning
-void main() {
-    int x = 5;
-    if (true) {
-        int x = 10;   // warning: variable 'x' shadows outer declaration
-    }
-}
-```
-
-**Fix:** Rename the inner variable to avoid ambiguity.
-
-**Config:** Controlled by `lint.shadow_vars` in `moxyfmt.yaml`. Default: `true`.
-
-### `empty X body`
-
-Where X is one of: `if`, `while`, `for`, `for-in`.
-
-**Cause:** A control flow block has no statements inside it.
-
-```mxy
-// triggers warning
-void main() {
-    if (true) {
-        // warning: empty if body
-    }
-}
-```
-
-**Fix:** Add the intended body, or remove the empty block.
-
-**Config:** Controlled by `lint.empty_blocks` in `moxyfmt.yaml`. Default: `true`.
-
----
-
-## Assert Failures
-
-### `FAIL: assert at line N`
-
-**Cause:** A runtime `assert()` call evaluated to false. This is a runtime error, not a compile-time error. The program prints this message to stderr and exits with code 1.
-
-```mxy
-void main() {
-    assert(1 == 2);   // FAIL: assert at line 2
-}
-```
-
-**Fix:** The asserted condition was false. Check the logic or values involved.
-
----
-
-## CLI Usage Errors
-
-### `moxy: unknown command 'X'`
-
-**Cause:** An unrecognized command was passed to `moxy`. Run `moxy --help` for the list of valid commands.
-
-### `error: no workspace members defined`
-
-**Cause:** The root `moxy.yaml` has a `workspace` section but no `members` listed.
-
-**Fix:** Add member directories to the workspace:
-
-```yaml
-workspace:
-  members:
-    - "mylib"
-    - "myapp"
-```
-
-### `error: workspace member 'X' not found`
-
-**Cause:** The `-p` flag references a member name that doesn't match any loaded workspace member's `project.name`.
-
-**Fix:** Check the member names in each member's `moxy.yaml` and use the correct `project.name`, not the directory name.
-
-### `error: no binary members in workspace`
-
-**Cause:** `moxy run` was used in a workspace but no member has a binary type (all are `type: "lib"`).
-
-**Fix:** At least one workspace member must be a binary (omit `type` or use any value other than `"lib"`).
-
-### `error: multiple binary members; use -p <name> to select`
-
-**Cause:** `moxy run` was used in a workspace with multiple binary members and no `-p` flag to specify which one to run.
-
-**Fix:** Use `-p` to select the binary: `moxy run -p myapp`
-
-### `error: circular dependency involving 'X'`
-
-**Cause:** Workspace members have circular dependencies (A depends on B, B depends on A).
-
-**Fix:** Restructure member dependencies to form a DAG (directed acyclic graph). Extract shared code into a separate library member.
-
-### `moxy: no test files found`
-
-**Hint:** `name test files with _test.mxy suffix (e.g. math_test.mxy)`
-
-**Cause:** The `test` command found no files matching the `*_test.mxy` pattern.
-
-### `moxy: no .mxy files found`
-
-**Cause:** The `fmt` or `lint` command found no `.mxy` files in the current directory tree.
-
----
-
-## Configuration
-
-Lint rules are configured in `moxyfmt.yaml`, which Moxy searches for in the current directory and the source file's directory.
-
-```yaml
-lint:
-  unused_vars: true
-  empty_blocks: true
-  shadow_vars: true
-```
-
-| Rule | Default | Description |
-|------|---------|-------------|
-| `unused_vars` | `true` | Warn on declared but unused variables (prefix with `_` to suppress) |
-| `empty_blocks` | `true` | Warn on empty `if`, `while`, `for`, and `for-in` bodies |
-| `shadow_vars` | `true` | Warn when an inner variable shadows an outer one |
-
-Set any rule to `false` to disable it:
-
-```yaml
-lint:
-  unused_vars: false
-  shadow_vars: false
+assertion failed: assert(total == 6)
+  at tests/sum.mxy:9:5
 ```

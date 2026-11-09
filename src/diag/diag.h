@@ -1,0 +1,32 @@
+#ifndef MOXY_DIAG_H
+#define MOXY_DIAG_H
+
+#include <setjmp.h>
+
+#include "base/base.h"
+
+typedef struct {
+    char *path;     /* absolute or as-given path, used for #line */
+    char *display;  /* path shown to the user */
+    char *text;     /* full source text */
+} SrcFile;
+
+int diag_add_file(const char *path, const char *display, char *text);
+const SrcFile *diag_file(int id);
+int diag_file_count(void);
+
+void diag_error(Loc loc, const char *fmt, ...);
+void diag_warn(Loc loc, const char *fmt, ...);
+void diag_note(Loc loc, const char *fmt, ...);
+void diag_hint(const char *fmt, ...);
+
+int diag_errors(void);
+int diag_warnings(void);
+void diag_reset(void);
+void diag_quiet_warnings(int on);
+/* where diag_bail jumps instead of exiting (NULL to exit) */
+void diag_set_recover(jmp_buf *jb);
+_Noreturn void diag_bail(void);
+void diag_check(void);
+
+#endif

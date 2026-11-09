@@ -1,0 +1,39 @@
+string kind(int n) {
+    match n {
+        0 => return "zero",
+        1 => return "one",
+        -1 => return "minus one",
+        _ => return "many",
+    }
+}
+
+int score(string word) {
+    match word {
+        "gold" => return 3,
+        "silver" => return 2,
+        _ => return 0,
+    }
+}
+
+void main() {
+    assert(kind(0) == "zero" && kind(-1) == "minus one" && kind(7) == "many");
+    assert(score("gold") == 3 && score("tin") == 0);
+    bool flag = true;
+    match flag {
+        true => print("yes"),
+        false => print("no"),
+    }
+    char c = 'x';
+    match c {
+        'a' => print("a"),
+        _ => print("other"),
+    }
+    int total = 0;
+    for i in 0..5 {
+        match i {
+            3 => break,
+            _ => total += i,
+        }
+    }
+    assert(total == 3);
+}

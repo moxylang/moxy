@@ -4,16 +4,16 @@
 #include <std/test.mxy>
 
 void main() {
-  assert_eq_int(abs_int(-5), 5);
-  assert_eq_int(max_int(3, 7), 7);
-  assert_eq_int(min_int(3, 7), 3);
-  assert_eq_int(clamp_int(10, 0, 5), 5);
-  assert_true(str_starts_with("hello", "hel"));
-  assert_true(str_ends_with("hello", "llo"));
-  assert_true(str_contains("hello world", "world"));
-  assert_true(str_eq("abc", "abc"));
-  assert_false(str_eq("abc", "xyz"));
-  assert_eq_str("abc", "abc");
-  assert_eq_int(str_len("hello"), 5);
-  print("stdlib ok");
+    assert_eq_int(abs_int(-5), 5);
+    assert_eq_int(max_int(3, 7), 7);
+    assert_eq_int(min_int(3, 7), 3);
+    assert_eq_int(clamp_int(10, 0, 5), 5);
+    assert_true(str_starts_with("hello", "hel"));
+    assert_true(str_ends_with("hello", "llo"));
+    assert_true(str_contains("hello world", "world"));
+    assert_true(str_eq("abc", "abc"));
+    assert_false(str_eq("abc", "xyz"));
+    assert_eq_str("abc", "abc");
+    assert_eq_int(str_len("hello"), 5);
+    print("stdlib ok");
 }

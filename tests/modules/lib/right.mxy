@@ -1,0 +1,2 @@
+#include "util.mxy"
+int right() { return twice(2); }

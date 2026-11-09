@@ -1,0 +1,14 @@
+void main() {
+    int k = 1;
+    switch (k) {
+        case 1:
+        string s = "one";
+        print(s);
+        break;
+        case 2: {
+            string t = "two";
+            print(t);
+            break;
+        }
+    }
+}

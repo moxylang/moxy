@@ -1,0 +1,23 @@
+#include <string.h>
+
+typedef struct {
+    int x;
+    int y;
+} Point;
+
+void main() {
+    Point p;
+    p.x = 10;
+    p.y = 20;
+    int sum = p.x + p.y;
+    print(sum)
+
+    switch (sum) {
+        case 30:
+        print("thirty");
+        break;
+        default:
+        print("other");
+        break;
+    }
+}

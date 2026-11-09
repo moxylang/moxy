@@ -1,0 +1,21 @@
+// lots of short-lived values; run under --sanitize to check for leaks
+struct Item { string label; int[] values; }
+
+Item make(int i) {
+    return Item{.label = "item \(i)",.values = [i, i + 1] };
+}
+
+void main() {
+    Item[] items = [];
+    for i in 0..2000 {
+        Item it = make(i);
+        if (i % 3 == 0) { continue; }
+        items.push(it);
+        string s = it.label + "!";
+        if (s.len > 100) { break; }
+    }
+    map[string, Item] byname = {};
+    for it in items { byname[it.label] = it; }
+    assert(byname.len == items.len);
+    assert(byname["item 1"].values[1] == 2);
+}

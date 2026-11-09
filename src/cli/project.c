@@ -1,0 +1,338 @@
+#define _DEFAULT_SOURCE
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "goose.h"
+
+#include "cli.h"
+#include "load/load.h"
+
+char *gen_header(const char *libname);
+
+#define MOXY_CONFIG "moxy.yaml"
+
+typedef struct {
+    char cc[64];
+    char cflags[1024];
+    char ldflags[1024];
+} MoxyConf;
+
+static GooseFramework fw;
+
+static void conf_defaults(Config *cfg, void *custom, void *ud) {
+    (void)cfg;
+    (void)ud;
+    MoxyConf *m = custom;
+    memset(m, 0, sizeof(*m));
+    strcpy(m->cc, "cc");
+    strcpy(m->cflags, "-Wall");
+}
+
+static int conf_parse(const char *section, const char *key, const char *val, void *custom, void *ud) {
+    (void)section;
+    (void)ud;
+    MoxyConf *m = custom;
+    if (strcmp(key, "cc") == 0) snprintf(m->cc, sizeof(m->cc), "%s", val);
+    else if (strcmp(key, "cflags") == 0) snprintf(m->cflags, sizeof(m->cflags), "%s", val);
+    else if (strcmp(key, "ldflags") == 0) snprintf(m->ldflags, sizeof(m->ldflags), "%s", val);
+    return 0;
+}
+
+static int conf_write(FILE *f, const void *custom, void *ud) {
+    (void)ud;
+    const MoxyConf *m = custom;
+    fprintf(f, "  cc: \"%s\"\n", m->cc);
+    fprintf(f, "  cflags: \"%s\"\n", m->cflags);
+    if (m->ldflags[0]) fprintf(f, "  ldflags: \"%s\"\n", m->ldflags);
+    return 0;
+}
+
+static int init_template(const char *dir, const char *name, void *ud) {
+    (void)ud;
+    char *main_path = path_join(dir, "main.mxy");
+    char *src = xfmt("void main() {\n    print(\"Hello from %s!\");\n}\n", name);
+    file_write(main_path, src);
+    char *root = path_dir(dir);
+    char *tests = path_join(root, "tests");
+    dir_make(tests);
+    char *test = path_join(tests, "basic.mxy");
+    file_write(test, "void main() {\n    assert(1 + 1 == 2);\n}\n");
+    return 0;
+}
+
+static void split_flags(const char *flags, StrList *out_includes, Buf *rest) {
+    char *copy = xstrdup(flags);
+    for (char *tok = strtok(copy, " \t"); tok; tok = strtok(NULL, " \t")) {
+        if (str_starts(tok, "-I") && tok[2]) vec_push(*out_includes, xstrdup(tok + 2));
+        else buf_fmt(rest, "%s%s", rest->len ? " " : "", tok);
+    }
+    free(copy);
+}
+
+static void add_dep_paths(const Config *cfg, const char *pkg_dir) {
+    for (int i = 0; i < cfg->dep_count; i++) {
+        char base[1024];
+        build_dep_base(&cfg->deps[i], pkg_dir, base, sizeof(base));
+        char *src = path_join(base, "src");
+        if (dir_exists(src)) load_add_include_dir(src);
+        load_add_include_dir(base);
+        free(src);
+    }
+}
+
+static char *entry_for(const Config *cfg) {
+    const char *src = cfg->src_dir[0] ? cfg->src_dir : "src";
+    int is_lib = strcmp(cfg->type, "lib") == 0;
+    char *cands[3];
+    cands[0] = path_join(src, is_lib ? "lib.mxy" : "main.mxy");
+    char *named = xfmt("%s.mxy", cfg->name);
+    cands[1] = path_join(src, named);
+    cands[2] = path_join(src, is_lib ? "main.mxy" : "lib.mxy");
+    for (int i = 0; i < 3; i++)
+        if (file_exists(cands[i])) return cands[i];
+    err("no entry point: expected %s or %s", cands[0], cands[1]);
+    return NULL;
+}
+
+/* builds the project in the current directory; returns the artifact path */
+static char *build_here(const Config *cfg, int release, const char *build_dir, const char *pkg_dir,
+                        const char *config_file) {
+    MoxyConf conf = *(MoxyConf *)fw.custom_data;
+    const char *mode = release ? "release" : "debug";
+    char *entry = entry_for(cfg);
+    if (!entry) return NULL;
+    char *gen_dir = path_join(build_dir, "gen");
+    char *out_dir = path_join(build_dir, mode);
+    dir_make(gen_dir);
+    dir_make(out_dir);
+
+    load_add_include_dir(cfg->src_dir[0] ? cfg->src_dir : "src");
+    for (int i = 0; i < cfg->include_count; i++) load_add_include_dir(cfg->includes[i]);
+    add_dep_paths(cfg, pkg_dir);
+
+    char *cpath = xfmt("%s/%s.c", gen_dir, cfg->name);
+    info("Compiling", "%s v%s (%s)", cfg->name, cfg->version, mode);
+    CompileOpts co = {1, 0, cpath};
+    int threads = 0, has_main = 0;
+    char *c = compile_to_c(entry, &co, &threads, &has_main);
+    if (!c) return NULL;
+    file_write(cpath, c);
+
+    int is_lib = strcmp(cfg->type, "lib") == 0;
+    char flags[4096];
+    build_include_flags(cfg, pkg_dir, config_file, flags, sizeof(flags), &fw);
+    CcOpts cc = {0};
+    Buf cflags = {0};
+    split_flags(conf.cflags, &cc.includes, &cflags);
+    split_flags(flags, &cc.includes, &cflags);
+    cc.cc = conf.cc;
+    cc.cflags = buf_str(&cflags);
+    cc.ldflags = conf.ldflags;
+    cc.release = release;
+    cc.threads = threads;
+    vec_push(cc.sources, cpath);
+    for (int i = 0; i < cfg->source_count; i++)
+        if (str_ends(cfg->sources[i], ".c")) vec_push(cc.sources, xstrdup(cfg->sources[i]));
+    static char pkg_files[256][512];
+    int npkg = 0;
+    build_collect_pkg_sources(cfg, pkg_dir, config_file, pkg_files, 256, &npkg, &fw);
+    for (int i = 0; i < npkg; i++)
+        if (str_ends(pkg_files[i], ".c")) vec_push(cc.sources, xstrdup(pkg_files[i]));
+
+    if (!is_lib && !has_main) {
+        info("Note", "no main() in %s; building a library (set type: \"lib\" in %s)", entry, config_file);
+        is_lib = 1;
+    }
+    if (!is_lib) {
+        char *bin = path_join(out_dir, cfg->name);
+        cc.output = bin;
+        if (cc_run(&cc) != 0) return NULL;
+        info("Finished", "%s", bin);
+        return bin;
+    }
+
+    char *obj_dir = path_join(out_dir, "obj");
+    dir_make(obj_dir);
+    Buf objs = {0};
+    for (int i = 0; i < cc.sources.len; i++) {
+        CcOpts one = cc;
+        one.sources.items = &cc.sources.items[i];
+        one.sources.len = 1;
+        char *stem = xstrdup(path_base(cc.sources.items[i]));
+        stem[strlen(stem) - 2] = '\0';
+        char *obj = xfmt("%s/%s.o", obj_dir, stem);
+        one.output = obj;
+        one.object_only = 1;
+        if (cc_run(&one) != 0) return NULL;
+        buf_fmt(&objs, " %s", shell_quote(obj));
+    }
+    char *lib = xfmt("%s/lib%s.a", out_dir, cfg->name);
+    char *cmd = xfmt("ar rcs %s%s", shell_quote(lib), buf_str(&objs));
+    if (system(cmd) != 0) {
+        err("ar failed");
+        return NULL;
+    }
+    char *header = xfmt("%s/%s.h", out_dir, cfg->name);
+    file_write(header, gen_header(cfg->name));
+    info("Finished", "%s (+ %s)", lib, header);
+    return lib;
+}
+
+static int on_build(const Config *cfg, int release, const char *build_dir, const char *pkg_dir,
+                    const char *config_file, void *ud) {
+    (void)ud;
+    return build_here(cfg, release, build_dir, pkg_dir, config_file) ? 0 : 1;
+}
+
+static int run_member_binary(const Config *root, int release, int argc, char **argv) {
+    for (int i = 0; i < root->ws_member_count; i++) {
+        char *cfg_path = path_join(root->ws_members[i], fw.config_file);
+        Config m;
+        if (config_load(cfg_path, &m, &fw) != 0 || strcmp(m.type, "lib") == 0) continue;
+        char *bin = xfmt("%s/%s/%s/%s", root->ws_members[i], fw.build_dir, release ? "release" : "debug", m.name);
+        return run_binary(bin, argc, argv);
+    }
+    err("no binary member in this workspace");
+    return 1;
+}
+
+static int on_run(const Config *cfg, int release, const char *build_dir, const char *pkg_dir,
+                  const char *config_file, int argc, char **argv, void *ud) {
+    (void)ud;
+    StrList args = {0};
+    int passthrough = 0;
+    for (int i = 1; i < argc; i++) {
+        if (!passthrough && strcmp(argv[i], "--") == 0) {
+            passthrough = 1;
+            continue;
+        }
+        if (!passthrough && (strcmp(argv[i], "--release") == 0 || strcmp(argv[i], "-r") == 0)) continue;
+        vec_push(args, argv[i]);
+    }
+    if (cfg->ws_member_count > 0) {
+        char *bargv[] = {"build", release ? "--release" : NULL, NULL};
+        if (cmd_build(release ? 2 : 1, bargv, &fw) != 0) return 1;
+        return run_member_binary(cfg, release, args.len, args.items);
+    }
+    char *bin = build_here(cfg, release, build_dir, pkg_dir, config_file);
+    if (!bin) return 1;
+    if (strcmp(cfg->type, "lib") == 0) {
+        err("'%s' is a library; there is nothing to run", cfg->name);
+        return 1;
+    }
+    char *exe = bin[0] == '/' ? bin : xfmt("./%s", bin);
+    return run_binary(exe, args.len, args.items);
+}
+
+static int on_test(const Config *cfg, int release, const char *build_dir, const char *pkg_dir,
+                   const char *config_file, const char *test_dir, void *ud) {
+    (void)build_dir;
+    (void)config_file;
+    (void)ud;
+    load_add_include_dir(cfg->src_dir[0] ? cfg->src_dir : "src");
+    for (int i = 0; i < cfg->include_count; i++) load_add_include_dir(cfg->includes[i]);
+    add_dep_paths(cfg, pkg_dir);
+    StrList paths = {0};
+    if (dir_exists(test_dir)) vec_push(paths, (char *)test_dir);
+    return run_tests(&paths, getenv("MOXY_SANITIZE") != NULL, release);
+}
+
+static int on_install(const Config *cfg, const char *prefix, const char *build_dir, const char *pkg_dir,
+                      const char *config_file, void *ud) {
+    (void)ud;
+    char *art = build_here(cfg, 1, build_dir, pkg_dir, config_file);
+    if (!art) return 1;
+    int is_lib = strcmp(cfg->type, "lib") == 0;
+    char *dest_dir = path_join(prefix, is_lib ? "lib" : "bin");
+    dir_make(dest_dir);
+    char *cmd = xfmt("cp %s %s", shell_quote(art), shell_quote(dest_dir));
+    if (system(cmd) != 0) {
+        err("install failed (permission denied? try --prefix ~/.local)");
+        return 1;
+    }
+    info("Installed", "%s/%s", dest_dir, path_base(art));
+    return 0;
+}
+
+/* compiler flags for single-file commands next to a moxy.yaml */
+int project_flags_for(const char *dir, char **cflags, char **ldflags, StrList *includes, StrList *sources) {
+    char *cfg_path = path_join(dir, MOXY_CONFIG);
+    if (!file_exists(cfg_path)) {
+        char *parent = path_dir(dir);
+        free(cfg_path);
+        cfg_path = path_join(parent, MOXY_CONFIG);
+        if (!file_exists(cfg_path)) return 0;
+        dir = parent;
+    }
+    Config cfg;
+    if (config_load(cfg_path, &cfg, &fw) != 0) return 0;
+    MoxyConf *m = (MoxyConf *)fw.custom_data;
+    Buf rest = {0};
+    split_flags(m->cflags, includes, &rest);
+    *cflags = buf_take(&rest);
+    *ldflags = xstrdup(m->ldflags);
+    for (int i = 0; i < cfg.source_count; i++)
+        if (str_ends(cfg.sources[i], ".c")) vec_push(*sources, path_join(dir, cfg.sources[i]));
+    for (int i = 0; i < cfg.include_count; i++) vec_push(*includes, path_join(dir, cfg.includes[i]));
+    return 1;
+}
+
+static int extra_fmt(int argc, char **argv, GooseFramework *f) {
+    (void)f;
+    return cmd_fmt(argc - 1, argv + 1);
+}
+
+static int extra_lint(int argc, char **argv, GooseFramework *f) {
+    (void)f;
+    return cmd_lint(argc - 1, argv + 1);
+}
+
+static int extra_check(int argc, char **argv, GooseFramework *f) {
+    (void)f;
+    return cmd_check(argc - 1, argv + 1);
+}
+
+static int extra_emit(int argc, char **argv, GooseFramework *f) {
+    (void)f;
+    return cmd_emit(argc - 1, argv + 1);
+}
+
+static void setup(void) {
+    static int ready;
+    if (ready) return;
+    ready = 1;
+    memset(&fw, 0, sizeof(fw));
+    goose_framework_set_tool_name(&fw, "moxy");
+    goose_framework_set_tool_version(&fw, MOXY_VERSION_STR);
+    goose_framework_set_tool_description(&fw, "C with modern conveniences and automatic memory management");
+    goose_framework_set_config_file(&fw, MOXY_CONFIG);
+    goose_framework_set_lock_file(&fw, "moxy.lock");
+    goose_framework_set_pkg_dir(&fw, "packages");
+    goose_framework_set_build_dir(&fw, "build");
+    goose_framework_set_src_dir(&fw, "src");
+    goose_framework_set_test_dir(&fw, "tests");
+    goose_framework_set_init_filename(&fw, "main.mxy");
+    goose_framework_on_build(&fw, on_build);
+    goose_framework_on_run(&fw, on_run);
+    goose_framework_on_test(&fw, on_test);
+    goose_framework_on_install(&fw, on_install);
+    goose_framework_on_init_template(&fw, init_template);
+    goose_framework_on_config_defaults(&fw, conf_defaults);
+    goose_framework_on_config_parse(&fw, conf_parse);
+    goose_framework_on_config_write(&fw, conf_write);
+    goose_framework_add_command(&fw, "fmt", "Format .mxy files ([files] [--check])", extra_fmt);
+    goose_framework_add_command(&fw, "lint", "Lint .mxy files for common mistakes", extra_lint);
+    goose_framework_add_command(&fw, "check", "Type-check .mxy files without building", extra_check);
+    goose_framework_add_command(&fw, "emit", "Print the generated C for a file", extra_emit);
+    goose_framework_set_userdata(&fw, &fw);
+    MoxyConf *m = (MoxyConf *)fw.custom_data;
+    conf_defaults(NULL, m, NULL);
+}
+
+int project_main(int argc, char **argv) {
+    setup();
+    return goose_main(&fw, argc, argv);
+}
+
+__attribute__((constructor)) static void project_setup(void) { setup(); }

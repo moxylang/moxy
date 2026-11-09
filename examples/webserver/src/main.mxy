@@ -7,9 +7,9 @@
 //   ./webserver
 //
 // Test:
-//   curl http://localhost:8080/
-//   curl http://localhost:8080/health
-//   curl http://localhost:8080/hello
+//   curl http://localhost:9999/
+//   curl http://localhost:9999/health
+//   curl http://localhost:9999/hello
 
 #include "../lib/http.mxy"
 #include "../lib/router.mxy"

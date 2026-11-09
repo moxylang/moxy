@@ -1,0 +1,4 @@
+int count(string[] xs) { return (int)xs.len; }
+void main() {
+    count(c_function());
+}

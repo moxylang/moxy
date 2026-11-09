@@ -1,0 +1,17 @@
+void main() {
+    if (true) {
+        print("yes")
+    } else {
+        print("no")
+    }
+
+    for (int i = 0; i < 3; i++) {
+        print(i)
+    }
+
+    int x = 0;
+    while (x < 2) {
+        print(x)
+        x++;
+    }
+}

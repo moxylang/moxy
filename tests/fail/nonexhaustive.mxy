@@ -1,0 +1,8 @@
+enum Color { Red, Green, Blue }
+void main() {
+    Color c = Color::Red;
+    match c {
+        Color::Red => print("r"),
+        Color::Green => print("g"),
+    }
+}

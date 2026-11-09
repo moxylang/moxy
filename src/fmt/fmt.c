@@ -1,0 +1,284 @@
+#include "fmt.h"
+
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "base/base.h"
+
+typedef enum { F_WORD, F_NUM, F_STR, F_CHAR, F_OP, F_LCOMMENT, F_BCOMMENT, F_DIRECTIVE } FKind;
+
+typedef struct {
+    FKind kind;
+    char *text;
+    int space_before; /* whitespace before it on the same line */
+    int newlines;     /* line breaks before it */
+} FTok;
+
+typedef Vec(FTok) FTokVec;
+
+static const char *ops[] = {
+    "<<=", ">>=", "...", "..=", "==", "!=", "<=", ">=", "&&", "||", "<<", ">>", "+=", "-=", "*=", "/=",
+    "%=", "&=", "|=", "^=", "|>", "++", "--", "->", "=>", "::", "..", NULL,
+};
+
+static void push(FTokVec *v, FKind k, const char *s, size_t n, int sp, int nl) {
+    FTok t = {k, xstrndup(s, n), sp, nl};
+    vec_push(*v, t);
+}
+
+static FTokVec scan(const char *src) {
+    FTokVec out = {0};
+    const char *p = src;
+    int sp = 0, nl = 0, bol = 1;
+    while (*p) {
+        if (*p == '\n') {
+            nl++;
+            sp = 0;
+            bol = 1;
+            p++;
+            continue;
+        }
+        if (*p == ' ' || *p == '\t' || *p == '\r') {
+            sp = 1;
+            p++;
+            continue;
+        }
+        const char *s = p;
+        if (*p == '#' && bol) {
+            while (*p && *p != '\n') {
+                if (*p == '\\' && p[1] == '\n') p++;
+                p++;
+            }
+            size_t n = (size_t)(p - s);
+            while (n && (s[n - 1] == ' ' || s[n - 1] == '\t')) n--;
+            push(&out, F_DIRECTIVE, s, n, sp, nl);
+        } else if (p[0] == '/' && p[1] == '/') {
+            while (*p && *p != '\n') p++;
+            size_t n = (size_t)(p - s);
+            while (n && (s[n - 1] == ' ' || s[n - 1] == '\t')) n--;
+            push(&out, F_LCOMMENT, s, n, sp, nl);
+        } else if (p[0] == '/' && p[1] == '*') {
+            p += 2;
+            while (*p && !(p[0] == '*' && p[1] == '/')) p++;
+            if (*p) p += 2;
+            push(&out, F_BCOMMENT, s, (size_t)(p - s), sp, nl);
+        } else if (*p == '"' || *p == '\'') {
+            char q = *p++;
+            int depth = 0;
+            while (*p && *p != '\n') {
+                if (*p == '\\' && p[1] == '(' && q == '"') {
+                    depth++;
+                    p += 2;
+                    continue;
+                }
+                if (*p == '\\' && p[1]) {
+                    p += 2;
+                    continue;
+                }
+                if (depth > 0 && *p == '(') depth++;
+                else if (depth > 0 && *p == ')') depth--;
+                else if (depth > 0 && *p == '"') {
+                    p++;
+                    while (*p && *p != '"' && *p != '\n') p += (*p == '\\' && p[1]) ? 2 : 1;
+                } else if (*p == q && depth == 0) {
+                    break;
+                }
+                if (*p) p++;
+            }
+            if (*p == q) p++;
+            push(&out, q == '"' ? F_STR : F_CHAR, s, (size_t)(p - s), sp, nl);
+        } else if (isdigit((unsigned char)*p) || (*p == '.' && isdigit((unsigned char)p[1]))) {
+            while (isalnum((unsigned char)*p) || *p == '_' ||
+                   (*p == '.' && p[1] != '.' && !isalpha((unsigned char)p[1])) ||
+                   ((*p == '+' || *p == '-') && (p[-1] == 'e' || p[-1] == 'E' || p[-1] == 'p' || p[-1] == 'P') &&
+                    !(s[0] == '0' && (s[1] == 'x' || s[1] == 'X') && (p[-1] == 'e' || p[-1] == 'E'))))
+                p++;
+            push(&out, F_NUM, s, (size_t)(p - s), sp, nl);
+        } else if (isalpha((unsigned char)*p) || *p == '_' || *p == '$') {
+            while (isalnum((unsigned char)*p) || *p == '_' || *p == '$') p++;
+            push(&out, F_WORD, s, (size_t)(p - s), sp, nl);
+        } else {
+            size_t n = 1;
+            for (int i = 0; ops[i]; i++) {
+                size_t l = strlen(ops[i]);
+                if (strncmp(p, ops[i], l) == 0) {
+                    n = l;
+                    break;
+                }
+            }
+            p += n;
+            push(&out, F_OP, s, n, sp, nl);
+        }
+        sp = 0;
+        nl = 0;
+        bol = 0;
+    }
+    FTok end = {F_OP, xstrdup(""), 0, nl};
+    vec_push(out, end);
+    out.len--;
+    return out;
+}
+
+static int is(const FTok *t, const char *s) { return t && strcmp(t->text, s) == 0; }
+
+static int word_in(const FTok *t, const char *const *set) {
+    if (!t || t->kind != F_WORD) return 0;
+    for (int i = 0; set[i]; i++)
+        if (strcmp(t->text, set[i]) == 0) return 1;
+    return 0;
+}
+
+static const char *const op_words[] = {"return", "case", "else", "do", "in", "await", "defer", "sizeof", "goto", NULL};
+static const char *const paren_words[] = {"if", "for", "while", "switch", "match", "return", NULL};
+
+static int valueish(const FTok *t) {
+    if (!t) return 0;
+    if (t->kind == F_NUM || t->kind == F_STR || t->kind == F_CHAR) return 1;
+    if (t->kind == F_WORD) return !word_in(t, op_words);
+    return is(t, ")") || is(t, "]");
+}
+
+static int binary_op(const char *s) {
+    static const char *const bin[] = {"=", "==", "!=", "<", ">", "<=", ">=", "+", "-", "*", "/", "%", "&&", "||",
+                                      "&", "|", "^", "<<", ">>", "|>", "+=", "-=", "*=", "/=", "%=", "&=",
+                                      "|=", "^=", "<<=", ">>=", "=>", NULL};
+    for (int i = 0; bin[i]; i++)
+        if (strcmp(s, bin[i]) == 0) return 1;
+    return 0;
+}
+
+typedef struct {
+    int generic;
+    int ternary;
+    int unary_prev;
+} LineState;
+
+static int space_between(const FTok *p, const FTok *t, const FTok *n, LineState *ls, const MoxyConfig *cfg,
+                         int was_unary) {
+    int maybe_unary = t->kind == F_OP && (is(t, "-") || is(t, "+") || is(t, "*") || is(t, "&") || is(t, "!") ||
+                                          is(t, "~") || is(t, "++") || is(t, "--"));
+    if (maybe_unary && (!p || !valueish(p)) && !(p && (is(t, "++") || is(t, "--")) && valueish(p)))
+        ls->unary_prev = 1;
+    if (!p) return 0;
+    if (t->kind == F_LCOMMENT || t->kind == F_BCOMMENT) return 1;
+    const char *T = t->text, *Pt = p->text;
+    if (is(t, ",") || is(t, ";")) return 0;
+    if (is(t, ")") || is(t, "]")) return 0;
+    if (is(t, ".") || is(t, "->") || is(t, "::") || is(t, "..") || is(t, "..=") || is(t, "...")) return is(t, "...") && is(p, ",");
+    if (is(p, ".") || is(p, "->") || is(p, "::") || is(p, "(") || is(p, "[") || is(p, "@") || is(p, "..") ||
+        is(p, "..=") || is(p, "!") || is(p, "~"))
+        return 0;
+    if (was_unary) return 0;
+    if (is(p, ",")) return cfg->space_after_comma;
+    if (is(t, "<") && p->kind == F_WORD && (is(p, "Result") || is(p, "Future"))) {
+        ls->generic++;
+        return 0;
+    }
+    if (ls->generic && is(p, "<")) return 0;
+    if (ls->generic && (is(t, ">") || is(t, ">>"))) {
+        ls->generic -= is(t, ">>") ? 2 : 1;
+        if (ls->generic < 0) ls->generic = 0;
+        return 0;
+    }
+    if (is(t, "(")) {
+        if (word_in(p, paren_words)) return cfg->space_after_keyword;
+        if (p->kind == F_WORD || is(p, ")") || is(p, "]")) return 0;
+        return 1;
+    }
+    if (is(t, "[")) return !(p->kind == F_WORD || valueish(p));
+    if (is(t, "{")) return p->kind == F_WORD && !word_in(p, op_words) && !word_in(p, paren_words) ? t->space_before : 1;
+    if (is(t, "}")) return is(p, "{") ? t->space_before : 1;
+    if (is(p, "{")) return 1;
+    if ((is(t, "++") || is(t, "--")) && valueish(p)) return 0;
+    if (is(t, "?")) {
+        ls->ternary++;
+        return 1;
+    }
+    if (is(p, "?")) return 1;
+    if (is(t, ":")) {
+        if (ls->ternary) {
+            ls->ternary--;
+            return 1;
+        }
+        return 0;
+    }
+    if (is(p, ":")) return 1;
+    if (t->kind == F_OP && (is(t, "-") || is(t, "+") || is(t, "*") || is(t, "&") || is(t, "!") || is(t, "~") ||
+                            is(t, "++") || is(t, "--"))) {
+        int unary = !valueish(p);
+        if ((is(t, "*") || is(t, "&")) && (p->kind == F_WORD || is(p, ")"))) {
+            int after = n && n->space_before && n->newlines == 0;
+            unary = t->space_before && !after;
+            if (!t->space_before && after) unary = 1;
+        }
+        if (unary) {
+            ls->unary_prev = 1;
+            return 1;
+        }
+        return cfg->space_around_ops;
+    }
+    if (t->kind == F_OP && binary_op(T)) return cfg->space_around_ops;
+    if (p->kind == F_OP && binary_op(Pt)) return cfg->space_around_ops;
+    if (p->kind != F_OP && t->kind != F_OP) return 1;
+    return t->space_before;
+}
+
+char *fmt_source(const char *src, const MoxyConfig *cfg) {
+    FTokVec toks = scan(src);
+    Buf out = {0};
+    int depth = 0, parens = 0;
+    LineState ls = {0};
+    const FTok *prev = NULL;
+    for (int i = 0; i < toks.len; i++) {
+        FTok *t = &toks.items[i];
+        FTok *n = i + 1 < toks.len ? &toks.items[i + 1] : NULL;
+        int first = t->newlines > 0 || i == 0;
+        if (first) {
+            if (i > 0) {
+                int nl = t->newlines > 3 ? 3 : t->newlines;
+                for (int k = 0; k < nl; k++) buf_putc(&out, '\n');
+            } else {
+                for (int k = 0; k < t->newlines && k < 2; k++) buf_putc(&out, '\n');
+            }
+            memset(&ls, 0, sizeof(ls));
+            prev = NULL;
+            if (t->kind == F_DIRECTIVE) {
+                buf_put(&out, t->text);
+                continue;
+            }
+            int d = depth;
+            if (is(t, "}")) d--;
+            int extra = parens > 0 && !(is(t, ")") || is(t, "]")) ? 1 : 0;
+            if (d < 0) d = 0;
+            for (int k = 0; k < (d + extra) * cfg->indent; k++) buf_putc(&out, ' ');
+        }
+        int was_unary = ls.unary_prev;
+        ls.unary_prev = 0;
+        int sp = space_between(prev, t, n, &ls, cfg, was_unary);
+        if (!first && sp) buf_putc(&out, ' ');
+        buf_put(&out, t->text);
+        if (is(t, "{")) depth++;
+        else if (is(t, "}")) depth = depth > 0 ? depth - 1 : 0;
+        else if (is(t, "(") || is(t, "[")) parens++;
+        else if (is(t, ")") || is(t, "]")) parens = parens > 0 ? parens - 1 : 0;
+        prev = t;
+    }
+    if (cfg->trailing_newline) buf_putc(&out, '\n');
+    char *res = buf_take(&out);
+    for (int i = 0; i < toks.len; i++) free(toks.items[i].text);
+    free(toks.items);
+    if (cfg->max_line_length > 0) {
+        int line = 1, col = 0;
+        for (const char *p = res; *p; p++) {
+            if (*p == '\n') {
+                if (col > cfg->max_line_length) fprintf(stderr, "warning: line %d is longer than %d\n", line, cfg->max_line_length);
+                line++;
+                col = 0;
+            } else {
+                col++;
+            }
+        }
+    }
+    return res;
+}

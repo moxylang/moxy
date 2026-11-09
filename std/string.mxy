@@ -1,25 +1,33 @@
-#include <string.h>
+// std/string.mxy — helpers on top of the string methods
+// (s.len, s.contains(x), s.split(sep), s.trim(), s.upper(), s.replace(a, b), ...)
 
-int str_len(string s) {
-  return strlen(s);
+int str_len(string s) { return (int)s.len; }
+bool str_eq(string a, string b) { return a == b; }
+bool str_contains(string haystack, string needle) { return haystack.contains(needle); }
+bool str_starts_with(string s, string prefix) { return s.starts_with(prefix); }
+bool str_ends_with(string s, string suffix) { return s.ends_with(suffix); }
+
+string join(string[] parts, string sep) { return parts.join(sep); }
+
+string pad_left(string s, int width, char fill) {
+    string out = s;
+    while (out.len < width) { out = string(fill) + out; }
+    return out;
 }
 
-int str_eq(string a, string b) {
-  return strcmp(a, b) == 0;
+string pad_right(string s, int width, char fill) {
+    string out = s;
+    while (out.len < width) { out = out + string(fill); }
+    return out;
 }
 
-int str_contains(string haystack, string needle) {
-  return strstr(haystack, needle) != NULL;
+string reverse(string s) {
+    string out = "";
+    for i in 0..s.len { out = out + string(s[s.len - 1 - i]); }
+    return out;
 }
 
-int str_starts_with(string s, string prefix) {
-  int plen = strlen(prefix);
-  return strncmp(s, prefix, plen) == 0;
-}
-
-int str_ends_with(string s, string suffix) {
-  int slen = strlen(s);
-  int suflen = strlen(suffix);
-  if (suflen > slen) { return 0; }
-  return strcmp(s + slen - suflen, suffix) == 0;
+int count(string s, string sub) {
+    if (sub.len == 0) { return 0; }
+    return (int)s.split(sub).len - 1;
 }

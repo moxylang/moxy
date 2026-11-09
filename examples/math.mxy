@@ -1,9 +1,9 @@
 // math.mxy — helper functions included from features.mxy
 
 int square(int x) {
-  return x * x;
+    return x * x;
 }
 
 int cube(int x) {
-  return x * x * x;
+    return x * x * x;
 }

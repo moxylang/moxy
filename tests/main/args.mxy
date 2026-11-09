@@ -1,0 +1,4 @@
+void main(string[] args) {
+    assert(args.len == 1);
+    assert(args[0].len > 0);
+}

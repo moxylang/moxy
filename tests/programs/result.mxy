@@ -1,0 +1,13 @@
+void main() {
+    Result<int> ok = Ok(42);
+    match ok {
+        Ok(v) => print(v),
+        Err(e) => print(e),
+    }
+
+    Result<int> fail = Err("bad");
+    match fail {
+        Ok(v) => print(v),
+        Err(e) => print(e),
+    }
+}

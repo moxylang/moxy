@@ -165,3 +165,16 @@
   ";"
   ":"
 ] @punctuation.delimiter
+
+; Moxy's contextual keywords parse as identifiers in the C grammar
+((identifier) @keyword
+  (#any-of? @keyword "match" "defer" "await" "in" "namespace" "using" "ref" "weak" "fn" "auto"))
+
+((type_identifier) @keyword
+  (#any-of? @keyword "ref" "weak" "namespace"))
+
+((type_identifier) @type.builtin
+  (#any-of? @type.builtin "string" "Result" "Future" "map"))
+
+((identifier) @function.builtin
+  (#any-of? @function.builtin "print" "assert" "panic"))

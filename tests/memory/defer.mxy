@@ -1,0 +1,28 @@
+#include <stdio.h>
+
+int find(int[] xs, int target) {
+    defer print("search done");
+    for i, x in xs {
+        if (x == target) { return (int)i; }
+    }
+    return -1;
+}
+
+void main() {
+    defer print("main done");
+    {
+        defer print("inner 2");
+        defer print("inner 1");
+        print("in block");
+    }
+    print(find([4, 5, 6], 5));
+    print(find([4, 5, 6], 9));
+    for i in 0..3 {
+        defer print("end of iteration \(i)");
+        if (i == 1) { continue; }
+        if (i == 2) { break; }
+    }
+    FILE *f = fopen("/dev/null", "w");
+    defer fclose(f);
+    fprintf(f, "ok");
+}

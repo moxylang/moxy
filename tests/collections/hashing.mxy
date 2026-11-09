@@ -1,0 +1,18 @@
+// maps are real hash maps: large maps stay fast and keep insertion order
+void main() {
+    map[int, int] squares = {};
+    for i in 0..20000 { squares[i] = i * i; }
+    assert(squares.len == 20000);
+    assert(squares[1234] == 1234 * 1234);
+    for i in 0..20000 {
+        if (i % 2 == 0) { squares.remove(i); }
+    }
+    assert(squares.len == 10000 && !squares.has(10) && squares.has(11));
+
+    map[string, int] order = {};
+    order["z"] = 1;
+    order["a"] = 2;
+    order["m"] = 3;
+    assert(order.keys().join(",") == "z,a,m");
+    assert(order.get_or("q", 99) == 99);
+}

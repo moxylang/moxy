@@ -1,0 +1,348 @@
+#include <string.h>
+
+#include "diag/diag.h"
+#include "sema.h"
+
+Type *check_init(Node **slot, Type *t);
+void check_match(Node *n);
+
+static void warn_unused(Scope *s) {
+    if (!(lint_mode & LINT_UNUSED)) return;
+    for (int i = 0; i < s->names.cap; i++) {
+        Sym *sym = s->names.vals[i];
+        if (!s->names.keys[i] || !sym || sym->kind != S_VAR || sym->used || sym->param) continue;
+        if (sym->name[0] == '_') continue;
+        diag_warn(sym->loc, "unused variable '%s'", sym->name);
+    }
+}
+
+void pop_checked(void) {
+    warn_unused(cur_scope);
+    scope_pop();
+}
+
+static void warn_empty(Node *body, const char *what) {
+    if ((lint_mode & LINT_EMPTY) && body && body->kind == N_BLOCK && body->list.len == 0)
+        diag_warn(body->loc, "empty %s body", what);
+}
+
+static void warn_shadow(const char *name, Loc loc) {
+    if (!(lint_mode & LINT_SHADOW)) return;
+    for (Scope *s = cur_scope->parent; s && s->kind != SC_NS && s->kind != SC_GLOBAL; s = s->parent) {
+        Sym *o = scope_get(s, name);
+        if (o && o->kind == S_VAR) {
+            diag_warn(loc, "'%s' shadows a variable declared at line %d", name, o->loc.line);
+            return;
+        }
+    }
+}
+
+static void local_var(Node *n) {
+    Type *t;
+    if (n->op == 1) {
+        t = check_expr(&n->a, NULL);
+        Type *u = type_unqual(t);
+        if (u->kind == TY_NULL) {
+            diag_error(n->loc, "cannot infer a type from null");
+            t = ty_unknown;
+        } else if (u->kind == TY_VOID) {
+            diag_error(n->loc, "cannot store a void value");
+        } else if (u->kind == TY_FUNC) {
+            t = type_ptr(u);
+        }
+        n->type = t;
+    } else {
+        t = resolve_type(n->tref);
+        if (n->a) {
+            check_init(&n->a, t);
+            coerce(&n->a, t, "initializer");
+            Type *u = type_unqual(t);
+            if (u->kind == TY_ARRAY && u->len < 0 && !u->cname) {
+                long len = n->a->kind == N_INITLIST ? n->a->list.len : -1;
+                if (n->a->kind == N_STR) len = (long)strlen(n->a->text) + 1;
+                if (len >= 0) t = type_array(u->base, len);
+            }
+        }
+        n->type = t;
+    }
+    Type *u = type_unqual(t);
+    if (u->kind == TY_VOID) diag_error(n->loc, "variables cannot have type void");
+    if (n->flags & F_WEAK) diag_error(n->loc, "'weak' is only allowed on struct fields");
+    if ((n->flags & F_STATIC) && type_is_managed(t) && n->a && n->a->kind != N_STR && n->a->kind != N_NULL)
+        diag_error(n->loc, "static locals of managed types need a literal or null initializer");
+    if (type_is_managed(t) || (u->kind == TY_ARRAY && type_is_managed(u->base))) cur_fn->has_cleanup = 1;
+    warn_shadow(n->name, n->loc);
+    Sym *s = sym_new(S_VAR, n->name, n->loc);
+    s->type = t;
+    s->decl = n;
+    s->owner = cur_fn;
+    n->sym = s;
+    scope_declare(cur_scope, s);
+}
+
+static void local_decls(Node *n) {
+    for (int i = 0; i < n->list.len; i++) {
+        Node *d = n->list.items[i];
+        d->ns = xstrdup(cur_scope->ns);
+        switch (d->kind) {
+        case N_VAR: local_var(d); break;
+        case N_STRUCT: define_struct(d, NULL); break;
+        case N_CENUM: define_cenum(d); break;
+        case N_TYPEDEF: {
+            Sym *s = sym_new(S_TYPE, d->name, d->loc);
+            if (d->tref->kind == TR_TAG && d->tref->def && !d->tref->def->name) {
+                d->tref->def->ns = xstrdup(cur_scope->ns);
+                s->type = d->tref->def->kind == N_CENUM ? define_cenum(d->tref->def)
+                                                         : define_struct(d->tref->def, d->name);
+            } else {
+                s->type = resolve_type(d->tref);
+            }
+            s->decl = d;
+            scope_declare(cur_scope, s);
+            vec_push(prog.typedefs, d);
+            break;
+        }
+        case N_FUNC:
+            diag_error(d->loc, "function declarations inside functions are not supported");
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+static Type *range_type(Node *r) {
+    Type *a = check_expr(&r->a, NULL);
+    Type *b = check_expr(&r->b, NULL);
+    if ((!type_is_integer(a) && !type_is_unknownish(a)) || (!type_is_integer(b) && !type_is_unknownish(b))) {
+        diag_error(r->loc, "range bounds must be integers");
+        return ty_int;
+    }
+    if (type_is_unknownish(a) && type_is_unknownish(b)) return ty_long;
+    if (type_is_unknownish(a)) return type_rank(b) < 4 ? ty_int : b;
+    if (type_is_unknownish(b)) return type_rank(a) < 4 ? ty_int : a;
+    Type *c = type_common(a, b);
+    return type_rank(c) < 4 ? ty_int : c;
+}
+
+static void loop_var(const char *name, Type *t, Node *n, int which) {
+    if (!name) return;
+    Sym *s = sym_new(S_VAR, name, n->loc);
+    s->type = t;
+    s->owner = cur_fn;
+    s->decl = NULL;
+    scope_declare(cur_scope, s);
+    if (which == 1) n->sym = s;
+    else vec_push(n->captures, s);
+}
+
+static void check_forin(Node *n) {
+    scope_push(SC_BLOCK);
+    Node *it = n->a;
+    if (it->kind == N_RANGE) {
+        Type *t = range_type(it);
+        it->type = t;
+        if (n->name2) diag_error(n->loc, "a range loop has one variable");
+        loop_var(n->name, t, n, 1);
+    } else {
+        Type *t = check_expr(&n->a, NULL);
+        Type *u = type_unqual(t);
+        switch (u->kind) {
+        case TY_LIST:
+            if (n->name2) {
+                loop_var(n->name, ty_long, n, 1);
+                loop_var(n->name2, u->base, n, 2);
+            } else {
+                loop_var(n->name, u->base, n, 1);
+            }
+            break;
+        case TY_STRING:
+            if (n->name2) {
+                loop_var(n->name, ty_long, n, 1);
+                loop_var(n->name2, ty_char, n, 2);
+            } else {
+                loop_var(n->name, ty_char, n, 1);
+            }
+            break;
+        case TY_MAP:
+            loop_var(n->name, u->key, n, 1);
+            if (n->name2) loop_var(n->name2, u->base, n, 2);
+            break;
+        case TY_ARRAY:
+            if (u->len < 0 && !u->cname) diag_error(n->a->loc, "cannot iterate over an array of unknown length");
+            if (n->name2) {
+                loop_var(n->name, ty_long, n, 1);
+                loop_var(n->name2, u->base, n, 2);
+            } else {
+                loop_var(n->name, u->base, n, 1);
+            }
+            break;
+        default: {
+            char *s = type_str(t);
+            diag_error(n->a->loc, "cannot iterate over a value of type %s", s);
+            if (type_is_unknownish(u)) diag_hint("Moxy can iterate over lists, maps, strings, arrays and ranges");
+            free(s);
+            loop_var(n->name, ty_unknown, n, 1);
+            if (n->name2) loop_var(n->name2, ty_unknown, n, 2);
+        }
+        }
+        if (type_is_managed(t)) cur_fn->has_cleanup = 1;
+    }
+    cur_fn->loops++;
+    check_stmt(n->d);
+    cur_fn->loops--;
+    pop_checked();
+}
+
+static void check_return(Node *n) {
+    if (cur_fn->in_defer) diag_error(n->loc, "return is not allowed inside defer");
+    if (cur_fn->is_lambda && cur_fn->infer_ret && !cur_fn->ret) {
+        if (!n->a) {
+            cur_fn->ret = ty_void;
+            return;
+        }
+        Type *t = check_init(&n->a, NULL);
+        cur_fn->ret = type_unqual(t)->kind == TY_NULL ? ty_unknown : t;
+        return;
+    }
+    Type *ret = cur_fn->ret;
+    Type *u = type_unqual(ret);
+    if (!n->a) {
+        int is_main = !cur_fn->is_lambda && cur_fn->node->name && strcmp(cur_fn->node->name, "main") == 0;
+        if (u->kind != TY_VOID && !is_main) diag_error(n->loc, "this function must return a value");
+        return;
+    }
+    if (u->kind == TY_VOID) {
+        check_expr(&n->a, NULL);
+        diag_error(n->a->loc, "a void function cannot return a value");
+        return;
+    }
+    check_init(&n->a, ret);
+    coerce(&n->a, ret, "return value");
+}
+
+void check_block_list(NodeList *list) {
+    for (int i = 0; i < list->len; i++) check_stmt(list->items[i]);
+}
+
+void check_stmt(Node *n) {
+    switch (n->kind) {
+    case N_BLOCK:
+        scope_push(SC_BLOCK);
+        check_block_list(&n->list);
+        pop_checked();
+        break;
+    case N_DECLS:
+        local_decls(n);
+        break;
+    case N_EXPR:
+        check_expr(&n->a, NULL);
+        break;
+    case N_IF:
+        check_cond(&n->a);
+        warn_empty(n->b, "if");
+        scope_push(SC_BLOCK);
+        check_stmt(n->b);
+        pop_checked();
+        if (n->c) {
+            scope_push(SC_BLOCK);
+            check_stmt(n->c);
+            pop_checked();
+        }
+        break;
+    case N_WHILE:
+        check_cond(&n->a);
+        warn_empty(n->b, "while");
+        cur_fn->loops++;
+        scope_push(SC_BLOCK);
+        check_stmt(n->b);
+        pop_checked();
+        cur_fn->loops--;
+        break;
+    case N_DO:
+        cur_fn->loops++;
+        scope_push(SC_BLOCK);
+        check_stmt(n->a);
+        pop_checked();
+        cur_fn->loops--;
+        check_cond(&n->b);
+        break;
+    case N_FOR:
+        warn_empty(n->d, "for");
+        scope_push(SC_BLOCK);
+        if (n->a) check_stmt(n->a);
+        if (n->b) check_cond(&n->b);
+        if (n->c) check_expr(&n->c, NULL);
+        cur_fn->loops++;
+        check_stmt(n->d);
+        cur_fn->loops--;
+        pop_checked();
+        break;
+    case N_FORIN:
+        check_forin(n);
+        break;
+    case N_RETURN:
+        check_return(n);
+        break;
+    case N_BREAK:
+        if (cur_fn->in_defer) diag_error(n->loc, "break is not allowed inside defer");
+        else if (!cur_fn->loops && !cur_fn->switches) diag_error(n->loc, "break outside of a loop or switch");
+        break;
+    case N_CONTINUE:
+        if (cur_fn->in_defer) diag_error(n->loc, "continue is not allowed inside defer");
+        else if (!cur_fn->loops) diag_error(n->loc, "continue outside of a loop");
+        break;
+    case N_GOTO:
+        cur_fn->has_goto = 1;
+        break;
+    case N_LABEL:
+        cur_fn->has_goto = 1;
+        check_stmt(n->a);
+        break;
+    case N_SWITCH: {
+        Type *t = check_expr(&n->a, NULL);
+        if (!type_is_integer(t) && !type_is_unknownish(t)) {
+            char *s = type_str(t);
+            diag_error(n->a->loc, "switch needs an integer, found %s", s);
+            if (type_unqual(t)->kind == TY_STRING) diag_hint("use match to branch on strings");
+            free(s);
+        }
+        cur_fn->switches++;
+        check_stmt(n->b);
+        cur_fn->switches--;
+        if (n->b->kind == N_BLOCK) {
+            /* a case label can jump past an initialization; cleanup would see garbage */
+            for (int i = 0; i < n->b->list.len; i++) {
+                Node *d = n->b->list.items[i];
+                if (d->kind != N_DECLS) continue;
+                for (int j = 0; j < d->list.len; j++) {
+                    Node *v = d->list.items[j];
+                    if (v->kind == N_VAR && v->sym && type_is_managed(v->sym->type)) {
+                        diag_error(v->loc, "'%s' needs its own block inside a switch", v->name);
+                        diag_hint("wrap the case body in braces: case 1: { ... break; }");
+                    }
+                }
+            }
+        }
+        break;
+    }
+    case N_CASE:
+        check_expr(&n->a, NULL);
+        if (n->b) check_expr(&n->b, NULL);
+        break;
+    case N_MATCH:
+        check_match(n);
+        break;
+    case N_DEFER:
+        cur_fn->in_defer++;
+        cur_fn->has_cleanup = 1;
+        check_stmt(n->a);
+        cur_fn->in_defer--;
+        break;
+    case N_STATIC_ASSERT:
+        check_expr(&n->a, NULL);
+        break;
+    default:
+        break;
+    }
+}

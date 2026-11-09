@@ -1,0 +1,24 @@
+// conditional compilation keeps exactly one branch
+#define FAST 1
+
+#ifdef PRODUCTION
+int mode() { return 1; }
+#else
+int mode() { return 2; }
+#endif
+
+#if FAST
+string speed() { return "fast"; }
+#elif SLOW
+string speed() { return "slow"; }
+#else
+string speed() { return "normal"; }
+#endif
+
+void main() {
+    assert(mode() == 2);
+    assert(speed() == "fast");
+#ifdef PRODUCTION
+    assert(false);
+#endif
+}

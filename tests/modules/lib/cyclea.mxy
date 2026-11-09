@@ -1,0 +1,2 @@
+#include "cycleb.mxy"
+int from_a() { return 1; }

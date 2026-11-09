@@ -1,0 +1,311 @@
+#include <string.h>
+
+#include "internal.h"
+
+static Vec(Type *) results;
+static StrMap seen_results;
+static StrMap emitted;
+static StrMap visiting;
+
+void need_type(Type *t) {
+    t = type_unqual(t);
+    if (!t) return;
+    switch (t->kind) {
+    case TY_RESULT: {
+        char *m = type_mangle(t);
+        if (!strmap_get(&seen_results, m)) {
+            strmap_put(&seen_results, m, t);
+            vec_push(results, t);
+            char *name = result_name(t);
+            buf_fmt(&out.fwd, "typedef struct %s %s;\n", name, name);
+            free(name);
+            need_type(t->base);
+        }
+        free(m);
+        break;
+    }
+    case TY_LIST: case TY_FUTURE: case TY_PTR: case TY_ARRAY:
+        need_type(t->base);
+        break;
+    case TY_MAP:
+        need_type(t->key);
+        need_type(t->base);
+        break;
+    case TY_CLOSURE: case TY_FUNC:
+        need_type(t->base);
+        for (int i = 0; i < t->params.len; i++) need_type(t->params.items[i]);
+        break;
+    default:
+        break;
+    }
+}
+
+static void open_cond(Buf *b, const char *cond) {
+    if (cond) buf_fmt(b, "#if %s\n", cond);
+}
+
+static void close_cond(Buf *b, const char *cond) {
+    if (cond) buf_put(b, "#endif\n");
+}
+
+static void emit_def(Type *t);
+
+/* types this one embeds by value and therefore must be defined first */
+static void value_deps(Type *t) {
+    Type *u = type_unqual(t);
+    while (u && u->kind == TY_ARRAY) u = type_unqual(u->base);
+    if (!u) return;
+    if ((u->kind == TY_STRUCT && !u->is_ref && u->decl) || (u->kind == TY_ENUM && !u->simple) || u->kind == TY_RESULT)
+        emit_def(u);
+}
+
+static void emit_fields(Buf *b, Node *decl, int indent);
+
+static void emit_field(Buf *b, Node *f, int indent) {
+    for (int i = 0; i < indent; i++) buf_put(b, "    ");
+    Type *u = type_unqual(f->type);
+    if (!f->name && u->kind == TY_STRUCT && u->decl && (u->decl->flags & F_INLINE)) {
+        buf_put(b, u->is_union ? "union {\n" : "struct {\n");
+        emit_fields(b, u->decl, indent + 1);
+        for (int i = 0; i < indent; i++) buf_put(b, "    ");
+        buf_put(b, "};\n");
+        return;
+    }
+    char *d = cdecl(f->type, f->name ? f->name : "");
+    buf_put(b, d);
+    free(d);
+    if (f->a) {
+        char *w = const_text(f->a);
+        buf_fmt(b, " : %s", w ? w : "1");
+        free(w);
+    }
+    buf_put(b, ";\n");
+}
+
+static void emit_fields(Buf *b, Node *decl, int indent) {
+    for (int i = 0; i < decl->list.len; i++) {
+        Node *f = decl->list.items[i];
+        if (f->kind == N_DIRECTIVE) {
+            buf_fmt(b, "%s\n", f->text);
+            continue;
+        }
+        if (f->kind != N_FIELD) continue;
+        Type *u = type_unqual(f->type);
+        if (u->kind == TY_STRUCT && u->decl && !(u->decl->flags & F_INLINE)) value_deps(u);
+        else value_deps(f->type);
+        emit_field(b, f, indent);
+    }
+}
+
+static void emit_struct(Type *u) {
+    Node *decl = u->decl;
+    Buf b = {0};
+    for (int i = 0; i < decl->list.len; i++) {
+        Node *f = decl->list.items[i];
+        if (f->kind == N_FIELD) value_deps(f->type);
+    }
+    open_cond(&b, decl->cond);
+    buf_fmt(&b, "%s %s {\n", u->is_union ? "union" : "struct", u->cname);
+    if (u->is_ref) buf_put(&b, "    mxy_obj __hdr;\n");
+    emit_fields(&b, decl, 1);
+    if (!decl->list.len && !u->is_ref) buf_put(&b, "    char __empty;\n");
+    buf_put(&b, "};\n");
+    close_cond(&b, decl->cond);
+    buf_put(&out.types, buf_str(&b));
+    buf_free(&b);
+}
+
+static void emit_tagged_enum(Type *u) {
+    Node *decl = u->decl;
+    for (int i = 0; i < decl->list.len; i++) {
+        Node *v = decl->list.items[i];
+        for (int j = 0; j < v->params.len; j++) value_deps(v->params.items[j].type->resolved);
+    }
+    Buf *b = &out.types;
+    open_cond(b, decl->cond);
+    buf_fmt(b, "struct %s {\n    %s_Tag tag;\n    union {\n", u->cname, u->cname);
+    for (int i = 0; i < decl->list.len; i++) {
+        Node *v = decl->list.items[i];
+        if (!v->params.len) continue;
+        buf_put(b, "        struct {");
+        for (int j = 0; j < v->params.len; j++) {
+            char *d = cdecl(v->params.items[j].type->resolved, v->params.items[j].name);
+            buf_fmt(b, " %s;", d);
+            free(d);
+        }
+        buf_fmt(b, " } %s;\n", v->name);
+    }
+    buf_put(b, "    };\n};\n");
+    close_cond(b, decl->cond);
+}
+
+static void emit_result(Type *u) {
+    value_deps(u->base);
+    char *name = result_name(u);
+    Type *inner = type_unqual(u->base);
+    buf_fmt(&out.types, "struct %s {\n    bool ok;\n", name);
+    if (inner->kind != TY_VOID) {
+        char *d = cdecl(u->base, "val");
+        buf_fmt(&out.types, "    %s;\n", d);
+        free(d);
+    }
+    buf_put(&out.types, "    mxy_str err;\n};\n");
+    free(name);
+}
+
+static char *def_key(Type *u) {
+    if (u->kind == TY_RESULT) return result_name(u);
+    return xstrdup(u->cname);
+}
+
+static void emit_def(Type *t) {
+    Type *u = type_unqual(t);
+    char *key = def_key(u);
+    if (strmap_get(&emitted, key)) {
+        free(key);
+        return;
+    }
+    if (strmap_get(&visiting, key)) {
+        free(key);
+        return;
+    }
+    strmap_put(&visiting, key, (void *)1);
+    if (u->kind == TY_STRUCT) emit_struct(u);
+    else if (u->kind == TY_ENUM) emit_tagged_enum(u);
+    else if (u->kind == TY_RESULT) emit_result(u);
+    strmap_put(&emitted, key, (void *)1);
+    free(key);
+}
+
+static void emit_cenum(Node *decl) {
+    Type *t = decl->type;
+    Buf *b = &out.fwd;
+    open_cond(b, decl->cond);
+    if (t->cname && str_starts(t->cname, "enum ")) buf_fmt(b, "%s {\n", t->cname);
+    else if (t->cname) buf_put(b, "typedef enum {\n");
+    else buf_put(b, "enum {\n");
+    for (int i = 0; i < decl->list.len; i++) {
+        Node *en = decl->list.items[i];
+        char *cn = cname_for(decl->ns, en->name);
+        if (en->a) {
+            char *v = const_text(en->a);
+            buf_fmt(b, "    %s = %s,\n", cn, v ? v : "0");
+            free(v);
+        } else {
+            buf_fmt(b, "    %s,\n", cn);
+        }
+        free(cn);
+    }
+    if (t->cname && !str_starts(t->cname, "enum ")) buf_fmt(b, "} %s;\n", t->cname);
+    else buf_put(b, "};\n");
+    close_cond(b, decl->cond);
+}
+
+static void emit_moxy_enum_head(Node *decl) {
+    Type *t = decl->type;
+    Buf *b = &out.fwd;
+    open_cond(b, decl->cond);
+    buf_put(b, "typedef enum {\n");
+    for (int i = 0; i < decl->list.len; i++) buf_fmt(b, "    %s_%s,\n", t->cname, decl->list.items[i]->name);
+    buf_fmt(b, "} %s%s;\n", t->cname, t->simple ? "" : "_Tag");
+    if (!t->simple) buf_fmt(b, "typedef struct %s %s;\n", t->cname, t->cname);
+    close_cond(b, decl->cond);
+}
+
+static void emit_ref_helpers(Type *u) {
+    Node *decl = u->decl;
+    const char *T = u->cname;
+    Buf *b = &out.helpers;
+    buf_fmt(&out.hproto, "static void __mxy_dropf_%s(void *p);\nstatic void __mxy_fmtf_%s(mxy_buf *b, const void *p);\n", T, T);
+    buf_fmt(b, "static void __mxy_dropf_%s(void *p) {\n    %s *o = (%s *)p;\n    (void)o;\n", T, T, T);
+    for (int i = 0; i < decl->list.len; i++) {
+        Node *f = decl->list.items[i];
+        if (f->kind != N_FIELD || !f->name || !managed(f->type)) continue;
+        char *e = xfmt("o->%s", f->name);
+        if (f->flags & F_WEAK) raw_line(b, 1, "mxy_obj_weak_release(%s);", e);
+        else release_into(b, 1, f->type, e);
+        free(e);
+    }
+    buf_put(b, "}\n");
+    buf_fmt(b, "static void __mxy_fmtf_%s(mxy_buf *b, const void *p) {\n    const %s *x = (const %s *)p;\n    (void)x;\n",
+            T, T, T);
+    buf_fmt(b, "    mxy_buf_puts(b, \"%s {\");\n", u->name);
+    int first = 1;
+    for (int i = 0; i < decl->list.len; i++) {
+        Node *f = decl->list.items[i];
+        if (f->kind != N_FIELD || !f->name) continue;
+        buf_fmt(b, "    mxy_buf_puts(b, \"%s%s: \");\n", first ? " " : ", ", f->name);
+        first = 0;
+        Type *fu = type_unqual(f->type);
+        if (f->a) {
+            buf_fmt(b, "    MXY_FMT_ANY(b, x->%s);\n", f->name);
+        } else if (fu->kind == TY_STRUCT && fu->is_ref) {
+            buf_fmt(b, "    if (x->%s) mxy_buf_printf(b, \"%s@%%p\", (const void *)x->%s); else mxy_buf_puts(b, \"null\");\n",
+                    f->name, fu->name, f->name);
+        } else if (fu->kind == TY_ARRAY) {
+            buf_put(b, "    mxy_buf_puts(b, \"[...]\");\n");
+        } else {
+            char *vw = vw_of(f->type);
+            buf_fmt(b, "    mxy_vw_fmt(%s, b, &x->%s, 1);\n", vw, f->name);
+            free(vw);
+        }
+    }
+    buf_fmt(b, "    mxy_buf_puts(b, \"%s}\");\n}\n", first ? "" : " ");
+}
+
+static void emit_typedef(Node *td) {
+    Type *rt = td->tref->resolved;
+    if (!rt) return;
+    Type *u = type_unqual(rt);
+    char *cn = cname_for(td->ns, td->name);
+    if (td->op == 1 || ((u->kind == TY_STRUCT || u->kind == TY_ENUM) && u->cname && strcmp(u->cname, cn) == 0)) {
+        free(cn);
+        return;
+    }
+    if (u->kind == TY_CENUM && u->cname && strcmp(u->cname, cn) == 0) {
+        free(cn);
+        return;
+    }
+    open_cond(&out.types, td->cond);
+    char *d = cdecl(rt, cn);
+    buf_fmt(&out.types, "typedef %s;\n", d);
+    close_cond(&out.types, td->cond);
+    free(d);
+    free(cn);
+}
+
+void emit_types(void) {
+    for (int i = 0; i < prog.cenums.len; i++) emit_cenum(prog.cenums.items[i]);
+    for (int i = 0; i < prog.enums.len; i++) emit_moxy_enum_head(prog.enums.items[i]);
+    for (int i = 0; i < prog.structs.len; i++) {
+        Node *d = prog.structs.items[i];
+        Type *t = d->type;
+        if (!t || (d->flags & F_INLINE) || !t->cname || str_starts(t->cname, "struct ")) continue;
+        open_cond(&out.fwd, d->cond);
+        buf_fmt(&out.fwd, "typedef %s %s %s;\n", t->is_union ? "union" : "struct", t->cname, t->cname);
+        close_cond(&out.fwd, d->cond);
+    }
+    for (int i = 0; i < prog.structs.len; i++) {
+        Node *d = prog.structs.items[i];
+        if (!d->type || (d->flags & F_INLINE) || !(d->flags & F_BODY)) continue;
+        emit_def(d->type);
+    }
+    for (int i = 0; i < prog.enums.len; i++) {
+        Type *t = prog.enums.items[i]->type;
+        if (!t->simple) emit_def(t);
+    }
+    for (int i = 0; i < prog.typedefs.len; i++) emit_typedef(prog.typedefs.items[i]);
+    for (int i = 0; i < prog.structs.len; i++) {
+        Type *t = prog.structs.items[i]->type;
+        if (t && t->is_ref && (prog.structs.items[i]->flags & F_BODY)) emit_ref_helpers(t);
+    }
+    /* results may be discovered while emitting, so loop until stable */
+    for (int i = 0; i < results.len; i++) emit_def(results.items[i]);
+}
+
+void types_reset_gen(void) {
+    results.len = 0;
+    strmap_free(&seen_results);
+    strmap_free(&emitted);
+    strmap_free(&visiting);
+}

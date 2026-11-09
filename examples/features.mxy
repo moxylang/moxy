@@ -12,232 +12,232 @@
 // ---- Enums ----
 
 enum Color {
-  Red,
-  Green,
-  Blue
+    Red,
+    Green,
+    Blue
 }
 
 enum Shape {
-  Circle(float radius),
-  Rect(int w, int h),
-  None
+    Circle(float radius),
+    Rect(int w, int h),
+    None
 }
 
 // ---- Functions with parameters ----
 
 int double_it(int x) {
-  return x * 2;
+    return x * 2;
 }
 
 int add(int a, int b) {
-  return a + b;
+    return a + b;
 }
 
 int factorial(int n) {
-  if (n <= 1) {
-    return 1;
-  }
-  return n * factorial(n - 1);
+    if (n <= 1) {
+        return 1;
+    }
+    return n * factorial(n - 1);
 }
 
 bool is_even(int n) {
-  return n % 2 == 0;
+    return n % 2 == 0;
 }
 
 // Functions calling other functions
 int sum_and_double(int a, int b) {
-  int s = add(a, b);
-  return s * 2;
+    int s = add(a, b);
+    return s * 2;
 }
 
 // Void return
 void greet(string who) {
-  print(who);
-  return;
+    print(who);
+    return;
 }
 
 // ---- Entry point ----
 
 void main() {
-  // Primitive types
-  int count = 10;
-  float pi = 3.14;
-  double tau = 6.28318;
-  char grade = 'A';
-  bool alive = true;
-  long population = 8000000;
-  short temp = 72;
-  string name = "moxy";
+    // Primitive types
+    int count = 10;
+    float pi = 3.14;
+    double tau = 6.28318;
+    char grade = 'A';
+    bool alive = true;
+    long population = 8000000;
+    short temp = 72;
+    string name = "moxy";
 
-  print(name);
-  print(count);
-  print(pi);
-  print(tau);
-  print(grade);
-  print(alive);
-  print(population);
-  print(temp);
+    print(name);
+    print(count);
+    print(pi);
+    print(tau);
+    print(grade);
+    print(alive);
+    print(population);
+    print(temp);
 
-  // Arithmetic operators
-  int sum = 10 + 20;
-  int diff = 50 - 8;
-  int prod = 6 * 7;
-  int quot = 100 / 4;
-  int rem = 17 % 5;
-  print(sum);
-  print(diff);
-  print(prod);
-  print(quot);
-  print(rem);
+    // Arithmetic operators
+    int sum = 10 + 20;
+    int diff = 50 - 8;
+    int prod = 6 * 7;
+    int quot = 100 / 4;
+    int rem = 17 % 5;
+    print(sum);
+    print(diff);
+    print(prod);
+    print(quot);
+    print(rem);
 
-  // Operator precedence with parens
-  int prec = (2 + 3) * 4;
-  print(prec);
+    // Operator precedence with parens
+    int prec = (2 + 3) * 4;
+    print(prec);
 
-  // Unary operators
-  int neg = -10;
-  bool flipped = !true;
-  print(neg);
-  print(flipped);
+    // Unary operators
+    int neg = -10;
+    bool flipped = !true;
+    print(neg);
+    print(flipped);
 
-  // Comparison and logical operators
-  bool eq = (10 == 10);
-  bool neq = (10 != 5);
-  bool lt = (3 < 5);
-  bool gt = (5 > 3);
-  bool lte = (5 <= 5);
-  bool gte = (5 >= 3);
-  bool both = (true && true);
-  bool either = (false || true);
-  print(eq);
-  print(neq);
-  print(lt);
-  print(gt);
-  print(lte);
-  print(gte);
-  print(both);
-  print(either);
+    // Comparison and logical operators
+    bool eq = (10 == 10);
+    bool neq = (10 != 5);
+    bool lt = (3 < 5);
+    bool gt = (5 > 3);
+    bool lte = (5 <= 5);
+    bool gte = (5 >= 3);
+    bool both = (true && true);
+    bool either = (false || true);
+    print(eq);
+    print(neq);
+    print(lt);
+    print(gt);
+    print(lte);
+    print(gte);
+    print(both);
+    print(either);
 
-  // Function calls
-  int result = add(3, 4);
-  print(result);
-  print(factorial(5));
-  print(is_even(42));
-  print(sum_and_double(3, 4));
-  greet("hello from greet");
+    // Function calls
+    int result = add(3, 4);
+    print(result);
+    print(factorial(5));
+    print(is_even(42));
+    print(sum_and_double(3, 4));
+    greet("hello from greet");
 
-  // Included functions from math.mxy
-  print(square(5));
-  print(cube(3));
+    // Included functions from math.mxy
+    print(square(5));
+    print(cube(3));
 
-  // If / else if / else
-  int x = 15;
-  if (x > 20) {
-    print("big");
-  } else if (x > 10) {
-    print("medium");
-  } else {
-    print("small");
-  }
-
-  // While loop
-  int i = 0;
-  while (i < 3) {
-    print(i);
-    i = i + 1;
-  }
-
-  // While with decrement
-  int countdown = 3;
-  while (countdown > 0) {
-    print(countdown);
-    countdown--;
-  }
-
-  // For loop
-  for (int j = 0; j < 5; j++) {
-    print(j);
-  }
-
-  // For loop with += step
-  for (int k = 0; k < 10; k += 3) {
-    print(k);
-  }
-
-  // Assignment operators
-  int val = 10;
-  val += 5;
-  print(val);
-  val -= 3;
-  print(val);
-  val *= 2;
-  print(val);
-  val /= 6;
-  print(val);
-
-  // Nested control flow
-  for (int n = 1; n <= 3; n++) {
-    if (is_even(n)) {
-      print("even");
+    // If / else if / else
+    int x = 15;
+    if (x > 20) {
+        print("big");
+    } else if (x > 10) {
+        print("medium");
     } else {
-      print("odd");
+        print("small");
     }
-  }
 
-  // Tagged enum construction and match
-  Shape s = Shape::Circle(3.14);
-  match s {
-    Shape::Circle(r) => print(r),
-    Shape::Rect(w) => print(w),
-    Shape::None => print("nothing"),
-  }
+    // While loop
+    int i = 0;
+    while (i < 3) {
+        print(i);
+        i = i + 1;
+    }
 
-  Color c = Color::Red;
-  match c {
-    Color::Red => print("red"),
-    Color::Green => print("green"),
-    Color::Blue => print("blue"),
-  }
+    // While with decrement
+    int countdown = 3;
+    while (countdown > 0) {
+        print(countdown);
+        countdown--;
+    }
 
-  // Lists
-  int[] nums = [10, 20, 30];
-  nums.push(40);
-  print(nums.len);
-  print(nums[0]);
-  print(nums[3]);
+    // For loop
+    for (int j = 0; j < 5; j++) {
+        print(j);
+    }
 
-  // String list
-  string[] words = ["hello", "world"];
-  words.push("moxy");
-  print(words[2]);
-  print(words.len);
+    // For loop with += step
+    for (int k = 0; k < 10; k += 3) {
+        print(k);
+    }
 
-  // Result type
-  Result<int> ok = Ok(42);
-  match ok {
-    Ok(v) => print(v),
-    Err(e) => print(e),
-  }
+    // Assignment operators
+    int val = 10;
+    val += 5;
+    print(val);
+    val -= 3;
+    print(val);
+    val *= 2;
+    print(val);
+    val /= 6;
+    print(val);
 
-  Result<int> fail = Err("something went wrong");
-  match fail {
-    Ok(v) => print(v),
-    Err(e) => print(e),
-  }
+    // Nested control flow
+    for (int n = 1; n <= 3; n++) {
+        if (is_even(n)) {
+            print("even");
+        } else {
+            print("odd");
+        }
+    }
 
-  // Map type
-  map[string,int] ages = {};
-  ages.set("alice", 30);
-  ages.set("bob", 25);
-  print(ages.get("alice"));
-  print(ages.has("bob"));
-  print(ages.len);
+    // Tagged enum construction and match
+    Shape s = Shape::Circle(3.14);
+    match s {
+        Shape::Circle(r) => print(r),
+        Shape::Rect(w) => print(w),
+        Shape::None => print("nothing"),
+    }
 
-  // Pipe operator
-  int piped = 5 |> double_it();
-  print(piped);
+    Color c = Color::Red;
+    match c {
+        Color::Red => print("red"),
+        Color::Green => print("green"),
+        Color::Blue => print("blue"),
+    }
 
-  5 |> double_it() |> add(3) |> print()
+    // Lists
+    int[] nums = [10, 20, 30];
+    nums.push(40);
+    print(nums.len);
+    print(nums[0]);
+    print(nums[3]);
 
-  10 |> double_it |> print()
+    // String list
+    string[] words = ["hello", "world"];
+    words.push("moxy");
+    print(words[2]);
+    print(words.len);
+
+    // Result type
+    Result<int> ok = Ok(42);
+    match ok {
+        Ok(v) => print(v),
+        Err(e) => print(e),
+    }
+
+    Result<int> fail = Err("something went wrong");
+    match fail {
+        Ok(v) => print(v),
+        Err(e) => print(e),
+    }
+
+    // Map type
+    map[string, int] ages = {};
+    ages.set("alice", 30);
+    ages.set("bob", 25);
+    print(ages.get("alice"));
+    print(ages.has("bob"));
+    print(ages.len);
+
+    // Pipe operator
+    int piped = 5 |> double_it();
+    print(piped);
+
+    5 |> double_it() |> add(3) |> print()
+
+    10 |> double_it |> print()
 }

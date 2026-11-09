@@ -1,8 +1,0 @@
-Future<string> greet(string name) {
-  return name;
-}
-
-void main() {
-  string msg = await greet("hello");
-  assert(msg[0] == 'h')
-}

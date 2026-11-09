@@ -1,0 +1,40 @@
+void main() {
+    // if/else
+    int x = 15;
+    int result = 0;
+    if (x > 20) {
+        result = 3;
+    } else if (x > 10) {
+        result = 2;
+    } else {
+        result = 1;
+    }
+    assert(result == 2);
+
+    // for loop
+    int sum = 0;
+    for (int i = 0; i < 5; i++) {
+        sum += i;
+    }
+    assert(sum == 10);
+
+    // while loop
+    int count = 0;
+    int n = 100;
+    while (n > 1) {
+        n = n / 2;
+        count++;
+    }
+    assert(count == 6);
+
+    // assignment operators
+    int val = 10;
+    val += 5;
+    assert(val == 15);
+    val -= 3;
+    assert(val == 12);
+    val *= 2;
+    assert(val == 24);
+    val /= 6;
+    assert(val == 4);
+}

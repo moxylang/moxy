@@ -1,707 +1,371 @@
-(* ================================================================== *)
-(* Moxy Language — Formal EBNF Grammar Specification                  *)
-(*                                                                    *)
-(* Moxy is a C superset that transpiles .mxy source files to C.       *)
-(* This grammar documents the complete syntax accepted by the parser.  *)
-(* ================================================================== *)
+(* Moxy grammar
+
+   Moxy is a C superset that compiles to C11. This file describes the
+   syntax accepted by the parser in src/parse/ (state.c, types.c, expr.c,
+   stmt.c, top.c). Where the parser decides between two readings by
+   looking ahead, the rule carries a comment saying how.
+
+   Notation (ISO EBNF): "x" is a terminal, [ x ] is optional, { x } is
+   zero or more, ( x | y ) groups alternatives, rules end with ';'.
+
+   Not accepted: K&R function definitions, __attribute__, _Generic,
+   _Alignas, _Atomic and inline asm. *)
+
+
+(* ---- 1. Lexical structure ----------------------------------------- *)
 
+(* Reserved words. __inline and __inline__ spell inline, __restrict
+   spells restrict. Note that string, true, false and null are reserved;
+   NULL is an ordinary identifier. *)
+keyword = "auto" | "break" | "case" | "char" | "const" | "continue"
+        | "default" | "do" | "double" | "else" | "enum" | "extern"
+        | "float" | "for" | "goto" | "if" | "inline" | "int" | "long"
+        | "register" | "restrict" | "return" | "short" | "signed"
+        | "sizeof" | "static" | "struct" | "switch" | "typedef"
+        | "union" | "unsigned" | "void" | "volatile" | "while" | "bool"
+        | "_Bool" | "_Noreturn" | "_Alignof" | "_Static_assert"
+        | "_Thread_local" | "string" | "true" | "false" | "null" ;
+
+(* Contextual words. These lex as IDENT and only act as keywords in the
+   positions named by the rules below, so they remain usable as variable
+   and function names:
+     match in await defer namespace using ref weak fn map Result Future
+     Ok Err, "type" after '@', and "_" / "default" / "else" in patterns. *)
+
+IDENT     = ( letter | "_" | "$" ) { letter | digit | "_" | "$" } ;
+INT       = ( digits | "0x" hexdigits | "0b" bindigits ) { "u" | "U" | "l" | "L" } ;
+FLOAT     = (* C decimal and hex floating literals, suffix f F l L *) ;
+CHAR      = "'" { char | escape } "'" ;
+STRING    = '"' { char | escape | "\(" expr ")" } '"' ;
+            (* one line only; "\(expr)" interpolates; adjacent STRING
+               tokens are concatenated *)
+DIRECTIVE = "#" { any } newline ;
+            (* only as the first token on a line; backslash-newline
+               continues it; comments inside are skipped *)
+
+(* Comments are // to end of line and /* ... */. On top of the C
+   punctuation, Moxy adds  ..  ..=  =>  ::  |>  and  @ . *)
+
+
+(* ---- 2. Program and top level -------------------------------------- *)
+
+program   = { top_item } ;
+
+top_item  = DIRECTIVE
+          | ";"
+          | type_hint
+          | namespace
+          | using
+          | static_assert
+          | moxy_enum
+          | [ "ref" ] decl_group ;      (* "ref" only directly before "struct" *)
+
+(* Directives:
+   - #include "x.mxy" and #include <x.mxy> are replaced by the tokens of
+     that file before parsing; each file is spliced once. Other includes
+     and directives (#define, #include <stdio.h>, ...) are copied to C.
+   - At top level, #if #ifdef #ifndef #elif #else #endif are not copied
+     as text: each declaration between them is tagged with the condition
+     and emitted under it. They must balance by end of file.
+   - #pragma once is dropped.
+   - Inside function and struct bodies every directive is copied through
+     unchanged. *)
+
+type_hint = "@" "type" IDENT { "," IDENT } [ ";" ] ;
+            (* declares C typedef names that come from headers *)
+
+namespace = "namespace" IDENT { "::" IDENT } "{" { top_item } "}" ;
+            (* nests: namespace a { namespace b { } } equals namespace a::b { } *)
+
+using     = "using" IDENT { "::" IDENT } ";" ;
+
+static_assert = "_Static_assert" "(" assign_expr [ "," assign_expr ] ")" ";" ;
+
+
+(* ---- 3. Moxy enums ------------------------------------------------- *)
+
+(* "enum Name {" is a Moxy (tagged) enum when its body has a '(' at the
+   top nesting level. Otherwise it is a Moxy enum when the body has no
+   '=' and the closing '}' is not followed by ';', an IDENT or '*'.
+   Everything else is a C enum (c_enum_body). Moxy enums are recognized
+   only at top level and directly inside namespaces.
+
+     enum Shape { Circle(double r), Rect(double w, double h), Empty }  Moxy
+     enum Color { Red, Green, Blue }                                   Moxy
+     enum Mode { A, B };                                               C
+     enum Level { Low = 1, High = 2 }                                  C  *)
 
-(* ------------------------------------------------------------------ *)
-(* 1. Program Structure                                               *)
-(* ------------------------------------------------------------------ *)
+moxy_enum     = "enum" IDENT "{" [ variant { "," variant } [ "," ] ] "}" [ ";" ] ;
+variant       = IDENT [ "(" [ variant_field { "," variant_field } [ "," ] ] ")" ] ;
+variant_field = type_name [ IDENT ] ;   (* unnamed fields are called _0, _1, ... *)
+
 
-program
-    = { top_level_decl } ;
+(* ---- 4. Declarations ----------------------------------------------- *)
 
-top_level_decl
-    = enum_decl
-    | func_decl
-    | global_var_decl
-    | c_passthrough_toplevel ;
-
-
-(* ------------------------------------------------------------------ *)
-(* 2. Enum Declaration (Moxy tagged enums)                            *)
-(* ------------------------------------------------------------------ *)
-
-enum_decl
-    = "enum" IDENT "{" variant_list "}" ;
-
-variant_list
-    = variant { "," variant } [ "," ] ;
-
-variant
-    = IDENT [ "(" field_list ")" ] ;
-
-field_list
-    = field { "," field } ;
-
-field
-    = type_name IDENT ;
-
-
-(* ------------------------------------------------------------------ *)
-(* 3. Function Declaration                                            *)
-(* ------------------------------------------------------------------ *)
-
-func_decl
-    = type_name IDENT "(" [ param_list ] ")" block ;
-
-param_list
-    = param { "," param }
-    | param { "," param } "," "..." ;
-
-param
-    = type_name IDENT [ "(" [ type_list ] ")" ]   (* function pointer param *)
-    | "..." ;
-
-type_list
-    = type_name { "," type_name } ;
-
-
-(* ------------------------------------------------------------------ *)
-(* 4. Global Variable Declaration                                     *)
-(* ------------------------------------------------------------------ *)
-
-global_var_decl
-    = type_name IDENT "=" expr ";" ;
-
-
-(* ------------------------------------------------------------------ *)
-(* 5. C Passthrough (top-level)                                       *)
-(*    Includes typedefs, struct/union definitions, extern              *)
-(*    declarations, C-style enums, and any other C constructs          *)
-(*    not directly handled by the Moxy parser.                         *)
-(* ------------------------------------------------------------------ *)
-
-c_passthrough_toplevel
-    = typedef_passthrough
-    | struct_union_passthrough
-    | extern_passthrough
-    | c_enum_passthrough
-    | raw_toplevel ;
-
-typedef_passthrough
-    = "typedef" c_tokens ";" ;
-
-struct_union_passthrough
-    = ( "struct" | "union" ) IDENT "{" c_tokens "}" [ ";" ] ;
-
-extern_passthrough
-    = "extern" c_tokens ";" ;
-
-c_enum_passthrough
-    = "enum" IDENT "{" c_enum_body "}" [ IDENT ] ";" ;
-
-c_enum_body
-    = IDENT [ "=" expr ] { "," IDENT [ "=" expr ] } [ "," ] ;
-
-
-(* ------------------------------------------------------------------ *)
-(* 6. Types                                                           *)
-(* ------------------------------------------------------------------ *)
-
-type_name
-    = { type_qualifier } type_core { "*" } ;
-
-type_qualifier
-    = "const"
-    | "volatile"
-    | "static"
-    | "extern"
-    | "register"
-    | "inline" ;
-
-type_core
-    = primitive_type
-    | result_type
-    | future_type
-    | map_type
-    | list_type
-    | struct_union_type
-    | signed_unsigned_type
-    | long_type
-    | IDENT ;
-
-primitive_type
-    = "string"
-    | "int"
-    | "float"
-    | "double"
-    | "char"
-    | "bool"
-    | "long"
-    | "short"
-    | "void" ;
-
-result_type
-    = "Result" "<" type_name ">" ;
-
-future_type
-    = "Future" "<" type_name ">" ;
-
-map_type
-    = "map" "[" type_name "," type_name "]" ;
-
-list_type
-    = primitive_type "[" "]"
-    | IDENT "[" "]" ;
-
-struct_union_type
-    = ( "struct" | "union" | "enum" ) [ IDENT ] { "*" } ;
-
-signed_unsigned_type
-    = ( "unsigned" | "signed" ) [ "int" | "long" [ "long" ] | "short" | "char" ] { "*" } ;
-
-long_type
-    = "long" [ "long" | "double" | "int" ] { "*" } ;
-
-function_pointer_type
-    = type_name "(" "*" ")" "(" [ type_list ] ")" ;
-
-
-(* ------------------------------------------------------------------ *)
-(* 7. Statements                                                      *)
-(* ------------------------------------------------------------------ *)
-
-block
-    = "{" { stmt } "}" ;
-
-stmt
-    = print_stmt
-    | assert_stmt
-    | match_stmt
-    | if_stmt
-    | while_stmt
-    | for_stmt
-    | for_in_stmt
-    | return_stmt
-    | var_decl_stmt
-    | assign_stmt
-    | expr_stmt
-    | c_passthrough_stmt ;
-
-
-(* 7.1 Print *)
-
-print_stmt
-    = "print" "(" expr ")" [ ";" ] ;
-
-
-(* 7.2 Assert *)
-
-assert_stmt
-    = "assert" "(" expr ")" [ ";" ] ;
-
-
-(* 7.3 Match *)
-
-match_stmt
-    = "match" IDENT "{" { match_arm [ "," ] } "}" ;
-
-match_arm
-    = pattern "=>" stmt ;
-
-pattern
-    = enum_pattern
-    | result_pattern ;
-
-enum_pattern
-    = IDENT "::" IDENT [ "(" IDENT ")" ] ;
-
-result_pattern
-    = ( "Ok" | "Err" ) [ "(" IDENT ")" ] ;
-
-
-(* 7.4 If / Else If / Else *)
-
-if_stmt
-    = "if" "(" expr ")" block [ "else" ( if_stmt | block ) ] ;
-
-
-(* 7.5 While *)
-
-while_stmt
-    = "while" "(" expr ")" block ;
-
-
-(* 7.6 For (C-style) *)
-
-for_stmt
-    = "for" "(" for_init ";" expr ";" for_step ")" block ;
-
-for_init
-    = type_name IDENT "=" expr
-    | expr ;
-
-for_step
-    = expr [ assign_op expr ] ;
-
-
-(* 7.7 For-in *)
-
-for_in_stmt
-    = "for" IDENT [ "," IDENT ] "in" for_in_iter block ;
-
-for_in_iter
-    = expr ".." expr                  (* range *)
-    | expr ;                          (* collection or map *)
-
-
-(* 7.8 Return *)
-
-return_stmt
-    = "return" [ expr ] ";" ;
-
-
-(* 7.9 Variable Declaration (in statement position) *)
-
-var_decl_stmt
-    = type_name IDENT "=" expr ";" ;
-
-
-(* 7.10 Assignment *)
-
-assign_stmt
-    = expr assign_op expr ";" ;
-
-assign_op
-    = "=" | "+=" | "-=" | "*=" | "/="
-    | "&=" | "|=" | "^=" | "%="
-    | "<<=" | ">>=" ;
-
-
-(* 7.11 Expression Statement *)
-
-expr_stmt
-    = expr [ ";" ] ;
-
-
-(* 7.12 C Passthrough Statements *)
-(*      switch, do/while, goto, labels, break, continue,              *)
-(*      typedef, struct, union, extern, register, volatile, inline    *)
-
-c_passthrough_stmt
-    = switch_stmt
-    | do_while_stmt
-    | goto_stmt
-    | label_stmt
-    | break_stmt
-    | continue_stmt
-    | case_label
-    | default_label
-    | raw_stmt ;
-
-switch_stmt
-    = "switch" "(" expr ")" "{" { c_tokens } "}" ;
-
-do_while_stmt
-    = "do" "{" { c_tokens } "}" "while" "(" expr ")" ";" ;
-
-goto_stmt
-    = "goto" IDENT ";" ;
-
-label_stmt
-    = IDENT ":" ;
-
-break_stmt
-    = "break" ";" ;
-
-continue_stmt
-    = "continue" ";" ;
-
-case_label
-    = "case" expr ":" ;
-
-default_label
-    = "default" ":" ;
-
-
-(* ------------------------------------------------------------------ *)
-(* 8. Expressions (by precedence, lowest to highest)                  *)
-(* ------------------------------------------------------------------ *)
-
-expr
-    = ternary_expr ;
-
-(* 8.1 Ternary — lowest precedence, right-associative *)
-
-ternary_expr
-    = pipe_expr [ "?" expr ":" ternary_expr ] ;
-
-(* 8.2 Pipe — precedence 0 *)
-
-pipe_expr
-    = logical_or_expr { "|>" pipe_target } ;
-
-pipe_target
-    = IDENT "(" [ expr_list ] ")"     (* function call with args *)
-    | IDENT [ "(" [ expr_list ] ")" ] (* bare ident or ident with parens *)
-    | postfix_expr ;                  (* method call *)
-
-(* 8.3 Logical OR — precedence 1 *)
-
-logical_or_expr
-    = logical_and_expr { "||" logical_and_expr } ;
-
-(* 8.4 Logical AND — precedence 2 *)
-
-logical_and_expr
-    = bitwise_or_expr { "&&" bitwise_or_expr } ;
-
-(* 8.5 Bitwise OR — precedence 3 *)
-
-bitwise_or_expr
-    = bitwise_xor_expr { "|" bitwise_xor_expr } ;
-
-(* 8.6 Bitwise XOR — precedence 4 *)
-
-bitwise_xor_expr
-    = bitwise_and_expr { "^" bitwise_and_expr } ;
-
-(* 8.7 Bitwise AND — precedence 5 *)
-
-bitwise_and_expr
-    = equality_expr { "&" equality_expr } ;
-
-(* 8.8 Equality — precedence 6 *)
-
-equality_expr
-    = comparison_expr { ( "==" | "!=" ) comparison_expr } ;
-
-(* 8.9 Comparison — precedence 7 *)
-
-comparison_expr
-    = shift_expr { ( "<" | ">" | "<=" | ">=" ) shift_expr } ;
-
-(* 8.10 Shift — precedence 8 *)
-
-shift_expr
-    = additive_expr { ( "<<" | ">>" ) additive_expr } ;
-
-(* 8.11 Additive — precedence 9 *)
-
-additive_expr
-    = multiplicative_expr { ( "+" | "-" ) multiplicative_expr } ;
-
-(* 8.12 Multiplicative — precedence 10 *)
-
-multiplicative_expr
-    = unary_expr { ( "*" | "/" | "%" ) unary_expr } ;
-
-(* 8.13 Unary Prefix — parsed by parse_primary *)
-
-unary_expr
-    = postfix_expr
-    | prefix_op unary_expr ;
-
-prefix_op
-    = "-" | "!" | "~" | "&" | "*" | "++" | "--" ;
-
-(* 8.14 Postfix *)
-
-postfix_expr
-    = primary_expr { postfix_op } ;
-
-postfix_op
-    = "." IDENT                       (* field access *)
-    | "." IDENT "(" [ expr_list ] ")" (* method call *)
-    | "->" IDENT                      (* arrow field access *)
-    | "->" IDENT "(" [ expr_list ] ")"(* arrow method call *)
-    | "[" expr "]"                    (* index *)
-    | "++"                            (* postfix increment *)
-    | "--" ;                          (* postfix decrement *)
-
-expr_list
-    = expr { "," expr } ;
-
-
-(* ------------------------------------------------------------------ *)
-(* 9. Primary Expressions                                             *)
-(* ------------------------------------------------------------------ *)
-
-primary_expr
-    = lambda_expr
-    | cast_expr
-    | paren_expr
-    | string_literal
-    | integer_literal
-    | float_literal
-    | char_literal
-    | bool_literal
-    | null_literal
-    | ok_expr
-    | err_expr
-    | list_literal
-    | empty_literal
-    | sizeof_expr
-    | await_expr
-    | enum_init_expr
-    | call_expr
-    | IDENT
-    | brace_expr ;
-
-
-(* 9.1 Lambda *)
-
-lambda_expr
-    = "(" [ typed_param_list ] ")" "=>" lambda_body ;
-
-typed_param_list
-    = type_name IDENT { "," type_name IDENT } ;
-
-lambda_body
-    = expr
-    | block ;
-
-
-(* 9.2 Cast *)
-
-cast_expr
-    = "(" c_type ")" primary_expr ;
-
-c_type
-    = c_type_keyword { c_type_keyword | "*" } ;
-
-c_type_keyword
-    = "int" | "char" | "float" | "double" | "void" | "long"
-    | "short" | "bool" | "string"
-    | "struct" | "union"
-    | "unsigned" | "signed"
-    | "const" | "volatile" | "enum" ;
-
-
-(* 9.3 Parenthesized Expression *)
-
-paren_expr
-    = "(" expr ")" ;
-
-
-(* 9.4 Ok / Err (Result constructors) *)
-
-ok_expr
-    = "Ok" "(" expr ")" ;
-
-err_expr
-    = "Err" "(" expr ")" ;
-
-
-(* 9.5 List Literal *)
-
-list_literal
-    = "[" [ expr { "," expr } [ "," ] ] "]" ;
-
-
-(* 9.6 Empty Literal (for map initialization) *)
-
-empty_literal
-    = "{" "}" ;
-
-
-(* 9.7 Brace Expression *)
-(*     Non-empty brace blocks in expression position are passed       *)
-(*     through as raw C (e.g., compound literals, initializers).      *)
-
-brace_expr
-    = "{" c_tokens "}" ;
-
-
-(* 9.8 Sizeof *)
-
-sizeof_expr
-    = "sizeof" "(" c_tokens ")" ;
-
-
-(* 9.9 Await *)
-
-await_expr
-    = "await" postfix_expr ;
-
-
-(* 9.10 Enum Initialization *)
-
-enum_init_expr
-    = IDENT "::" IDENT [ "(" [ expr_list ] ")" ] ;
-
-
-(* 9.11 Function Call *)
-
-call_expr
-    = IDENT "(" [ expr_list ] ")" ;
-
-
-(* ------------------------------------------------------------------ *)
-(* 10. Preprocessor Directives                                        *)
-(*     Handled before lexing by the preprocessor pass.                *)
-(* ------------------------------------------------------------------ *)
-
-preprocessor_directive
-    = include_directive
-    | c_directive ;
-
-include_directive
-    = "#include" '"' mxy_path '"'     (* inline .mxy file *)
-    | "#include" "<" mxy_path ">"     (* inline from stdlib *)
-    | "#include" '"' c_header '"'     (* pass through to C *)
-    | "#include" "<" c_header ">" ;   (* pass through to C *)
-
-mxy_path
-    = path_string ;                   (* must end in ".mxy" *)
-
-c_header
-    = path_string ;                   (* does not end in ".mxy" *)
-
-(* All other # directives are passed through verbatim to C output.    *)
-
-c_directive
-    = "#" directive_name { c_tokens } NEWLINE ;
-
-directive_name
-    = "define" | "ifdef" | "ifndef" | "endif" | "if" | "elif"
-    | "else" | "undef" | "pragma" | "error" | "warning"
-    | "line" ;
-
-
-(* ------------------------------------------------------------------ *)
-(* 11. Lexical Elements                                               *)
-(* ------------------------------------------------------------------ *)
-
-(* 11.1 Identifiers *)
-
-IDENT
-    = ( letter | "_" ) { letter | digit | "_" } ;
-
-letter
-    = "a" | ... | "z" | "A" | ... | "Z" ;
-
-digit
-    = "0" | ... | "9" ;
-
-hex_digit
-    = digit | "a" | ... | "f" | "A" | ... | "F" ;
-
-
-(* 11.2 Integer Literals *)
-
-integer_literal
-    = decimal_literal [ integer_suffix ]
-    | hex_literal [ integer_suffix ] ;
-
-decimal_literal
-    = digit { digit } ;
-
-hex_literal
-    = "0" ( "x" | "X" ) hex_digit { hex_digit } ;
-
-integer_suffix
-    = { "L" | "l" | "U" | "u" } ;
-
-
-(* 11.3 Float Literals *)
-
-float_literal
-    = digit { digit } "." digit { digit } [ exponent ] [ float_suffix ]
-    | digit { digit } exponent [ float_suffix ]
-    | digit { digit } float_suffix ;
-
-exponent
-    = ( "e" | "E" ) [ "+" | "-" ] digit { digit } ;
-
-float_suffix
-    = "f" | "F" ;
-
-
-(* 11.4 String Literals *)
-
-string_literal
-    = '"' { string_char } '"' ;
-
-string_char
-    = any_char - ( '"' | "\\" )
-    | escape_sequence ;
-
-escape_sequence
-    = "\\" ( "n" | "t" | "r" | "\\" | '"' | "0" | "'" | "x" hex_digit hex_digit ) ;
-
-
-(* 11.5 Character Literals *)
-
-char_literal
-    = "'" ( char_char | escape_sequence ) "'" ;
-
-char_char
-    = any_char - ( "'" | "\\" ) ;
-
-
-(* 11.6 Boolean Literals *)
-
-bool_literal
-    = "true" | "false" ;
-
-
-(* 11.7 Null Literals *)
-
-null_literal
-    = "null" | "NULL" ;
-
-
-(* 11.8 Comments *)
-
-line_comment
-    = "//" { any_char } NEWLINE ;
-
-block_comment
-    = "/*" { any_char } "*/" ;
-
-
-(* 11.9 Whitespace *)
-(*      Spaces, tabs, newlines, and carriage returns are skipped.     *)
-(*      Comments are treated as whitespace.                           *)
-
-
-(* ------------------------------------------------------------------ *)
-(* 12. Keywords                                                       *)
-(* ------------------------------------------------------------------ *)
-
-(* Moxy keywords — these have dedicated token kinds and are not IDENT *)
-
-(* Type keywords:       string int float double char bool long short  *)
-(*                      void                                          *)
-(* Moxy keywords:       enum match true false Result map Ok Err       *)
-(*                      if else for while return null in              *)
-(*                      Future await                                  *)
-(* C keywords:          struct union typedef switch case default do   *)
-(*                      break continue sizeof static const extern     *)
-(*                      unsigned signed goto volatile register inline *)
-(*                      NULL                                          *)
-
-
-(* ------------------------------------------------------------------ *)
-(* 13. Operators                                                      *)
-(* ------------------------------------------------------------------ *)
-
-(* Single-character:  { } ( ) [ ] < > . , ; = + - * / % ! : ? & | ^ ~ *)
-(* Two-character:     :: => == != << <= >> >= && &= || |> |= ^= %=    *)
-(*                    -> += -= *= /= ++ -- ..                          *)
-(* Three-character:   <<= >>= ...                                      *)
-
-
-(* ------------------------------------------------------------------ *)
-(* Auxiliary Definitions                                               *)
-(* ------------------------------------------------------------------ *)
-
-c_tokens
-    = (* any balanced sequence of tokens — braces, parens, and        *)
-      (* brackets are matched. Consumed verbatim and emitted as raw C. *) ;
-
-raw_toplevel
-    = c_tokens ( ";" | "}" ) ;
-
-raw_stmt
-    = c_tokens ( ";" | "}" ) ;
-
-path_string
-    = { any_char - ( '"' | ">" ) } ;
-
-NEWLINE
-    = "\n" ;
+decl_group = specifiers ";"                         (* tag only: struct S; enum E {..}; *)
+           | specifiers                             (* see note: definition ending its line *)
+           | specifiers declarator block            (* function definition, top level only *)
+           | specifiers init_decl { "," init_decl } ";" ;
+
+(* A struct, union or enum definition whose closing '}' is the last token
+   on its line needs no ';'. If anything else follows on the same line
+   (a declarator, or a '}' closing a namespace) the normal rules apply. *)
+
+init_decl  = declarator [ "=" initializer ] ;
+
+(* "auto" with no type after it declares a variable whose type comes from
+   the initializer, which is then required:  auto n = xs.len;
+   "auto" followed by a type is the C storage class. *)
+
+specifiers = spec_item { spec_item } { "[" "]" } ;
+             (* each trailing "[]" makes a Moxy list: int[] xs, string[][] grid *)
+
+spec_item  = storage | qualifier
+           | "void" | "char" | "short" | "int" | "long" | "float" | "double"
+           | "signed" | "unsigned" | "bool" | "_Bool" | "string"
+           | tag_spec
+           | type_ref
+           | "weak" ;      (* only directly before a type name IDENT; fields only *)
+
+storage    = "static" | "extern" | "inline" | "_Noreturn" | "_Thread_local"
+           | "register" | "typedef" | "auto" ;
+qualifier  = "const" | "volatile" | "restrict" ;
+
+(* A specifier list holds at most one tag_spec or type_ref and does not
+   mix it with the builtin type words. With only storage classes and
+   qualifiers the type is int. *)
+
+type_ref   = type_path | moxy_type ;
+
+type_path  = IDENT { "::" IDENT } ;
+             (* a known type name: a struct/union/enum tag or typedef seen
+                anywhere in the program, an @type name, or a common C
+                typedef (size_t, int64_t, FILE, pthread_t, ...). An unknown
+                IDENT followed by IDENT, or by "*" IDENT, is also read as
+                a C typedef name. *)
+
+moxy_type  = "map" "[" type_name "," type_name "]"
+           | "Result" "<" type_name ">"
+           | "Future" "<" type_name ">"          (* ">>" closing two types is split *)
+           | "fn" "(" [ type_name { "," type_name } ] ")" [ "->" type_name ] ;
+             (* closure type; without "->" it returns void.
+                These words are types only in these shapes and only when
+                no user type has the same name. *)
+
+tag_spec   = ( "struct" | "union" ) ( IDENT [ struct_body ] | struct_body )
+           | "enum" ( IDENT [ c_enum_body ] | c_enum_body ) ;
+
+struct_body = "{" { member } "}" ;
+member      = DIRECTIVE
+            | ";"
+            | specifiers ";"                            (* anonymous struct/union *)
+            | specifiers member_decl { "," member_decl } ";" ;
+member_decl = declarator [ ":" cond_expr ] ;           (* bit-field width *)
+
+c_enum_body = "{" [ enumerator { "," enumerator } [ "," ] ] "}" ;
+enumerator  = IDENT [ "=" cond_expr ] ;
+
+
+(* ---- 5. Declarators ------------------------------------------------ *)
+
+declarator  = { "*" { qualifier } } direct_decl ;
+direct_decl = ( "(" declarator ")" | [ IDENT ] ) { decl_suffix } ;
+              (* "(" opens a nested declarator when followed by "*", "(",
+                 or IDENT ")" where IDENT is not a type name:
+                   int (*cmp)(const void *, const void *);
+                   int (*table[4])(int);
+                   void (*handler(int sig, void (*cb)(int)))(int);  *)
+
+decl_suffix = "[" { "static" | "const" | "restrict" } [ assign_expr ] "]"
+            | "(" param_list ")" ;
+              (* int xs[] is a C array; int[] xs is a Moxy list *)
+
+param_list  = "void"
+            | "..."
+            | [ param { "," param } [ "," "..." ] ] ;
+param       = specifiers declarator ;                  (* name optional *)
+
+type_name   = specifiers declarator ;                  (* abstract: no name *)
+
+
+(* ---- 6. Statements ------------------------------------------------- *)
+
+block     = "{" { statement } "}" ;
+
+statement = DIRECTIVE
+          | block
+          | ";"
+          | "if" "(" expr ")" statement [ "else" statement ]
+          | "while" "(" expr ")" statement
+          | "do" statement "while" "(" expr ")" ";"
+          | for_c
+          | for_in
+          | "switch" "(" expr ")" statement
+          | "case" cond_expr [ "..." cond_expr ] ":"     (* GNU case range *)
+          | "default" ":"
+          | "break" end
+          | "continue" end
+          | "return" [ initializer | expr ] end
+          | "goto" IDENT ";"
+          | IDENT ":" [ statement ]          (* label; statement omitted only before "}" *)
+          | static_assert
+          | match
+          | defer
+          | local_decl
+          | expr end ;
+
+(* case and default are labels: they do not own the statements after them. *)
+
+(* Expression-statement rule: the ';' after an expression, break,
+   continue or return may be left out when the next token starts a new
+   line, is '}', or is end of file. Inside a match arm a ',' also ends the
+   statement. Declarations, goto, do-while and _Static_assert always need
+   their ';'. *)
+end       = ";" | (* nothing, under the rule above *) ;
+
+local_decl = decl_group ;   (* no function definitions inside functions *)
+
+(* A statement is read as a declaration when it starts with a storage
+   class, a type keyword, a Moxy type shape, or a known type name not
+   followed by '{', '(', '.', '->' or '='. An unknown IDENT starts a
+   declaration when followed by an IDENT other than "in", by "*"... IDENT
+   and then ';' '=' ',' or '[', or by "[" "]" IDENT. *)
+
+for_c     = "for" "(" ( local_decl | [ expr ] ";" ) [ expr ] ";" [ expr ] ")" statement ;
+
+for_in    = "for" IDENT [ "," IDENT ] "in" iterable statement ;
+            (* no parentheses. With two names the first is the index
+               (lists, arrays, strings) or the key (maps). *)
+iterable  = expr [ ( ".." | "..=" ) expr ] ;
+            (* a..b excludes b, a..=b includes it; ranges exist only here.
+               Type{...} literals are not parsed in the head. *)
+
+defer     = "defer" ( block | statement ) ;
+            (* recognized when "defer" is followed by "{", "*", "return",
+               or an IDENT that is not followed by ";" or "=" *)
+
+
+(* ---- 7. match ------------------------------------------------------ *)
+
+match     = "match" expr "{" { arm } "}" ;
+            (* a statement, not an expression. Recognized when "match" is
+               followed by "(" ... ")" "{", or by an IDENT, number, string,
+               char, true, false, "*", "!", "-" or "[" (but not IDENT "="
+               or IDENT ";"). Type{...} literals are not parsed in the
+               subject. *)
+
+arm       = pattern "=>" arm_body ;
+
+pattern   = "_" | "default" | "else"                         (* wildcard *)
+          | variant_path "(" [ binding { "," binding } ] ")"
+          | variant_path
+          | cond_expr ;                                      (* literal or constant *)
+
+variant_path = IDENT { "::" IDENT } ;
+            (* read as a variant when it contains "::", is Ok or Err, or
+               starts with an uppercase letter and is followed by "(".
+               Otherwise the tokens are reparsed as a cond_expr; a bare
+               IDENT such as Red then names a variant when the subject
+               is a Moxy enum:  Shape::Circle(r)  Circle(r)  Red  Ok(v)
+               Err(e)  0  'a'  "text"  MAX_SIZE *)
+
+binding   = IDENT ;                                          (* "_" skips a value *)
+
+arm_body  = block [ "," ]
+          | arm_stmt [ "," ]
+          | assign_expr [ ";" ] arm_end ;
+arm_stmt  = (* a statement starting with return, break, continue, if,
+               while, for, do, switch, goto or ";" *) ;
+arm_end   = "," | (* nothing, when the next token is "}" or starts a new line *) ;
+
+
+(* ---- 8. Expressions ------------------------------------------------ *)
+
+expr        = assign_expr { "," assign_expr } ;
+
+assign_expr = cond_expr [ assign_op ( brace_init | assign_expr ) ] ;
+assign_op   = "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^="
+            | "<<=" | ">>=" ;
+
+cond_expr   = pipe_expr [ "?" expr ":" cond_expr ] ;
+
+(* Binary operators from src/parse/expr.c, lowest to highest precedence.
+   All are left associative.
+
+     1   |>
+     2   ||
+     3   &&
+     4   |
+     5   ^
+     6   &
+     7   ==  !=
+     8   <  >  <=  >=
+     9   <<  >>
+    10   +  -
+    11   *  /  %                                                    *)
+
+pipe_expr   = or_expr { "|>" postfix_expr } ;
+              (* x |> f is f(x); x |> f(a, b) is f(x, a, b); the right
+                 side must be a call, a name or a member. The left side is
+                 the whole expression before "|>", but an operator after
+                 the right side applies to the result: 1 + 2 |> f is f(3),
+                 x |> f + 1 is f(x) + 1. *)
+or_expr     = and_expr { "||" and_expr } ;
+and_expr    = bitor_expr { "&&" bitor_expr } ;
+bitor_expr  = xor_expr { "|" xor_expr } ;
+xor_expr    = bitand_expr { "^" bitand_expr } ;
+bitand_expr = eq_expr { "&" eq_expr } ;
+eq_expr     = rel_expr { ( "==" | "!=" ) rel_expr } ;
+rel_expr    = shift_expr { ( "<" | ">" | "<=" | ">=" ) shift_expr } ;
+shift_expr  = add_expr { ( "<<" | ">>" ) add_expr } ;
+add_expr    = mul_expr { ( "+" | "-" ) mul_expr } ;
+mul_expr    = unary_expr { ( "*" | "/" | "%" ) unary_expr } ;
+
+unary_expr  = ( "-" | "+" | "!" | "~" | "*" | "&" | "++" | "--" ) unary_expr
+            | "sizeof" "(" type_name ")"
+            | "sizeof" unary_expr
+            | "_Alignof" "(" type_name ")"
+            | "await" unary_expr         (* when followed by IDENT or "(" *)
+            | "(" type_name ")" unary_expr                     (* cast *)
+            | postfix_expr ;
+              (* "(" starts a cast when a type follows it; also for an
+                 unknown (IDENT "*"...) and for an unknown (name_t)
+                 followed by a name, literal or "(". Note that (int[]) is
+                 a cast to a Moxy list, not a C array. *)
+
+postfix_expr = primary { "(" [ arg { "," arg } ] ")"
+                       | "[" expr "]"
+                       | ( "." | "->" ) ( IDENT | keyword )
+                       | "++" | "--" } ;
+arg          = brace_init | type_name | assign_expr ;
+               (* type_name when the argument starts with a type keyword,
+                  or a known type name followed by "," ")" or "*": a type
+                  passed to a C macro, as in va_arg(ap, int) *)
+
+primary     = INT | FLOAT | CHAR | STRING { STRING }
+            | "true" | "false" | "null"
+            | "string" "(" [ arg { "," arg } ] ")"   (* conversion; "(" required *)
+            | ( "Ok" | "Err" ) "(" [ assign_expr ] ")"
+            | list_lit
+            | brace_init
+            | lambda
+            | "(" type_name ")" brace_init            (* compound literal *)
+            | "(" expr ")"
+            | type_path brace_init                    (* struct literal *)
+            | IDENT { "::" IDENT } ;                  (* name, ns::name, Enum::Variant *)
+              (* type_path brace_init needs the last segment to be a known
+                 type name: Point{ .x = 1 }, geo::Point{ 1, 2 }.
+                 Enum::Variant(args) is a call on the path. *)
+
+list_lit    = "[" [ initializer { "," initializer } [ "," ] ] "]" ;
+
+lambda      = "(" param_list ")" "=>" ( block | assign_expr ) ;
+              (* chosen when the ")" matching "(" is followed by "=>";
+                 every parameter needs a name:  (int x) => x * 2
+                 () => { print("hi") } *)
+
+brace_init  = "{" [ init_item { "," init_item } [ "," ] ] "}" ;
+init_item   = "." IDENT { "." IDENT } "=" initializer      (* .pos.x = 1 *)
+            | "[" cond_expr "]" "=" initializer            (* [2] = 5 *)
+            | initializer [ ":" initializer ] ;            (* "key": value *)
+initializer = brace_init | assign_expr ;

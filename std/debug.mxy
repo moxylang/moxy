@@ -1,17 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
+// std/debug.mxy — markers for unfinished or impossible code.
+// panic(message) is built in.
 
-void panic(string msg) {
-  fprintf(stderr, "panic: %s\n", msg);
-  exit(1);
-}
-
-void todo(string msg) {
-  fprintf(stderr, "todo: %s\n", msg);
-  exit(1);
+void todo(string what) {
+    panic("not yet implemented: " + what);
 }
 
 void unreachable() {
-  fprintf(stderr, "unreachable code reached\n");
-  exit(1);
+    panic("entered unreachable code");
 }

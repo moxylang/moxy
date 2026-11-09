@@ -1,0 +1,11 @@
+in block
+inner 1
+inner 2
+search done
+1
+search done
+-1
+end of iteration 0
+end of iteration 1
+end of iteration 2
+main done

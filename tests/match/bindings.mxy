@@ -1,0 +1,33 @@
+enum Shape {
+    Circle(double r),
+    Rect(double w, double h),
+    Text(string body, int size),
+    Empty
+}
+
+string describe(Shape s) {
+    match s {
+        Shape::Circle(r) => return "circle \(r)",
+        Shape::Rect(w, h) => return "rect \(w)x\(h)",
+        Shape::Text(body, _) => return "text '\(body)'",
+        Shape::Empty => return "empty",
+    }
+}
+
+void main() {
+    assert(describe(Shape::Circle(1.5)) == "circle 1.5");
+    assert(describe(Shape::Rect(2.0, 3.0)) == "rect 2.0x3.0");
+    assert(describe(Shape::Text("hi", 12)) == "text 'hi'");
+    assert(describe(Shape::Empty) == "empty");
+    Shape[] all = [Shape::Circle(1.0), Shape::Empty];
+    int circles = 0;
+    for s in all {
+        match s {
+            Circle(r) => circles += 1,
+            _ => {},
+        }
+    }
+    assert(circles == 1);
+    assert(Shape::Circle(1.0) == Shape::Circle(1.0));
+    assert(Shape::Circle(1.0) != Shape::Empty);
+}

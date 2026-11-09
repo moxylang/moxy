@@ -1,0 +1,314 @@
+#include <string.h>
+
+#include "diag/diag.h"
+#include "sema.h"
+
+Type *check_init(Node **slot, Type *t);
+void raw_literals(Node *call);
+
+typedef struct {
+    const char *name;
+    int builtin;
+    int nargs;
+    int mutating;
+} Method;
+
+static const Method str_methods[] = {
+    {"len", B_STR_LEN, 0, 0}, {"is_empty", B_STR_IS_EMPTY, 0, 0}, {"contains", B_STR_CONTAINS, 1, 0},
+    {"starts_with", B_STR_STARTS, 1, 0}, {"ends_with", B_STR_ENDS, 1, 0}, {"find", B_STR_FIND, 1, 0},
+    {"slice", B_STR_SLICE, 2, 0}, {"split", B_STR_SPLIT, 1, 0}, {"lines", B_STR_LINES, 0, 0},
+    {"trim", B_STR_TRIM, 0, 0}, {"upper", B_STR_UPPER, 0, 0}, {"lower", B_STR_LOWER, 0, 0},
+    {"replace", B_STR_REPLACE, 2, 0}, {"repeat", B_STR_REPEAT, 1, 0}, {"to_int", B_STR_TO_INT, 0, 0},
+    {"to_float", B_STR_TO_FLOAT, 0, 0}, {"chars", B_STR_CHARS, 0, 0}, {"at", B_STR_AT, 1, 0},
+    {NULL, 0, 0, 0},
+};
+
+static const Method list_methods[] = {
+    {"len", B_LIST_LEN, 0, 0}, {"is_empty", B_LIST_IS_EMPTY, 0, 0}, {"push", B_LIST_PUSH, 1, 1},
+    {"pop", B_LIST_POP, 0, 1}, {"insert", B_LIST_INSERT, 2, 1}, {"remove", B_LIST_REMOVE, 1, 1},
+    {"clear", B_LIST_CLEAR, 0, 1}, {"contains", B_LIST_CONTAINS, 1, 0}, {"index_of", B_LIST_INDEX_OF, 1, 0},
+    {"reverse", B_LIST_REVERSE, 0, 1}, {"sort", B_LIST_SORT, 0, 1}, {"slice", B_LIST_SLICE, 2, 0},
+    {"first", B_LIST_FIRST, 0, 0}, {"last", B_LIST_LAST, 0, 0}, {"join", B_LIST_JOIN, 1, 0},
+    {"map", B_LIST_MAP, 1, 0}, {"filter", B_LIST_FILTER, 1, 0}, {"each", B_LIST_EACH, 1, 0},
+    {NULL, 0, 0, 0},
+};
+
+static const Method map_methods[] = {
+    {"len", B_MAP_LEN, 0, 0}, {"is_empty", B_MAP_IS_EMPTY, 0, 0}, {"set", B_MAP_SET, 2, 1},
+    {"get", B_MAP_GET, 1, 0}, {"get_or", B_MAP_GET_OR, 2, 0}, {"has", B_MAP_HAS, 1, 0},
+    {"remove", B_MAP_REMOVE, 1, 1}, {"keys", B_MAP_KEYS, 0, 0}, {"values", B_MAP_VALUES, 0, 0},
+    {"clear", B_MAP_CLEAR, 0, 1}, {NULL, 0, 0, 0},
+};
+
+static const Method res_methods[] = {
+    {"is_ok", B_RES_IS_OK, 0, 0}, {"is_err", B_RES_IS_ERR, 0, 0}, {"unwrap", B_RES_UNWRAP, 0, 0},
+    {"unwrap_or", B_RES_UNWRAP_OR, 1, 0}, {"error", B_RES_ERROR, 0, 0}, {NULL, 0, 0, 0},
+};
+
+static const Method *find_method(const Method *table, const char *name) {
+    for (int i = 0; table[i].name; i++)
+        if (strcmp(table[i].name, name) == 0) return &table[i];
+    return NULL;
+}
+
+static int sortable(Type *t) {
+    Type *u = type_unqual(t);
+    return type_is_arith(u) || u->kind == TY_STRING;
+}
+
+static void arg(Node *call, int i, Type *t, const char *what) {
+    check_init(&call->list.items[i], t);
+    if (t) coerce(&call->list.items[i], t, what);
+}
+
+static Type *closure_arg(Node *call, Type *elem, Type *ret, const char *method) {
+    TypeList params = {0};
+    vec_push(params, elem);
+    Type *want = type_closure(ret ? ret : ty_unknown, params);
+    Type *got = check_init(&call->list.items[0], want);
+    Type *u = type_unqual(got);
+    if (u->kind != TY_CLOSURE) {
+        if (u->kind == TY_FUNC) {
+            coerce(&call->list.items[0], want, method);
+            return u->base;
+        }
+        diag_error(call->list.items[0]->loc, "%s expects a function like (x) => ...", method);
+        return ty_unknown;
+    }
+    if (u->params.len != 1 || !type_eq(u->params.items[0], elem)) {
+        char *es = type_str(elem);
+        diag_error(call->list.items[0]->loc, "%s expects a function taking %s", method, es);
+        free(es);
+    }
+    return u->base;
+}
+
+static Type *list_method(Node *call, Node *recv, const Method *m, Type *lt) {
+    Type *elem = type_unqual(lt)->base;
+    switch (m->builtin) {
+    case B_LIST_LEN: return ty_long;
+    case B_LIST_IS_EMPTY: return ty_bool;
+    case B_LIST_PUSH: arg(call, 0, elem, "push"); return ty_void;
+    case B_LIST_POP: return elem;
+    case B_LIST_INSERT: arg(call, 0, ty_long, "insert index"); arg(call, 1, elem, "insert"); return ty_void;
+    case B_LIST_REMOVE: arg(call, 0, ty_long, "remove index"); return elem;
+    case B_LIST_CLEAR: case B_LIST_REVERSE: return ty_void;
+    case B_LIST_SORT:
+        if (!sortable(elem)) {
+            char *s = type_str(elem);
+            diag_error(call->loc, "cannot sort a list of %s", s);
+            free(s);
+        }
+        return ty_void;
+    case B_LIST_CONTAINS: arg(call, 0, elem, "contains"); return ty_bool;
+    case B_LIST_INDEX_OF: arg(call, 0, elem, "index_of"); return ty_long;
+    case B_LIST_SLICE: arg(call, 0, ty_long, "slice start"); arg(call, 1, ty_long, "slice end"); return lt;
+    case B_LIST_FIRST: case B_LIST_LAST: return elem;
+    case B_LIST_JOIN: arg(call, 0, ty_string, "join separator"); return ty_string;
+    case B_LIST_MAP: {
+        Type *r = closure_arg(call, elem, NULL, "map");
+        if (type_unqual(r)->kind == TY_VOID) diag_error(call->loc, "map needs a function that returns a value");
+        return type_list(r);
+    }
+    case B_LIST_FILTER: {
+        Type *r = closure_arg(call, elem, ty_bool, "filter");
+        if (!type_is_scalar(r)) diag_error(call->loc, "filter needs a function that returns bool");
+        return lt;
+    }
+    case B_LIST_EACH: closure_arg(call, elem, ty_void, "each"); return ty_void;
+    default:
+        (void)recv;
+        return ty_unknown;
+    }
+}
+
+static Type *map_method(Node *call, const Method *m, Type *mt) {
+    Type *u = type_unqual(mt);
+    switch (m->builtin) {
+    case B_MAP_LEN: return ty_long;
+    case B_MAP_IS_EMPTY: return ty_bool;
+    case B_MAP_SET: arg(call, 0, u->key, "map key"); arg(call, 1, u->base, "map value"); return ty_void;
+    case B_MAP_GET: arg(call, 0, u->key, "map key"); return u->base;
+    case B_MAP_GET_OR: arg(call, 0, u->key, "map key"); arg(call, 1, u->base, "default value"); return u->base;
+    case B_MAP_HAS: arg(call, 0, u->key, "map key"); return ty_bool;
+    case B_MAP_REMOVE: arg(call, 0, u->key, "map key"); return ty_bool;
+    case B_MAP_KEYS: return type_list(u->key);
+    case B_MAP_VALUES: return type_list(u->base);
+    case B_MAP_CLEAR: return ty_void;
+    default: return ty_unknown;
+    }
+}
+
+static Type *str_method(Node *call, const Method *m) {
+    switch (m->builtin) {
+    case B_STR_LEN: case B_STR_FIND: return ty_long;
+    case B_STR_IS_EMPTY: return ty_bool;
+    case B_STR_CONTAINS: case B_STR_STARTS: case B_STR_ENDS:
+        arg(call, 0, ty_string, m->name);
+        return m->builtin == B_STR_FIND ? ty_long : ty_bool;
+    case B_STR_SLICE: arg(call, 0, ty_long, "slice start"); arg(call, 1, ty_long, "slice end"); return ty_string;
+    case B_STR_SPLIT: arg(call, 0, ty_string, "split separator"); return type_list(ty_string);
+    case B_STR_LINES: return type_list(ty_string);
+    case B_STR_TRIM: case B_STR_UPPER: case B_STR_LOWER: return ty_string;
+    case B_STR_REPLACE: arg(call, 0, ty_string, "replace"); arg(call, 1, ty_string, "replace"); return ty_string;
+    case B_STR_REPEAT: arg(call, 0, ty_long, "repeat count"); return ty_string;
+    case B_STR_TO_INT: return type_result(ty_long);
+    case B_STR_TO_FLOAT: return type_result(ty_double);
+    case B_STR_CHARS: return type_list(ty_char);
+    case B_STR_AT: arg(call, 0, ty_long, "index"); return ty_char;
+    default: return ty_unknown;
+    }
+}
+
+static Type *res_method(Node *call, const Method *m, Type *rt) {
+    Type *u = type_unqual(rt);
+    switch (m->builtin) {
+    case B_RES_IS_OK: case B_RES_IS_ERR: return ty_bool;
+    case B_RES_UNWRAP: return u->base;
+    case B_RES_UNWRAP_OR: arg(call, 0, u->base, "unwrap_or"); return u->base;
+    case B_RES_ERROR: return ty_string;
+    default: return ty_unknown;
+    }
+}
+
+static Type *struct_of(Type *t, int arrow, int *is_ptr) {
+    Type *u = type_unqual(t);
+    *is_ptr = 0;
+    if (u->kind == TY_PTR && type_unqual(u->base)->kind == TY_STRUCT) {
+        *is_ptr = 1;
+        return type_unqual(u->base);
+    }
+    (void)arrow;
+    if (u->kind == TY_STRUCT) return u;
+    return NULL;
+}
+
+/* field access or a builtin property such as `.len` */
+Type *check_member(Node **slot) {
+    Node *n = *slot;
+    Type *t = check_expr(&n->a, NULL);
+    Type *u = type_unqual(t);
+    const Method *m = NULL;
+    if (u->kind == TY_STRING) m = find_method(str_methods, n->name);
+    else if (u->kind == TY_LIST) m = find_method(list_methods, n->name);
+    else if (u->kind == TY_MAP) m = find_method(map_methods, n->name);
+    if (m) {
+        if (m->builtin == B_STR_LEN || m->builtin == B_LIST_LEN || m->builtin == B_MAP_LEN) {
+            n->builtin = m->builtin;
+            return ty_long;
+        }
+        diag_error(n->loc, "'%s' is a method; call it as %s()", n->name, n->name);
+        return ty_unknown;
+    }
+    int is_ptr = 0;
+    Type *s = struct_of(t, n->op == P_ARROW, &is_ptr);
+    if (s) {
+        if (n->op == P_ARROW && !is_ptr && !s->is_ref) {
+            diag_error(n->loc, "'->' needs a pointer; use '.' on struct values");
+        } else if (n->op == P_DOT && is_ptr) {
+            diag_error(n->loc, "'.' on a pointer; use '->'");
+        }
+        if (!s->decl) return ty_unknown;
+        Type *ft = NULL;
+        Node *f = type_field(s, n->name, &ft, NULL);
+        if (!f) {
+            diag_error(n->loc, "%s has no field '%s'", s->name, n->name);
+            return ty_unknown;
+        }
+        if (f->flags & F_WEAK) n->flags |= F_WEAK;
+        n->lvalue = 1;
+        return ft;
+    }
+    if (type_is_unknownish(u)) return ty_unknown;
+    char *ts = type_str(t);
+    diag_error(n->loc, "%s has no field '%s'", ts, n->name);
+    free(ts);
+    return ty_unknown;
+}
+
+static Type *field_call(Node *call, Node *callee, Type *ft) {
+    Type *u = type_unqual(ft);
+    if (u->kind == TY_CLOSURE) {
+        call->builtin = B_CLOSURE_CALL;
+    } else {
+        call->builtin = type_is_unknownish(u) ? B_UNKNOWN_CALL : B_FNPTR_CALL;
+    }
+    callee->type = ft;
+    Type *fn = u->kind == TY_CLOSURE ? u : u->kind == TY_FUNC ? u
+               : (u->kind == TY_PTR && type_unqual(u->base)->kind == TY_FUNC) ? type_unqual(u->base) : NULL;
+    if (!fn) {
+        for (int i = 0; i < call->list.len; i++) check_init(&call->list.items[i], NULL);
+        if (!type_is_unknownish(u)) diag_error(callee->loc, "field '%s' is not a function", callee->name);
+        return ty_unknown;
+    }
+    for (int i = 0; i < call->list.len; i++) {
+        Type *pt = i < fn->params.len ? fn->params.items[i] : NULL;
+        check_init(&call->list.items[i], pt);
+        if (pt) coerce(&call->list.items[i], pt, "argument");
+    }
+    if (call->list.len != fn->params.len && !(fn->variadic && call->list.len > fn->params.len))
+        diag_error(call->loc, "'%s' takes %d argument%s, got %d", callee->name, fn->params.len,
+                   fn->params.len == 1 ? "" : "s", call->list.len);
+    return fn->base;
+}
+
+Type *check_method(Node **slot, Type *expected) {
+    (void)expected;
+    Node *call = *slot;
+    Node *callee = call->a;
+    Type *t = check_expr(&callee->a, NULL);
+    Type *u = type_unqual(t);
+    const Method *m = NULL;
+    switch (u->kind) {
+    case TY_STRING: m = find_method(str_methods, callee->name); break;
+    case TY_LIST: m = find_method(list_methods, callee->name); break;
+    case TY_MAP: m = find_method(map_methods, callee->name); break;
+    case TY_RESULT: m = find_method(res_methods, callee->name); break;
+    default: break;
+    }
+    if (m) {
+        if (call->list.len != m->nargs) {
+            diag_error(call->loc, "%s() takes %d argument%s, got %d", m->name, m->nargs, m->nargs == 1 ? "" : "s",
+                       call->list.len);
+            for (int i = 0; i < call->list.len; i++) check_init(&call->list.items[i], NULL);
+            return ty_unknown;
+        }
+        if (m->mutating) {
+            if (!is_lvalue(callee->a)) {
+                diag_error(callee->loc, "cannot call %s() on a temporary value", m->name);
+                diag_hint("store it in a variable first");
+            }
+            mark_mutated(callee->a);
+        }
+        call->builtin = m->builtin;
+        callee->builtin = m->builtin;
+        callee->type = ty_void;
+        switch (u->kind) {
+        case TY_STRING: return str_method(call, m);
+        case TY_LIST: return list_method(call, callee->a, m, t);
+        case TY_MAP: return map_method(call, m, t);
+        default: return res_method(call, m, t);
+        }
+    }
+    int is_ptr = 0;
+    Type *s = struct_of(t, callee->op == P_ARROW, &is_ptr);
+    if (s && s->decl) {
+        Type *ft = NULL;
+        if (type_field(s, callee->name, &ft, NULL)) return field_call(call, callee, ft);
+        diag_error(callee->loc, "%s has no field or method '%s'", s->name, callee->name);
+        for (int i = 0; i < call->list.len; i++) check_init(&call->list.items[i], NULL);
+        return ty_unknown;
+    }
+    if (type_is_unknownish(u) || (s && !s->decl)) {
+        call->builtin = B_UNKNOWN_CALL;
+        callee->type = ty_unknown;
+        for (int i = 0; i < call->list.len; i++) check_init(&call->list.items[i], NULL);
+        raw_literals(call);
+        return ty_unknown;
+    }
+    char *ts = type_str(t);
+    diag_error(callee->loc, "%s has no method '%s'", ts, callee->name);
+    free(ts);
+    for (int i = 0; i < call->list.len; i++) check_init(&call->list.items[i], NULL);
+    return ty_unknown;
+}

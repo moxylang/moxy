@@ -14,7 +14,7 @@ void handle_sigint(int sig) {
 }
 
 void *handle_connection(void *arg) {
-    int fd = *((int*)arg);
+    int fd = *((int *)arg);
     free(arg);
 
     char buf[MAX_REQUEST];
@@ -49,7 +49,7 @@ int server_init(int port) {
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(port);
 
-    if (bind(server_fd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+    if (bind(server_fd, (struct sockaddr *) & addr, sizeof(addr)) < 0) {
         printf("Error: bind() failed on port %d\n", port);
         close(server_fd);
         return 0;
@@ -72,7 +72,7 @@ void server_run() {
     while (server_running) {
         struct sockaddr_in client_addr;
         socklen_t client_len = sizeof(client_addr);
-        int client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_len);
+        int client_fd = accept(server_fd, (struct sockaddr *) & client_addr, &client_len);
 
         if (client_fd < 0) {
             if (!server_running) {
@@ -81,7 +81,7 @@ void server_run() {
             continue;
         }
 
-        int *fd_ptr = (int*)malloc(sizeof(int));
+        int *fd_ptr = (int *)malloc(sizeof(int));
         *fd_ptr = client_fd;
 
         pthread_t tid;

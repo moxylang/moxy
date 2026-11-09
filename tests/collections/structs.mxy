@@ -1,0 +1,45 @@
+// structs hold strings and lists; lists hold structs
+struct Point { int x; int y; }
+
+typedef struct {
+    string name;
+    int[] scores;
+    map[string, string] tags;
+} Player;
+
+Player make_player(string name) {
+    Player p = {.name = name };
+    p.scores.push(10);
+    p.tags["team"] = "red";
+    return p;
+}
+
+int total(Player p) {
+    int sum = 0;
+    for s in p.scores { sum += s; }
+    return sum;
+}
+
+void main() {
+    Point[] pts = [Point{.x = 1,.y = 2 }, Point{.x = 3,.y = 4 }];
+    pts.push(Point{.x = 5,.y = 6 });
+    pts[0].x = 100;
+    assert(pts.len == 3 && pts[0].x == 100 && pts[2].y == 6);
+
+    Player a = make_player("ada");
+    a.scores.push(20);
+    a.scores.push(30);
+    assert(total(a) == 60);
+    assert(a.tags.get("team") == "red");
+
+    Player b = a;
+    b.scores.push(40);
+    b.name = "bob";
+    assert(a.scores.len == 3 && b.scores.len == 4);
+    assert(a.name == "ada" && b.name == "bob");
+
+    Player[] team = [a, b];
+    team[1].scores.clear();
+    assert(team[1].scores.len == 0 && b.scores.len == 4);
+    print(pts[1], a.name, a.scores);
+}

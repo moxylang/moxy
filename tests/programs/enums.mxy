@@ -1,0 +1,25 @@
+enum Color {
+    Red,
+    Green,
+    Blue
+}
+
+enum Shape {
+    Circle(float radius),
+    None
+}
+
+void main() {
+    Color c = Color::Red;
+    match c {
+        Color::Red => print("red"),
+        Color::Green => print("green"),
+        Color::Blue => print("blue"),
+    }
+
+    Shape s = Shape::Circle(3.14);
+    match s {
+        Shape::Circle(r) => print(r),
+        Shape::None => print("none"),
+    }
+}

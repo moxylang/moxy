@@ -2,61 +2,61 @@
 
 u8 ppu_reg_read(int reg) {
     switch (reg) {
-    case 2: { // PPUSTATUS
-        u8 result = ppu_status & 0xE0;
-        result = result | (ppu_data_buf & 0x1F);
-        ppu_status = ppu_status & 0x7F; // clear vblank
-        ppu_nmi_occurred = 0;
-        ppu_w = 0;
-        return result;
-    }
-    case 4: // OAMDATA
-        return ppu_oam[ppu_oamaddr];
-    case 7: { // PPUDATA
-        u8 val = ppu_bus_read(ppu_v);
-        if ((ppu_v & 0x3FFF) < 0x3F00) {
-            u8 buffered = ppu_data_buf;
-            ppu_data_buf = val;
-            val = buffered;
-        } else {
-            ppu_data_buf = ppu_bus_read(ppu_v - 0x1000);
+        case 2: { // PPUSTATUS
+            u8 result = ppu_status & 0xE0;
+            result = result | (ppu_data_buf & 0x1F);
+            ppu_status = ppu_status & 0x7F; // clear vblank
+            ppu_nmi_occurred = 0;
+            ppu_w = 0;
+            return result;
         }
-        ppu_v = ppu_v + ((ppu_ctrl & 0x04) ? 32 : 1);
-        return val;
-    }
+        case 4: // OAMDATA
+        return ppu_oam[ppu_oamaddr];
+        case 7: { // PPUDATA
+            u8 val = ppu_bus_read(ppu_v);
+            if ((ppu_v & 0x3FFF) < 0x3F00) {
+                u8 buffered = ppu_data_buf;
+                ppu_data_buf = val;
+                val = buffered;
+            } else {
+                ppu_data_buf = ppu_bus_read(ppu_v - 0x1000);
+            }
+            ppu_v = ppu_v + ((ppu_ctrl & 0x04) ? 32 : 1);
+            return val;
+        }
     }
     return 0;
 }
 
 void ppu_reg_write(int reg, u8 val) {
     switch (reg) {
-    case 0: // PPUCTRL
+        case 0: // PPUCTRL
         ppu_ctrl = val;
         ppu_nmi_output = (val >> 7) & 1;
         ppu_t = (ppu_t & 0xF3FF) | (((unsigned short)val & 0x03) << 10);
         break;
-    case 1: // PPUMASK
+        case 1: // PPUMASK
         ppu_mask = val;
         break;
-    case 3: // OAMADDR
+        case 3: // OAMADDR
         ppu_oamaddr = val;
         break;
-    case 4: // OAMDATA
+        case 4: // OAMDATA
         ppu_oam[ppu_oamaddr] = val;
         ppu_oamaddr++;
         break;
-    case 5: // PPUSCROLL
+        case 5: // PPUSCROLL
         if (ppu_w == 0) {
             ppu_t = (ppu_t & 0xFFE0) | ((unsigned short)val >> 3);
             ppu_x = val & 0x07;
             ppu_w = 1;
         } else {
             ppu_t = (ppu_t & 0x8C1F) | (((unsigned short)val & 0x07) << 12) |
-                    (((unsigned short)val & 0xF8) << 2);
+            (((unsigned short)val & 0xF8) << 2);
             ppu_w = 0;
         }
         break;
-    case 6: // PPUADDR
+        case 6: // PPUADDR
         if (ppu_w == 0) {
             ppu_t = (ppu_t & 0x00FF) | (((unsigned short)val & 0x3F) << 8);
             ppu_w = 1;
@@ -66,7 +66,7 @@ void ppu_reg_write(int reg, u8 val) {
             ppu_w = 0;
         }
         break;
-    case 7: // PPUDATA
+        case 7: // PPUDATA
         ppu_bus_write(ppu_v, val);
         ppu_v = ppu_v + ((ppu_ctrl & 0x04) ? 32 : 1);
         break;
@@ -103,7 +103,7 @@ void ppu_render_pixel() {
         // Attribute byte
         if (bg_pixel != 0) {
             u16 at_addr = 0x23C0 | (v & 0x0C00) |
-                          ((v >> 4) & 0x38) | ((v >> 2) & 0x07);
+            ((v >> 4) & 0x38) | ((v >> 2) & 0x07);
             u8 at = ppu_bus_read(at_addr);
             int shift = ((v >> 4) & 4) | (v & 2);
             bg_palette = (at >> shift) & 0x03;

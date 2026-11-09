@@ -1,17 +1,17 @@
 int apply(int x, int fn(int)) {
-  return fn(x);
+    return fn(x);
 }
 
 void main() {
-  int doubled = apply(5, (int x) => x * 2);
-  print(doubled);
+    int doubled = apply(5, (int x) => x * 2);
+    print(doubled);
 
-  int result = apply(3, (int x) => {
-    int y = x + 10;
-    return y * 2;
-  });
-  print(result);
+    int result = apply(3, (int x) => {
+            int y = x + 10;
+            return y * 2;
+        });
+    print(result);
 
-  int val = apply(7, (int n) => n + 1);
-  print(val);
+    int val = apply(7, (int n) => n + 1);
+    print(val);
 }

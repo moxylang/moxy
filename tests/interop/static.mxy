@@ -1,0 +1,15 @@
+static int helper(int x) {
+    return x * 2;
+}
+
+static int add(int a, int b) {
+    return a + b;
+}
+
+void main() {
+    int a = helper(21);
+    assert(a == 42)
+
+    int b = add(10, 20);
+    assert(b == 30)
+}

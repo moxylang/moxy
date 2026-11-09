@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: make -j4
+
+      - name: Test
+        run: ./build/moxy test tests
+
+      - name: Examples
+        run: |
+          for f in examples/*.mxy; do
+            grep -q "void main\|int main" "$f" || continue
+            ./build/moxy run "$f" > /dev/null
+          done
+
+      - name: Formatting
+        run: ./build/moxy fmt --check tests examples std tools
+
+  sanitize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build with AddressSanitizer
+        run: make sanitize -j4
+
+      - name: Test compiler and generated code under sanitizers
+        env:
+          ASAN_OPTIONS: detect_leaks=0
+        run: ./build/asan/moxy test --sanitize tests

@@ -1,0 +1,8 @@
+// lists are values: assigning copies (cheaply, copy-on-write)
+void main() {
+    int[] a = [1, 2, 3];
+    int[] b = a;
+    b.push(4);
+    assert(b.len == 4);
+    assert(a.len == 3);
+}

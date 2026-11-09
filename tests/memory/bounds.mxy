@@ -1,0 +1,6 @@
+// out-of-range indexing stops the program with a clear message
+void main() {
+    int[] xs = [1, 2, 3];
+    print(xs[2]);
+    print(xs[10]);
+}

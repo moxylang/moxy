@@ -1,0 +1,34 @@
+namespace geo {
+    struct Point { double x; double y; }
+
+    double dist2(Point a, Point b) {
+        double dx = a.x - b.x;
+        double dy = a.y - b.y;
+        return dx * dx + dy * dy;
+    }
+
+    namespace shapes {
+        enum Shape { Circle(double r), Square(double side) }
+
+        double area(Shape s) {
+            match s {
+                Shape::Circle(r) => return 3.0 * r * r,
+                Shape::Square(side) => return side * side,
+            }
+        }
+    }
+}
+
+namespace text {
+    string area(string s) { return "area:" + s; }
+}
+
+using geo;
+
+void main() {
+    Point a = Point{.x = 0.0,.y = 0.0 };
+    geo::Point b = geo::Point{.x = 3.0,.y = 4.0 };
+    assert(dist2(a, b) == 25.0);
+    assert(geo::shapes::area(geo::shapes::Shape::Square(2.0)) == 4.0);
+    assert(text::area("x") == "area:x");
+}

@@ -9,41 +9,41 @@
 #include "lsp.mxy"
 
 void main() {
-  string moxy_path = getenv("MOXY_PATH");
-  if (moxy_path == NULL) moxy_path = "moxy";
-  lsp_set_moxy(moxy_path);
+    string moxy_path = getenv("MOXY_PATH");
+    if (moxy_path == NULL) moxy_path = "moxy";
+    lsp_set_moxy(moxy_path);
 
-  char header[256];
-  int content_length = 0;
+    char header[256];
+    int content_length = 0;
 
-  while (fgets(header, 256, stdin) != NULL) {
-    // parse Content-Length
-    if (strncmp(header, "Content-Length:", 15) == 0)
-      content_length = atoi(header + 15);
+    while (fgets(header, 256, stdin) != NULL) {
+        // parse Content-Length
+        if (strncmp(header, "Content-Length:", 15) == 0)
+        content_length = atoi(header + 15);
 
-    // empty line signals end of headers
-    if (header[0] == '\r' || header[0] == '\n') {
-      if (content_length <= 0) continue;
+        // empty line signals end of headers
+        if (header[0] == '\r' || header[0] == '\n') {
+            if (content_length <= 0) continue;
 
-      // read body
-      char* body = malloc(content_length + 1);
-      fread(body, 1, content_length, stdin);
-      body[content_length] = '\0';
+            // read body
+            char *body = malloc(content_length + 1);
+            fread(body, 1, content_length, stdin);
+            body[content_length] = '\0';
 
-      // parse, handle, respond
-      JsonNode* msg = json_parse(body);
-      free(body);
+            // parse, handle, respond
+            JsonNode *msg = json_parse(body);
+            free(body);
 
-      JsonNode* resp = lsp_handle(msg);
-      if (resp != NULL) {
-        jrpc_send(resp);
-        json_free(resp);
-      }
+            JsonNode *resp = lsp_handle(msg);
+            if (resp != NULL) {
+                jrpc_send(resp);
+                json_free(resp);
+            }
 
-      json_free(msg);
-      content_length = 0;
+            json_free(msg);
+            content_length = 0;
 
-      if (lsp_exiting() == 1) return;
+            if (lsp_exiting() == 1) return;
+        }
     }
-  }
 }

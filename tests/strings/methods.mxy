@@ -1,0 +1,21 @@
+void main() {
+    string s = "  Hello, Moxy World  ";
+    string t = s.trim();
+    assert(t == "Hello, Moxy World");
+    assert(t.len == 17 && t.upper() == "HELLO, MOXY WORLD" && t.lower() == "hello, moxy world");
+    assert(t.contains("Moxy") && t.starts_with("Hello") && t.ends_with("World"));
+    assert(t.find("Moxy") == 7 && t.find("nope") == -1);
+    assert(t.slice(7, 11) == "Moxy");
+    assert(t.replace("o", "0") == "Hell0, M0xy W0rld");
+    string[] parts = "a,b,,c".split(",");
+    assert(parts.len == 4 && parts[2] == "");
+    assert("ab".repeat(3) == "ababab");
+    assert("x\ny\n".lines().len == 2);
+    assert(t[0] == 'H' && t.at(1) == 'e');
+    assert("abc" < "abd" && "b" > "a");
+    assert(string(42) == "42" && string(2.5) == "2.5" && string(true) == "true");
+    string empty = "";
+    assert(empty.is_empty() && empty.len == 0);
+    string nothing = null;
+    assert(nothing == null);
+}

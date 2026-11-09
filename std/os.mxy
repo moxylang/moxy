@@ -1,0 +1,23 @@
+// std/os.mxy — process arguments, environment and commands
+#include <stdlib.h>
+
+extern string[] mxy_args();
+
+// the command line, program name first
+string[] args() { return mxy_args(); }
+
+// an environment variable, or null when it is not set
+string env(string name) {
+    char *value = getenv(name);
+    if (!value) { return null; }
+    return string(value);
+}
+
+bool has_env(string name) { return getenv(name) != null; }
+
+// runs a shell command and returns its exit status
+int run(string command) {
+    int status = system(command);
+    if (status == -1) { return -1; }
+    return (status >> 8) & 255;
+}

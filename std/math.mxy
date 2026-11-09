@@ -1,20 +1,44 @@
-int abs_int(int x) {
-  if (x < 0) { return -x; }
-  return x;
-}
+// std/math.mxy — integer and floating point helpers. C's <math.h> is available too.
+#include <math.h>
 
-int min_int(int a, int b) {
-  if (a < b) { return a; }
-  return b;
-}
-
-int max_int(int a, int b) {
-  if (a > b) { return a; }
-  return b;
-}
+int abs_int(int x) { return x < 0 ? -x : x; }
+int min_int(int a, int b) { return a < b ? a : b; }
+int max_int(int a, int b) { return a > b ? a : b; }
 
 int clamp_int(int x, int lo, int hi) {
-  if (x < lo) { return lo; }
-  if (x > hi) { return hi; }
-  return x;
+    if (x < lo) { return lo; }
+    if (x > hi) { return hi; }
+    return x;
+}
+
+double min_float(double a, double b) { return a < b ? a : b; }
+double max_float(double a, double b) { return a > b ? a : b; }
+
+double clamp_float(double x, double lo, double hi) {
+    if (x < lo) { return lo; }
+    if (x > hi) { return hi; }
+    return x;
+}
+
+long gcd(long a, long b) {
+    if (a < 0) { a = -a; }
+    if (b < 0) { b = -b; }
+    while (b != 0) {
+        long t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
+
+long pow_int(long base, int exp) {
+    long result = 1;
+    for _ in 0..exp { result *= base; }
+    return result;
+}
+
+int sum_ints(int[] xs) {
+    int total = 0;
+    for x in xs { total += x; }
+    return total;
 }

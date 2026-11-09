@@ -18,7 +18,7 @@ enum Shape {
 }
 
 // Function using C pointer param + Moxy return type
-float vec2_len(struct Vec2* v) {
+float vec2_len(struct Vec2 *v) {
     return v->x * v->x + v->y * v->y;
 }
 
@@ -37,8 +37,8 @@ void main() {
     print(greeting);
 
     // C struct usage
-    struct Vec2 pos = {3.0f, 4.0f};
-    struct Vec2* pp = &pos;
+    struct Vec2 pos = { 3.0f, 4.0f };
+    struct Vec2 *pp = &pos;
     printf("vec2: %.1f %.1f\n", pp->x, pp->y);
 
     // Moxy list + C pointer deref in same function
@@ -93,7 +93,7 @@ void main() {
     }
 
     // Moxy map type
-    map[string,int] scores = {};
+    map[string, int] scores = {};
     scores.set("alice", 95);
     scores.set("bob", 87);
     print(scores.get("alice"));
@@ -105,7 +105,7 @@ void main() {
     printf("cast: %d\n", rounded);
 
     // C array + Moxy print
-    int arr[3] = {100, 200, 300};
+    int arr[3] = { 100, 200, 300 };
     printf("arr: %d %d %d\n", arr[0], arr[1], arr[2]);
 
     // #define macro

@@ -1,5 +1,5 @@
 class Moxy < Formula
-  desc "Lightweight superset of C that transpiles to portable C11"
+  desc "C with modern conveniences and automatic memory management"
   homepage "https://github.com/wess/moxy"
   url "https://github.com/wess/moxy/archive/refs/tags/v0.2.2.tar.gz"
   sha256 "9cb25d3e9792289d132067451405e8bc0b46a76f849900b9a4ae8657145f49cb"
@@ -7,25 +7,25 @@ class Moxy < Formula
 
   head "https://github.com/wess/moxy.git", branch: "main"
 
+  # source tarballs do not include submodules, so goose is pinned here
+  resource "goose" do
+    url "https://github.com/wess/goose/archive/70460c29d4148141967b122e101ac8e763232d12.tar.gz"
+    sha256 "f6040d02843d94c135ac9ed9baa2d58b61cf7ecb08854652639f186b5b425c7c"
+  end
+
   def install
-    system "git", "submodule", "update", "--init", "--recursive" if build.head?
-
-    goose_src = %w[build config fs lock pkg cmake].map { |f| "libs/goose/src/#{f}.c" }
-    goose_cmd = Dir["libs/goose/src/cmd/*.c"]
-    yaml_src = Dir["libs/goose/libs/libyaml/src/*.c"]
-
-    system ENV.cc, "-Wall", "-Wextra", "-std=c11", "-O2",
-           "-Isrc", "-Ilibs/goose/src", "-Ilibs/goose/libs/libyaml/include",
-           "-DYAML_VERSION_MAJOR=0", "-DYAML_VERSION_MINOR=2",
-           "-DYAML_VERSION_PATCH=5", '-DYAML_VERSION_STRING="0.2.5"',
-           *Dir["src/*.c"], *goose_src, *goose_cmd, *yaml_src,
-           "-o", "moxy"
-    bin.install "moxy"
+    if build.head?
+      system "git", "submodule", "update", "--init", "--recursive"
+    else
+      rm_r "libs/goose" if File.directory?("libs/goose")
+      resource("goose").stage(buildpath/"libs/goose")
+    end
+    system "make", "CC=#{ENV.cc}"
+    bin.install "build/moxy"
   end
 
   test do
-    (testpath/"hello.mxy").write("void main() { print(42); }\n")
-    output = shell_output("#{bin}/moxy #{testpath}/hello.mxy")
-    assert_match "printf", output
+    (testpath/"hello.mxy").write("void main() { print(40 + 2); }\n")
+    assert_equal "42\n", shell_output("#{bin}/moxy run #{testpath}/hello.mxy")
   end
 end

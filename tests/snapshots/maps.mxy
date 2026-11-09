@@ -1,8 +1,0 @@
-void main() {
-  map[string,int] ages = {};
-  ages.set("alice", 30);
-  ages.set("bob", 25);
-  print(ages.get("alice"))
-  print(ages.has("bob"))
-  print(ages.len)
-}

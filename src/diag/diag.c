@@ -1,0 +1,141 @@
+#include "diag.h"
+
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+typedef Vec(SrcFile) FileVec;
+
+static FileVec files;
+static int nerrors;
+static int nwarnings;
+static int quiet_warnings;
+
+int diag_add_file(const char *path, const char *display, char *text) {
+    SrcFile f = {xstrdup(path), xstrdup(display), text};
+    vec_push(files, f);
+    return files.len - 1;
+}
+
+const SrcFile *diag_file(int id) {
+    if (id < 0 || id >= files.len) return NULL;
+    return &files.items[id];
+}
+
+int diag_file_count(void) { return files.len; }
+int diag_errors(void) { return nerrors; }
+int diag_warnings(void) { return nwarnings; }
+void diag_quiet_warnings(int on) { quiet_warnings = on; }
+
+void diag_reset(void) {
+    nerrors = 0;
+    nwarnings = 0;
+}
+
+static int color(void) {
+    static int c = -1;
+    if (c < 0) c = isatty(2) && !getenv("NO_COLOR");
+    return c;
+}
+
+static const char *paint(const char *code) { return color() ? code : ""; }
+
+static const char *line_start(const char *src, int line) {
+    const char *p = src;
+    for (int cur = 1; *p && cur < line; p++)
+        if (*p == '\n') cur++;
+    return p;
+}
+
+static int digits(int n) {
+    int w = 1;
+    while (n >= 10) n /= 10, w++;
+    return w;
+}
+
+static void show_source(Loc loc, const char *mark) {
+    const SrcFile *f = diag_file(loc.file);
+    if (!f || !f->text || loc.line <= 0) return;
+    const char *ls = line_start(f->text, loc.line);
+    int len = 0;
+    while (ls[len] && ls[len] != '\n') len++;
+    int w = digits(loc.line);
+    fprintf(stderr, " %*s %s|%s\n", w, "", paint("\033[1;34m"), paint("\033[0m"));
+    fprintf(stderr, " %s%*d |%s ", paint("\033[1;34m"), w, loc.line, paint("\033[0m"));
+    fwrite(ls, 1, (size_t)len, stderr);
+    fputc('\n', stderr);
+    fprintf(stderr, " %*s %s|%s ", w, "", paint("\033[1;34m"), paint("\033[0m"));
+    for (int i = 0; i < loc.col - 1 && i < len; i++) fputc(ls[i] == '\t' ? '\t' : ' ', stderr);
+    int span = loc.span > 0 ? loc.span : 1;
+    if (span > 60) span = 60;
+    fputs(paint(mark), stderr);
+    for (int i = 0; i < span; i++) fputc('^', stderr);
+    fputs(paint("\033[0m"), stderr);
+    fputc('\n', stderr);
+}
+
+static void report(const char *kind, const char *code, Loc loc, const char *fmt, va_list ap) {
+    char *msg = xvfmt(fmt, ap);
+    fprintf(stderr, "%s%s%s%s: %s%s\n", paint(code), kind, paint("\033[0m"), paint("\033[1m"), msg,
+            paint("\033[0m"));
+    const SrcFile *f = diag_file(loc.file);
+    if (f && loc.line > 0)
+        fprintf(stderr, "  %s-->%s %s:%d:%d\n", paint("\033[1;34m"), paint("\033[0m"), f->display, loc.line,
+                loc.col);
+    show_source(loc, code);
+    free(msg);
+}
+
+void diag_error(Loc loc, const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    report("error", "\033[1;31m", loc, fmt, ap);
+    va_end(ap);
+    nerrors++;
+}
+
+void diag_warn(Loc loc, const char *fmt, ...) {
+    nwarnings++;
+    if (quiet_warnings) return;
+    va_list ap;
+    va_start(ap, fmt);
+    report("warning", "\033[1;33m", loc, fmt, ap);
+    va_end(ap);
+}
+
+void diag_note(Loc loc, const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    report("note", "\033[1;36m", loc, fmt, ap);
+    va_end(ap);
+}
+
+void diag_hint(const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    char *msg = xvfmt(fmt, ap);
+    va_end(ap);
+    fprintf(stderr, "  %s= help%s: %s\n", paint("\033[1;32m"), paint("\033[0m"), msg);
+    free(msg);
+}
+
+static jmp_buf *recover;
+
+void diag_set_recover(jmp_buf *jb) { recover = jb; }
+
+_Noreturn void diag_bail(void) {
+    if (recover) {
+        jmp_buf *jb = recover;
+        recover = NULL;
+        longjmp(*jb, 1);
+    }
+    exit(1);
+}
+
+void diag_check(void) {
+    if (nerrors > 0) {
+        fprintf(stderr, "%s%d error%s%s\n", paint("\033[1;31m"), nerrors, nerrors == 1 ? "" : "s",
+                paint("\033[0m"));
+        diag_bail();
+    }
+}

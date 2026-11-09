@@ -20,7 +20,7 @@ typedef struct {
     float b;
 } Color;
 
-typedef int (*BinOp)(int, int);
+typedef int(*BinOp)(int, int);
 
 // C enum (with trailing semicolon)
 enum Direction {
@@ -40,14 +40,14 @@ int do_mul(int a, int b) {
 }
 
 // Pointer parameters
-void swap(int* a, int* b) {
+void swap(int *a, int *b) {
     int tmp = *a;
     *a = *b;
     *b = tmp;
 }
 
 // Const parameters
-int array_sum(const int* arr, int n) {
+int array_sum(const int *arr, int n) {
     int total = 0;
     for (int i = 0; i < n; i++) {
         total += arr[i];
@@ -63,16 +63,16 @@ void main() {
     printf("point: %d %d\n", p.x, p.y);
 
     // Struct initializer
-    Color c = {0.5f, 0.8f, 1.0f};
+    Color c = { 0.5f, 0.8f, 1.0f };
     printf("color: %.1f %.1f %.1f\n", c.r, c.g, c.b);
 
     // Pointer and address-of
     int val = 42;
-    int* ptr = &val;
+    int *ptr = &val;
     printf("ptr: %d\n", *ptr);
 
     // Arrow operator
-    struct Point* pp = &p;
+    struct Point *pp = &p;
     printf("arrow: %d\n", pp->x);
 
     // sizeof
@@ -135,11 +135,11 @@ void main() {
     printf("continue odd: %d\n", odd_sum);
 
     // C arrays
-    int arr[5] = {10, 20, 30, 40, 50};
+    int arr[5] = { 10, 20, 30, 40, 50 };
     printf("arr[2]: %d\n", arr[2]);
 
     // Pointer to struct and arrow
-    struct Point pts[2] = {{1, 2}, {3, 4}};
+    struct Point pts[2] = { { 1, 2 }, { 3, 4 } };
     printf("pts: %d %d\n", pts[0].x, pts[1].y);
 
     // Function pointers
@@ -169,7 +169,7 @@ void main() {
     printf("rshift-eq: %d\n", sh);
 
     // Array sum with pointer
-    int numbers[4] = {1, 2, 3, 4};
+    int numbers[4] = { 1, 2, 3, 4 };
     printf("array sum: %d\n", array_sum(numbers, 4));
 
     // #define macro

@@ -1,5 +1,7 @@
 build
 TODO.md
+tools/moxylsp/moxylsp
+tools/moxylsp/gen.c
 
 ### CMake ###
 CMakeLists.txt.user

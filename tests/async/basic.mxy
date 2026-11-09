@@ -1,0 +1,8 @@
+Future<int> compute(int x) {
+    return x * 2;
+}
+
+void main() {
+    int val = await compute(21);
+    assert(val == 42)
+}

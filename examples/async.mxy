@@ -1,39 +1,39 @@
 // Async / Futures example
-// Run with: moxy --enable-async run examples/async.mxy
+// Run with: moxy run examples/async.mxy
 
 Future<int> compute(int x) {
-  return x * 2;
+    return x * 2;
 }
 
 Future<string> greet(string name) {
-  return name;
+    return name;
 }
 
 Future<void> do_work() {
-  return;
+    return;
 }
 
 Future<int> add_one(int x) {
-  return x + 1;
+    return x + 1;
 }
 
 void main() {
-  // basic int future
-  int val = await compute(21);
-  print(val);
+    // basic int future
+    int val = await compute(21);
+    print(val);
 
-  // string future
-  string msg = await greet("hello from a thread");
-  print(msg);
+    // string future
+    string msg = await greet("hello from a thread");
+    print(msg);
 
-  // void future (side-effect only)
-  await do_work();
+    // void future (side-effect only)
+    await do_work();
 
-  // chained awaits
-  int a = await compute(10);
-  int b = await add_one(a);
-  print(a);
-  print(b);
+    // chained awaits
+    int a = await compute(10);
+    int b = await add_one(a);
+    print(a);
+    print(b);
 
-  print("done");
+    print("done");
 }

@@ -1,0 +1,7 @@
+// two modules include the same file; it is compiled once
+#include "lib/left.mxy"
+#include "lib/right.mxy"
+
+void main() {
+    assert(left() + right() == 6);
+}

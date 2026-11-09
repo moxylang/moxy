@@ -1,0 +1,11 @@
+// values from C headers print with the right format, picked by the C compiler
+#include <string.h>
+#include <stdint.h>
+
+void main() {
+    size_t n = strlen("hello");
+    uint8_t small = 200;
+    int64_t wide = 9000000000;
+    print(n, small, wide, strlen("ab") + 1);
+    print("cstr: \(strchr("moxy", 'x'))");
+}

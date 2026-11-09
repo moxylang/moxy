@@ -8,366 +8,370 @@ static int shutdown_flag = 0;
 static char moxy_bin[1024];
 
 void lsp_set_moxy(string path) {
-  strncpy(moxy_bin, path, 1023);
-  moxy_bin[1023] = '\0';
+    strncpy(moxy_bin, path, 1023);
+    moxy_bin[1023] = '\0';
 }
 
 int lsp_exiting() {
-  return shutdown_flag;
+    return shutdown_flag;
 }
 
 // build a JSON-RPC response envelope
-JsonNode* make_response(JsonNode* id, JsonNode* result) {
-  JsonNode* resp = json_object();
-  json_object_set(resp, "jsonrpc", json_string("2.0"));
+JsonNode *make_response(JsonNode *id, JsonNode *result) {
+    JsonNode *resp = json_object();
+    json_object_set(resp, "jsonrpc", json_string("2.0"));
 
-  if (id != NULL) {
-    string id_str = json_string_val(id);
-    if (id_str != NULL) {
-      json_object_set(resp, "id", json_string(id_str));
-    } else {
-      json_object_set(resp, "id", json_int(json_int_val(id)));
+    if (id != NULL) {
+        string id_str = json_string_val(id);
+        if (id_str != NULL) {
+            json_object_set(resp, "id", json_string(id_str));
+        } else {
+            json_object_set(resp, "id", json_int(json_int_val(id)));
+        }
     }
-  }
 
-  json_object_set(resp, "result", result);
-  return resp;
+    json_object_set(resp, "result", result);
+    return resp;
 }
 
 // send a JSON-RPC notification (no id)
-void lsp_notify(string method, JsonNode* params) {
-  JsonNode* msg = json_object();
-  json_object_set(msg, "jsonrpc", json_string("2.0"));
-  json_object_set(msg, "method", json_string(method));
-  json_object_set(msg, "params", params);
-  jrpc_send(msg);
-  json_free(msg);
+void lsp_notify(string method, JsonNode *params) {
+    JsonNode *msg = json_object();
+    json_object_set(msg, "jsonrpc", json_string("2.0"));
+    json_object_set(msg, "method", json_string(method));
+    json_object_set(msg, "params", params);
+    jrpc_send(msg);
+    json_free(msg);
 }
 
 // publish diagnostics for a document
 void publish_diags(string uri, string content) {
-  JsonNode* diags = run_diagnostics(content, moxy_bin);
-  JsonNode* params = json_object();
-  json_object_set(params, "uri", json_string(uri));
-  json_object_set(params, "diagnostics", diags);
-  lsp_notify("textDocument/publishDiagnostics", params);
+    JsonNode *diags = run_diagnostics(content, moxy_bin);
+    JsonNode *params = json_object();
+    json_object_set(params, "uri", json_string(uri));
+    json_object_set(params, "diagnostics", diags);
+    lsp_notify("textDocument/publishDiagnostics", params);
 }
 
 // add a completion item to the list
-void add_item(JsonNode* items, string label, int kind) {
-  JsonNode* item = json_object();
-  json_object_set(item, "label", json_string(label));
-  json_object_set(item, "kind", json_int(kind));
-  json_array_push(items, item);
+void add_item(JsonNode *items, string label, int kind) {
+    JsonNode *item = json_object();
+    json_object_set(item, "label", json_string(label));
+    json_object_set(item, "kind", json_int(kind));
+    json_array_push(items, item);
 }
 
 // add a completion item with documentation
-void add_item_doc(JsonNode* items, string label, int kind, string doc) {
-  JsonNode* item = json_object();
-  json_object_set(item, "label", json_string(label));
-  json_object_set(item, "kind", json_int(kind));
-  JsonNode* docs = json_object();
-  json_object_set(docs, "kind", json_string("markdown"));
-  json_object_set(docs, "value", json_string(doc));
-  json_object_set(item, "documentation", docs);
-  json_array_push(items, item);
+void add_item_doc(JsonNode *items, string label, int kind, string doc) {
+    JsonNode *item = json_object();
+    json_object_set(item, "label", json_string(label));
+    json_object_set(item, "kind", json_int(kind));
+    JsonNode *docs = json_object();
+    json_object_set(docs, "kind", json_string("markdown"));
+    json_object_set(docs, "value", json_string(doc));
+    json_object_set(item, "documentation", docs);
+    json_array_push(items, item);
 }
 
 // handle initialize
-JsonNode* handle_init(JsonNode* id) {
-  JsonNode* caps = json_object();
+JsonNode *handle_init(JsonNode *id) {
+    JsonNode *caps = json_object();
 
-  // full document sync
-  json_object_set(caps, "textDocumentSync", json_int(1));
+    // full document sync
+    json_object_set(caps, "textDocumentSync", json_int(1));
 
-  // completion
-  JsonNode* comp = json_object();
-  JsonNode* triggers = json_array();
-  json_array_push(triggers, json_string("."));
-  json_array_push(triggers, json_string(":"));
-  json_object_set(comp, "triggerCharacters", triggers);
-  json_object_set(caps, "completionProvider", comp);
+    // completion
+    JsonNode *comp = json_object();
+    JsonNode *triggers = json_array();
+    json_array_push(triggers, json_string("."));
+    json_array_push(triggers, json_string(":"));
+    json_object_set(comp, "triggerCharacters", triggers);
+    json_object_set(caps, "completionProvider", comp);
 
-  // hover + symbols
-  json_object_set(caps, "hoverProvider", json_bool(1));
-  json_object_set(caps, "documentSymbolProvider", json_bool(1));
+    // hover + symbols
+    json_object_set(caps, "hoverProvider", json_bool(1));
+    json_object_set(caps, "documentSymbolProvider", json_bool(1));
 
-  JsonNode* result = json_object();
-  json_object_set(result, "capabilities", caps);
+    JsonNode *result = json_object();
+    json_object_set(result, "capabilities", caps);
 
-  JsonNode* info = json_object();
-  json_object_set(info, "name", json_string("moxylsp"));
-  json_object_set(info, "version", json_string("0.1.0"));
-  json_object_set(result, "serverInfo", info);
+    JsonNode *info = json_object();
+    json_object_set(info, "name", json_string("moxylsp"));
+    json_object_set(info, "version", json_string("0.1.0"));
+    json_object_set(result, "serverInfo", info);
 
-  return make_response(id, result);
+    return make_response(id, result);
 }
 
 // handle textDocument/completion
-JsonNode* handle_completion(JsonNode* id) {
-  JsonNode* items = json_array();
+JsonNode *handle_completion(JsonNode *id) {
+    JsonNode *items = json_array();
 
-  // keywords (kind 14)
-  add_item(items, "if", 14);
-  add_item(items, "else", 14);
-  add_item(items, "for", 14);
-  add_item(items, "while", 14);
-  add_item(items, "return", 14);
-  add_item(items, "match", 14);
-  add_item(items, "enum", 14);
-  add_item(items, "struct", 14);
-  add_item(items, "static", 14);
-  add_item(items, "const", 14);
-  add_item(items, "extern", 14);
-  add_item(items, "typedef", 14);
-  add_item(items, "break", 14);
-  add_item(items, "continue", 14);
-  add_item(items, "switch", 14);
-  add_item(items, "case", 14);
-  add_item(items, "default", 14);
-  add_item(items, "in", 14);
+    // keywords (kind 14)
+    add_item(items, "if", 14);
+    add_item(items, "else", 14);
+    add_item(items, "for", 14);
+    add_item(items, "while", 14);
+    add_item(items, "return", 14);
+    add_item(items, "match", 14);
+    add_item(items, "enum", 14);
+    add_item(items, "struct", 14);
+    add_item(items, "static", 14);
+    add_item(items, "const", 14);
+    add_item(items, "extern", 14);
+    add_item(items, "typedef", 14);
+    add_item(items, "break", 14);
+    add_item(items, "continue", 14);
+    add_item(items, "switch", 14);
+    add_item(items, "case", 14);
+    add_item(items, "default", 14);
+    add_item(items, "in", 14);
 
-  // types (kind 22 = Struct)
-  add_item(items, "int", 22);
-  add_item(items, "float", 22);
-  add_item(items, "double", 22);
-  add_item(items, "char", 22);
-  add_item(items, "bool", 22);
-  add_item(items, "string", 22);
-  add_item(items, "void", 22);
-  add_item(items, "long", 22);
-  add_item(items, "short", 22);
-  add_item(items, "unsigned", 22);
-  add_item(items, "Result", 22);
-  add_item(items, "map", 22);
-  add_item(items, "Future", 22);
+    // types (kind 22 = Struct)
+    add_item(items, "int", 22);
+    add_item(items, "float", 22);
+    add_item(items, "double", 22);
+    add_item(items, "char", 22);
+    add_item(items, "bool", 22);
+    add_item(items, "string", 22);
+    add_item(items, "void", 22);
+    add_item(items, "long", 22);
+    add_item(items, "short", 22);
+    add_item(items, "unsigned", 22);
+    add_item(items, "Result", 22);
+    add_item(items, "map", 22);
+    add_item(items, "Future", 22);
 
-  // builtins (kind 3 = Function)
-  add_item_doc(items, "print", 3, "`print(expr)` — auto-format print");
-  add_item_doc(items, "assert", 3, "`assert(expr)` — runtime assertion");
-  add_item_doc(items, "Ok", 4, "`Ok(value)` — successful Result");
-  add_item_doc(items, "Err", 4, "`Err(msg)` — error Result");
-  add_item_doc(items, "await", 14, "`await expr` — resolve a Future");
+    // builtins (kind 3 = Function)
+    add_item_doc(items, "print", 3, "`print(expr)` — auto-format print");
+    add_item_doc(items, "assert", 3, "`assert(expr)` — runtime assertion");
+    add_item_doc(items, "Ok", 4, "`Ok(value)` — successful Result");
+    add_item_doc(items, "Err", 4, "`Err(msg)` — error Result");
+    add_item_doc(items, "await", 14, "`await expr` — resolve a Future");
 
-  // stdlib
-  add_item(items, "str_len", 3);
-  add_item(items, "str_eq", 3);
-  add_item(items, "str_contains", 3);
-  add_item(items, "str_starts_with", 3);
-  add_item(items, "str_ends_with", 3);
-  add_item(items, "abs_int", 3);
-  add_item(items, "min_int", 3);
-  add_item(items, "max_int", 3);
-  add_item(items, "clamp_int", 3);
-  add_item(items, "eprintln", 3);
-  add_item(items, "readln", 3);
-  add_item(items, "panic", 3);
-  add_item(items, "todo", 3);
-  add_item(items, "unreachable", 3);
+    // stdlib
+    add_item(items, "str_len", 3);
+    add_item(items, "str_eq", 3);
+    add_item(items, "str_contains", 3);
+    add_item(items, "str_starts_with", 3);
+    add_item(items, "str_ends_with", 3);
+    add_item(items, "abs_int", 3);
+    add_item(items, "min_int", 3);
+    add_item(items, "max_int", 3);
+    add_item(items, "clamp_int", 3);
+    add_item(items, "eprintln", 3);
+    add_item(items, "readln", 3);
+    add_item(items, "panic", 3);
+    add_item(items, "todo", 3);
+    add_item(items, "unreachable", 3);
 
-  JsonNode* result = json_object();
-  json_object_set(result, "isIncomplete", json_bool(0));
-  json_object_set(result, "items", items);
-  return make_response(id, result);
+    JsonNode *result = json_object();
+    json_object_set(result, "isIncomplete", json_bool(0));
+    json_object_set(result, "items", items);
+    return make_response(id, result);
 }
 
 // hover documentation lookup
 string hover_doc(string word) {
-  if (strcmp(word, "string") == 0) return "**string** — maps to `const char*` in C";
-  if (strcmp(word, "int") == 0) return "**int** — 32-bit integer";
-  if (strcmp(word, "float") == 0) return "**float** — 32-bit floating point";
-  if (strcmp(word, "double") == 0) return "**double** — 64-bit floating point";
-  if (strcmp(word, "char") == 0) return "**char** — 8-bit character";
-  if (strcmp(word, "bool") == 0) return "**bool** — boolean (`true` / `false`)";
-  if (strcmp(word, "void") == 0) return "**void** — no return value";
-  if (strcmp(word, "Result") == 0) return "**Result\\<T\\>** — tagged union: `Ok(T)` or `Err(string)`";
-  if (strcmp(word, "map") == 0) return "**map[K,V]** — key-value store: `.set()`, `.get()`, `.has()`, `.len`";
-  if (strcmp(word, "Future") == 0) return "**Future\\<T\\>** — async (requires `--enable-async`), resolve with `await`";
-  if (strcmp(word, "print") == 0) return "`print(expr)` — auto-selects printf format by type";
-  if (strcmp(word, "assert") == 0) return "`assert(expr)` — exits with error on failure";
-  if (strcmp(word, "Ok") == 0) return "`Ok(value)` — construct a successful Result";
-  if (strcmp(word, "Err") == 0) return "`Err(message)` — construct an error Result";
-  if (strcmp(word, "await") == 0) return "`await expr` — wait for a Future to resolve";
-  if (strcmp(word, "match") == 0) return "`match expr { Pattern => body, ... }` — pattern matching";
-  if (strcmp(word, "enum") == 0) return "Define an enum: `enum Name { Variant(fields), ... }`";
-  if (strcmp(word, "for") == 0) return "`for item in list { }` / `for i in 0..n { }`";
-  return NULL;
+    if (strcmp(word, "string") == 0) return "**string** — immutable, reference-counted text; passes to C as `const char*`";
+    if (strcmp(word, "int") == 0) return "**int** — 32-bit integer";
+    if (strcmp(word, "float") == 0) return "**float** — 32-bit floating point";
+    if (strcmp(word, "double") == 0) return "**double** — 64-bit floating point";
+    if (strcmp(word, "char") == 0) return "**char** — 8-bit character";
+    if (strcmp(word, "bool") == 0) return "**bool** — boolean (`true` / `false`)";
+    if (strcmp(word, "void") == 0) return "**void** — no return value";
+    if (strcmp(word, "Result") == 0) return "**Result\\<T\\>** — tagged union: `Ok(T)` or `Err(string)`";
+    if (strcmp(word, "map") == 0) return "**map[K,V]** — hash map with insertion order: `m[k]`, `.get_or()`, `.has()`, `.remove()`, `.len`";
+    if (strcmp(word, "Future") == 0) return "**Future\\<T\\>** — runs on its own thread; resolve with `await`";
+    if (strcmp(word, "print") == 0) return "`print(a, b, ...)` — prints values of any type, separated by spaces";
+    if (strcmp(word, "assert") == 0) return "`assert(expr)` — exits with error on failure";
+    if (strcmp(word, "Ok") == 0) return "`Ok(value)` — construct a successful Result";
+    if (strcmp(word, "Err") == 0) return "`Err(message)` — construct an error Result";
+    if (strcmp(word, "await") == 0) return "`await expr` — wait for a Future to resolve";
+    if (strcmp(word, "match") == 0) return "`match expr { Pattern => body, ... }` — pattern matching";
+    if (strcmp(word, "enum") == 0) return "Define an enum: `enum Name { Variant(fields), ... }`";
+    if (strcmp(word, "for") == 0) return "`for item in list { }` / `for i, x in list { }` / `for i in 0..n { }`";
+    if (strcmp(word, "ref") == 0) return "`ref struct T { }` — shared, reference-counted object";
+    if (strcmp(word, "weak") == 0) return "`weak T field;` — reference that does not keep the object alive";
+    if (strcmp(word, "defer") == 0) return "`defer stmt;` — runs when the scope ends";
+    if (strcmp(word, "fn") == 0) return "`fn(A, B) -> R` — closure type";
+    return NULL;
 }
 
 // handle textDocument/hover
-JsonNode* handle_hover(JsonNode* id, JsonNode* params) {
-  JsonNode* td = json_object_get(params, "textDocument");
-  JsonNode* pos = json_object_get(params, "position");
-  if (td == NULL) return make_response(id, json_null());
-  if (pos == NULL) return make_response(id, json_null());
+JsonNode *handle_hover(JsonNode *id, JsonNode *params) {
+    JsonNode *td = json_object_get(params, "textDocument");
+    JsonNode *pos = json_object_get(params, "position");
+    if (td == NULL) return make_response(id, json_null());
+    if (pos == NULL) return make_response(id, json_null());
 
-  string uri = json_string_val(json_object_get(td, "uri"));
-  int line = json_int_val(json_object_get(pos, "line"));
-  int col = json_int_val(json_object_get(pos, "character"));
+    string uri = json_string_val(json_object_get(td, "uri"));
+    int line = json_int_val(json_object_get(pos, "line"));
+    int col = json_int_val(json_object_get(pos, "character"));
 
-  string content = doc_content(uri);
-  if (content == NULL) return make_response(id, json_null());
+    string content = doc_content(uri);
+    if (content == NULL) return make_response(id, json_null());
 
-  char word[128];
-  word_at_pos(content, line, col, word, 128);
+    char word[128];
+    word_at_pos(content, line, col, word, 128);
 
-  string doc = hover_doc(word);
-  if (doc == NULL) return make_response(id, json_null());
+    string doc = hover_doc(word);
+    if (doc == NULL) return make_response(id, json_null());
 
-  JsonNode* contents = json_object();
-  json_object_set(contents, "kind", json_string("markdown"));
-  json_object_set(contents, "value", json_string(doc));
+    JsonNode *contents = json_object();
+    json_object_set(contents, "kind", json_string("markdown"));
+    json_object_set(contents, "value", json_string(doc));
 
-  JsonNode* result = json_object();
-  json_object_set(result, "contents", contents);
-  return make_response(id, result);
+    JsonNode *result = json_object();
+    json_object_set(result, "contents", contents);
+    return make_response(id, result);
 }
 
 // handle textDocument/documentSymbol
-JsonNode* handle_symbols(JsonNode* id, JsonNode* params) {
-  JsonNode* td = json_object_get(params, "textDocument");
-  if (td == NULL) return make_response(id, json_array());
+JsonNode *handle_symbols(JsonNode *id, JsonNode *params) {
+    JsonNode *td = json_object_get(params, "textDocument");
+    if (td == NULL) return make_response(id, json_array());
 
-  string uri = json_string_val(json_object_get(td, "uri"));
-  string content = doc_content(uri);
-  if (content == NULL) return make_response(id, json_array());
+    string uri = json_string_val(json_object_get(td, "uri"));
+    string content = doc_content(uri);
+    if (content == NULL) return make_response(id, json_array());
 
-  JsonNode* syms = scan_symbols(content);
-  return make_response(id, syms);
+    JsonNode *syms = scan_symbols(content);
+    return make_response(id, syms);
 }
 
 // handle textDocument/didOpen
-void handle_did_open(JsonNode* params) {
-  JsonNode* td = json_object_get(params, "textDocument");
-  if (td == NULL) return;
+void handle_did_open(JsonNode *params) {
+    JsonNode *td = json_object_get(params, "textDocument");
+    if (td == NULL) return;
 
-  string uri = json_string_val(json_object_get(td, "uri"));
-  string text = json_string_val(json_object_get(td, "text"));
-  int version = json_int_val(json_object_get(td, "version"));
+    string uri = json_string_val(json_object_get(td, "uri"));
+    string text = json_string_val(json_object_get(td, "text"));
+    int version = json_int_val(json_object_get(td, "version"));
 
-  if (uri != NULL) {
-    if (text != NULL) {
-      doc_open(uri, text, version);
-      publish_diags(uri, text);
+    if (uri != NULL) {
+        if (text != NULL) {
+            doc_open(uri, text, version);
+            publish_diags(uri, text);
+        }
     }
-  }
 }
 
 // handle textDocument/didChange
-void handle_did_change(JsonNode* params) {
-  JsonNode* td = json_object_get(params, "textDocument");
-  JsonNode* changes = json_object_get(params, "contentChanges");
-  if (td == NULL) return;
-  if (changes == NULL) return;
+void handle_did_change(JsonNode *params) {
+    JsonNode *td = json_object_get(params, "textDocument");
+    JsonNode *changes = json_object_get(params, "contentChanges");
+    if (td == NULL) return;
+    if (changes == NULL) return;
 
-  string uri = json_string_val(json_object_get(td, "uri"));
-  int version = json_int_val(json_object_get(td, "version"));
-  int nchanges = json_array_len(changes);
-  if (nchanges <= 0) return;
+    string uri = json_string_val(json_object_get(td, "uri"));
+    int version = json_int_val(json_object_get(td, "version"));
+    int nchanges = json_array_len(changes);
+    if (nchanges <= 0) return;
 
-  JsonNode* last = json_array_get(changes, nchanges - 1);
-  string text = json_string_val(json_object_get(last, "text"));
+    JsonNode *last = json_array_get(changes, nchanges - 1);
+    string text = json_string_val(json_object_get(last, "text"));
 
-  if (uri != NULL) {
-    if (text != NULL) {
-      doc_open(uri, text, version);
-      publish_diags(uri, text);
+    if (uri != NULL) {
+        if (text != NULL) {
+            doc_open(uri, text, version);
+            publish_diags(uri, text);
+        }
     }
-  }
 }
 
 // handle textDocument/didClose
-void handle_did_close(JsonNode* params) {
-  JsonNode* td = json_object_get(params, "textDocument");
-  if (td == NULL) return;
+void handle_did_close(JsonNode *params) {
+    JsonNode *td = json_object_get(params, "textDocument");
+    if (td == NULL) return;
 
-  string uri = json_string_val(json_object_get(td, "uri"));
-  if (uri == NULL) return;
+    string uri = json_string_val(json_object_get(td, "uri"));
+    if (uri == NULL) return;
 
-  // clear diagnostics
-  JsonNode* p = json_object();
-  json_object_set(p, "uri", json_string(uri));
-  json_object_set(p, "diagnostics", json_array());
-  lsp_notify("textDocument/publishDiagnostics", p);
-  doc_close(uri);
+    // clear diagnostics
+    JsonNode *p = json_object();
+    json_object_set(p, "uri", json_string(uri));
+    json_object_set(p, "diagnostics", json_array());
+    lsp_notify("textDocument/publishDiagnostics", p);
+    doc_close(uri);
 }
 
 // handle textDocument/didSave
-void handle_did_save(JsonNode* params) {
-  JsonNode* td = json_object_get(params, "textDocument");
-  if (td == NULL) return;
+void handle_did_save(JsonNode *params) {
+    JsonNode *td = json_object_get(params, "textDocument");
+    if (td == NULL) return;
 
-  string uri = json_string_val(json_object_get(td, "uri"));
-  if (uri == NULL) return;
+    string uri = json_string_val(json_object_get(td, "uri"));
+    if (uri == NULL) return;
 
-  string content = doc_content(uri);
-  if (content != NULL) publish_diags(uri, content);
+    string content = doc_content(uri);
+    if (content != NULL) publish_diags(uri, content);
 }
 
 // main dispatcher
-JsonNode* lsp_handle(JsonNode* msg) {
-  string method = json_string_val(json_object_get(msg, "method"));
-  JsonNode* id = json_object_get(msg, "id");
-  JsonNode* params = json_object_get(msg, "params");
+JsonNode *lsp_handle(JsonNode *msg) {
+    string method = json_string_val(json_object_get(msg, "method"));
+    JsonNode *id = json_object_get(msg, "id");
+    JsonNode *params = json_object_get(msg, "params");
 
-  if (method == NULL) return NULL;
+    if (method == NULL) return NULL;
 
-  if (strcmp(method, "initialize") == 0)
+    if (strcmp(method, "initialize") == 0)
     return handle_init(id);
 
-  if (strcmp(method, "initialized") == 0)
+    if (strcmp(method, "initialized") == 0)
     return NULL;
 
-  if (strcmp(method, "shutdown") == 0) {
-    shutdown_flag = 1;
-    return make_response(id, json_null());
-  }
+    if (strcmp(method, "shutdown") == 0) {
+        shutdown_flag = 1;
+        return make_response(id, json_null());
+    }
 
-  if (strcmp(method, "exit") == 0) {
-    if (shutdown_flag == 1) exit(0);
-    exit(1);
-  }
+    if (strcmp(method, "exit") == 0) {
+        if (shutdown_flag == 1) exit(0);
+        exit(1);
+    }
 
-  if (strcmp(method, "textDocument/didOpen") == 0) {
-    handle_did_open(params);
-    return NULL;
-  }
+    if (strcmp(method, "textDocument/didOpen") == 0) {
+        handle_did_open(params);
+        return NULL;
+    }
 
-  if (strcmp(method, "textDocument/didChange") == 0) {
-    handle_did_change(params);
-    return NULL;
-  }
+    if (strcmp(method, "textDocument/didChange") == 0) {
+        handle_did_change(params);
+        return NULL;
+    }
 
-  if (strcmp(method, "textDocument/didClose") == 0) {
-    handle_did_close(params);
-    return NULL;
-  }
+    if (strcmp(method, "textDocument/didClose") == 0) {
+        handle_did_close(params);
+        return NULL;
+    }
 
-  if (strcmp(method, "textDocument/didSave") == 0) {
-    handle_did_save(params);
-    return NULL;
-  }
+    if (strcmp(method, "textDocument/didSave") == 0) {
+        handle_did_save(params);
+        return NULL;
+    }
 
-  if (strcmp(method, "textDocument/completion") == 0)
+    if (strcmp(method, "textDocument/completion") == 0)
     return handle_completion(id);
 
-  if (strcmp(method, "textDocument/hover") == 0)
+    if (strcmp(method, "textDocument/hover") == 0)
     return handle_hover(id, params);
 
-  if (strcmp(method, "textDocument/documentSymbol") == 0)
+    if (strcmp(method, "textDocument/documentSymbol") == 0)
     return handle_symbols(id, params);
 
-  // unknown method with id => method not found
-  if (id != NULL) {
-    JsonNode* resp = json_object();
-    json_object_set(resp, "jsonrpc", json_string("2.0"));
-    json_object_set(resp, "id", json_int(json_int_val(id)));
-    JsonNode* err = json_object();
-    json_object_set(err, "code", json_int(-32601));
-    json_object_set(err, "message", json_string("Method not found"));
-    json_object_set(resp, "error", err);
-    return resp;
-  }
+    // unknown method with id => method not found
+    if (id != NULL) {
+        JsonNode *resp = json_object();
+        json_object_set(resp, "jsonrpc", json_string("2.0"));
+        json_object_set(resp, "id", json_int(json_int_val(id)));
+        JsonNode *err = json_object();
+        json_object_set(err, "code", json_int(-32601));
+        json_object_set(err, "message", json_string("Method not found"));
+        json_object_set(resp, "error", err);
+        return resp;
+    }
 
-  return NULL;
+    return NULL;
 }

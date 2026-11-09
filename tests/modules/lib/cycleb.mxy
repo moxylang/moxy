@@ -1,0 +1,2 @@
+#include "cyclea.mxy"
+int from_b() { return 2; }

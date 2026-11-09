@@ -1,0 +1,24 @@
+void main() {
+    int x = 42;
+    assert(x == 42);
+
+    float pi = 3.14;
+    assert(pi > 3.0);
+    assert(pi < 4.0);
+
+    string name = "moxy";
+    assert(name != null);
+
+    bool flag = true;
+    assert(flag);
+    assert(!false);
+
+    char c = 'A';
+    assert(c == 'A');
+
+    long big = 999999;
+    assert(big > 0);
+
+    short small = 7;
+    assert(small == 7);
+}

@@ -1,0 +1,6 @@
+#include "../modules/lib/util.mxy"
+
+void main() {
+    int x = 5
+    print(x);
+}

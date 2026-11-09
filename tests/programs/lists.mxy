@@ -1,0 +1,6 @@
+void main() {
+    int[] nums = [1, 2, 3];
+    nums.push(4);
+    print(nums.len)
+    print(nums[0])
+}

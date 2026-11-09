@@ -1,31 +1,24 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+// std/test.mxy — assertions with readable failure messages.
+// assert(condition) and assert(condition, "message") are built in.
 
-void assert_eq_int(int a, int b) {
-  if (a != b) {
-    fprintf(stderr, "assertion failed: %d != %d\n", a, b);
-    exit(1);
-  }
+void assert_eq_int(long got, long want) {
+    if (got != want) { panic("expected \(want), got \(got)"); }
 }
 
-void assert_eq_str(string a, string b) {
-  if (strcmp(a, b) != 0) {
-    fprintf(stderr, "assertion failed: \"%s\" != \"%s\"\n", a, b);
-    exit(1);
-  }
+void assert_eq_float(double got, double want, double tolerance) {
+    double diff = got - want;
+    if (diff < 0) { diff = -diff; }
+    if (diff > tolerance) { panic("expected \(want), got \(got)"); }
 }
 
-void assert_true(int cond) {
-  if (!cond) {
-    fprintf(stderr, "assertion failed: expected true\n");
-    exit(1);
-  }
+void assert_eq_str(string got, string want) {
+    if (got != want) { panic("expected \"\(want)\", got \"\(got)\""); }
 }
 
-void assert_false(int cond) {
-  if (cond) {
-    fprintf(stderr, "assertion failed: expected false\n");
-    exit(1);
-  }
+void assert_true(bool cond) {
+    if (!cond) { panic("expected true"); }
+}
+
+void assert_false(bool cond) {
+    if (cond) { panic("expected false"); }
 }

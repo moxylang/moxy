@@ -1,0 +1,21 @@
+void main() {
+    print(42)
+    print(3.14)
+    print("hello")
+    print('A')
+    print(true)
+    print(false)
+
+    int x = 10;
+    print(x)
+
+    string s = "world";
+    print(s)
+
+    float f = 2.5;
+    print(f)
+
+    // expressions
+    print(1 + 2)
+    print(10 > 5)
+}

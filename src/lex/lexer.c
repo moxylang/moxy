@@ -1,0 +1,331 @@
+#include "lexer.h"
+
+#include <ctype.h>
+#include <string.h>
+
+#include "diag/diag.h"
+
+typedef struct {
+    const char *src;
+    int pos;
+    int file;
+    int line;
+    int col;
+    int bol;
+    TokenVec out;
+} Lexer;
+
+static const struct { const char *word; TokKind kind; } keywords[] = {
+    {"auto", K_AUTO}, {"break", K_BREAK}, {"case", K_CASE}, {"char", K_CHAR},
+    {"const", K_CONST}, {"continue", K_CONTINUE}, {"default", K_DEFAULT},
+    {"do", K_DO}, {"double", K_DOUBLE}, {"else", K_ELSE}, {"enum", K_ENUM},
+    {"extern", K_EXTERN}, {"float", K_FLOAT}, {"for", K_FOR}, {"goto", K_GOTO},
+    {"if", K_IF}, {"inline", K_INLINE}, {"__inline", K_INLINE}, {"__inline__", K_INLINE},
+    {"int", K_INT}, {"long", K_LONG}, {"register", K_REGISTER},
+    {"restrict", K_RESTRICT}, {"__restrict", K_RESTRICT}, {"return", K_RETURN},
+    {"short", K_SHORT}, {"signed", K_SIGNED}, {"sizeof", K_SIZEOF},
+    {"static", K_STATIC}, {"struct", K_STRUCT}, {"switch", K_SWITCH},
+    {"typedef", K_TYPEDEF}, {"union", K_UNION}, {"unsigned", K_UNSIGNED},
+    {"void", K_VOID}, {"volatile", K_VOLATILE}, {"while", K_WHILE},
+    {"bool", K_BOOL}, {"_Bool", K_BOOL}, {"_Noreturn", K_NORETURN},
+    {"_Alignof", K_ALIGNOF}, {"_Static_assert", K_STATIC_ASSERT},
+    {"_Thread_local", K_THREAD_LOCAL}, {"string", K_STRING}, {"true", K_TRUE},
+    {"false", K_FALSE}, {"null", K_NULL},
+};
+
+static char peek(Lexer *l, int ahead) {
+    for (int i = 0; i < ahead; i++)
+        if (!l->src[l->pos + i]) return '\0';
+    return l->src[l->pos + ahead];
+}
+
+static char advance(Lexer *l) {
+    char c = l->src[l->pos++];
+    if (c == '\n') {
+        l->line++;
+        l->col = 1;
+        l->bol = 1;
+    } else {
+        l->col++;
+    }
+    return c;
+}
+
+static Loc here(Lexer *l) {
+    return (Loc){l->file, l->line, l->col, 1};
+}
+
+static void emit(Lexer *l, TokKind kind, int start, Loc loc) {
+    Token t;
+    t.kind = kind;
+    t.text = xstrndup(l->src + start, (size_t)(l->pos - start));
+    loc.span = l->pos - start;
+    t.loc = loc;
+    t.bol = l->bol;
+    l->bol = 0;
+    vec_push(l->out, t);
+}
+
+static void skip_block_comment(Lexer *l) {
+    Loc at = here(l);
+    advance(l);
+    advance(l);
+    while (l->src[l->pos] && !(l->src[l->pos] == '*' && peek(l, 1) == '/')) advance(l);
+    if (!l->src[l->pos]) {
+        diag_error(at, "unterminated block comment");
+        return;
+    }
+    advance(l);
+    advance(l);
+}
+
+static void lex_directive(Lexer *l) {
+    Loc at = here(l);
+    int start = l->pos;
+    while (l->src[l->pos] && l->src[l->pos] != '\n') {
+        if (l->src[l->pos] == '\\' && peek(l, 1) == '\n') {
+            advance(l);
+            advance(l);
+            continue;
+        }
+        if (l->src[l->pos] == '/' && peek(l, 1) == '/') break;
+        if (l->src[l->pos] == '/' && peek(l, 1) == '*') {
+            skip_block_comment(l);
+            continue;
+        }
+        advance(l);
+    }
+    int end = l->pos;
+    while (end > start && (l->src[end - 1] == ' ' || l->src[end - 1] == '\t')) end--;
+    Token t;
+    t.kind = T_DIRECTIVE;
+    t.text = xstrndup(l->src + start, (size_t)(end - start));
+    at.span = end - start;
+    t.loc = at;
+    t.bol = 1;
+    l->bol = 0;
+    vec_push(l->out, t);
+}
+
+static void skip_quoted(Lexer *l, char quote) {
+    advance(l);
+    while (l->src[l->pos] && l->src[l->pos] != quote && l->src[l->pos] != '\n') {
+        if (l->src[l->pos] == '\\') advance(l);
+        if (l->src[l->pos]) advance(l);
+    }
+    if (l->src[l->pos] == quote) advance(l);
+}
+
+/* string body; supports \( expr ) interpolation with nested strings */
+static void lex_string(Lexer *l) {
+    Loc at = here(l);
+    advance(l);
+    int start = l->pos;
+    while (l->src[l->pos] && l->src[l->pos] != '"') {
+        char c = l->src[l->pos];
+        if (c == '\n') break;
+        if (c == '\\' && peek(l, 1) == '(') {
+            advance(l);
+            advance(l);
+            int depth = 1;
+            while (l->src[l->pos] && depth > 0 && l->src[l->pos] != '\n') {
+                char d = l->src[l->pos];
+                if (d == '"' || d == '\'') {
+                    skip_quoted(l, d);
+                    continue;
+                }
+                if (d == '(') depth++;
+                if (d == ')') depth--;
+                advance(l);
+            }
+            continue;
+        }
+        if (c == '\\') advance(l);
+        if (l->src[l->pos]) advance(l);
+    }
+    if (l->src[l->pos] != '"') {
+        diag_error(at, "unterminated string literal");
+        diag_hint("close the string with '\"' on the same line");
+        return;
+    }
+    Token t;
+    t.kind = T_STR;
+    t.text = xstrndup(l->src + start, (size_t)(l->pos - start));
+    advance(l);
+    at.span = l->pos - start + 1;
+    t.loc = at;
+    t.bol = l->bol;
+    l->bol = 0;
+    vec_push(l->out, t);
+}
+
+static void lex_char(Lexer *l) {
+    Loc at = here(l);
+    advance(l);
+    int start = l->pos;
+    while (l->src[l->pos] && l->src[l->pos] != '\'' && l->src[l->pos] != '\n') {
+        if (l->src[l->pos] == '\\') advance(l);
+        if (l->src[l->pos]) advance(l);
+    }
+    if (l->src[l->pos] != '\'') {
+        diag_error(at, "unterminated character literal");
+        return;
+    }
+    Token t;
+    t.kind = T_CHAR;
+    t.text = xstrndup(l->src + start, (size_t)(l->pos - start));
+    advance(l);
+    at.span = l->pos - start + 1;
+    t.loc = at;
+    t.bol = l->bol;
+    l->bol = 0;
+    vec_push(l->out, t);
+}
+
+static void lex_number(Lexer *l) {
+    Loc at = here(l);
+    int start = l->pos;
+    int is_float = 0;
+    if (l->src[l->pos] == '0' && (peek(l, 1) == 'x' || peek(l, 1) == 'X')) {
+        advance(l);
+        advance(l);
+        while (isxdigit((unsigned char)l->src[l->pos]) || l->src[l->pos] == '\'') advance(l);
+        if (l->src[l->pos] == '.' && peek(l, 1) != '.') {
+            is_float = 1;
+            advance(l);
+            while (isxdigit((unsigned char)l->src[l->pos])) advance(l);
+        }
+        if (l->src[l->pos] == 'p' || l->src[l->pos] == 'P') {
+            is_float = 1;
+            advance(l);
+            if (l->src[l->pos] == '+' || l->src[l->pos] == '-') advance(l);
+            while (isdigit((unsigned char)l->src[l->pos])) advance(l);
+        }
+    } else if (l->src[l->pos] == '0' && (peek(l, 1) == 'b' || peek(l, 1) == 'B')) {
+        advance(l);
+        advance(l);
+        while (l->src[l->pos] == '0' || l->src[l->pos] == '1') advance(l);
+    } else {
+        while (isdigit((unsigned char)l->src[l->pos])) advance(l);
+        if (l->src[l->pos] == '.' && peek(l, 1) != '.' && !isalpha((unsigned char)peek(l, 1)) &&
+            peek(l, 1) != '_') {
+            is_float = 1;
+            advance(l);
+            while (isdigit((unsigned char)l->src[l->pos])) advance(l);
+        }
+        if ((l->src[l->pos] == 'e' || l->src[l->pos] == 'E') &&
+            (isdigit((unsigned char)peek(l, 1)) ||
+             ((peek(l, 1) == '+' || peek(l, 1) == '-') && isdigit((unsigned char)peek(l, 2))))) {
+            is_float = 1;
+            advance(l);
+            if (l->src[l->pos] == '+' || l->src[l->pos] == '-') advance(l);
+            while (isdigit((unsigned char)l->src[l->pos])) advance(l);
+        }
+    }
+    while (strchr("uUlLfF", l->src[l->pos]) && l->src[l->pos]) {
+        if (l->src[l->pos] == 'f' || l->src[l->pos] == 'F') is_float = 1;
+        advance(l);
+    }
+    emit(l, is_float ? T_FLOAT : T_INT, start, at);
+}
+
+static const struct { const char *op; TokKind kind; } ops[] = {
+    {"...", P_ELLIPSIS}, {"..=", P_DOTDOTEQ}, {"<<=", P_SHLEQ}, {">>=", P_SHREQ},
+    {"..", P_DOTDOT}, {"->", P_ARROW}, {"=>", P_FATARROW}, {"::", P_COLONCOLON},
+    {"|>", P_PIPEGT}, {"<=", P_LE}, {">=", P_GE}, {"==", P_EQ}, {"!=", P_NE},
+    {"&&", P_ANDAND}, {"||", P_OROR}, {"<<", P_SHL}, {">>", P_SHR},
+    {"++", P_INC}, {"--", P_DEC}, {"+=", P_PLUSEQ}, {"-=", P_MINUSEQ},
+    {"*=", P_STAREQ}, {"/=", P_SLASHEQ}, {"%=", P_PERCENTEQ}, {"&=", P_AMPEQ},
+    {"|=", P_PIPEEQ}, {"^=", P_CARETEQ},
+    {"{", P_LBRACE}, {"}", P_RBRACE}, {"(", P_LPAREN}, {")", P_RPAREN},
+    {"[", P_LBRACKET}, {"]", P_RBRACKET}, {";", P_SEMI}, {",", P_COMMA},
+    {".", P_DOT}, {":", P_COLON}, {"?", P_QUESTION}, {"@", P_AT},
+    {"+", P_PLUS}, {"-", P_MINUS}, {"*", P_STAR}, {"/", P_SLASH},
+    {"%", P_PERCENT}, {"&", P_AMP}, {"|", P_PIPE}, {"^", P_CARET},
+    {"~", P_TILDE}, {"!", P_BANG}, {"=", P_ASSIGN}, {"<", P_LT}, {">", P_GT},
+};
+
+static void run(Lexer *l) {
+    while (l->src[l->pos]) {
+        char c = l->src[l->pos];
+        if (c == '\n' || c == ' ' || c == '\t' || c == '\r' || c == '\f' || c == '\v') {
+            advance(l);
+            continue;
+        }
+        if (c == '\\' && peek(l, 1) == '\n') {
+            advance(l);
+            advance(l);
+            continue;
+        }
+        if (c == '/' && peek(l, 1) == '/') {
+            while (l->src[l->pos] && l->src[l->pos] != '\n') advance(l);
+            continue;
+        }
+        if (c == '/' && peek(l, 1) == '*') {
+            skip_block_comment(l);
+            continue;
+        }
+        if (c == '#' && l->bol) {
+            lex_directive(l);
+            continue;
+        }
+        if (c == '"') {
+            lex_string(l);
+            continue;
+        }
+        if (c == '\'') {
+            lex_char(l);
+            continue;
+        }
+        if (isdigit((unsigned char)c) || (c == '.' && isdigit((unsigned char)peek(l, 1)))) {
+            lex_number(l);
+            continue;
+        }
+        if (isalpha((unsigned char)c) || c == '_' || c == '$') {
+            Loc at = here(l);
+            int start = l->pos;
+            while (isalnum((unsigned char)l->src[l->pos]) || l->src[l->pos] == '_' || l->src[l->pos] == '$')
+                advance(l);
+            TokKind kind = T_IDENT;
+            size_t n = (size_t)(l->pos - start);
+            for (size_t i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
+                if (strlen(keywords[i].word) == n && memcmp(keywords[i].word, l->src + start, n) == 0) {
+                    kind = keywords[i].kind;
+                    break;
+                }
+            }
+            emit(l, kind, start, at);
+            continue;
+        }
+        int matched = 0;
+        for (size_t i = 0; i < sizeof(ops) / sizeof(ops[0]); i++) {
+            size_t n = strlen(ops[i].op);
+            if (strncmp(l->src + l->pos, ops[i].op, n) == 0) {
+                Loc at = here(l);
+                int start = l->pos;
+                for (size_t k = 0; k < n; k++) advance(l);
+                emit(l, ops[i].kind, start, at);
+                matched = 1;
+                break;
+            }
+        }
+        if (matched) continue;
+        Loc at = here(l);
+        diag_error(at, "unexpected character '%c'", c);
+        advance(l);
+    }
+    Token eof = {T_EOF, xstrdup(""), here(l), 1};
+    vec_push(l->out, eof);
+}
+
+TokenVec lex_file(int file, const char *src) {
+    Lexer l = {src, 0, file, 1, 1, 1, {0}};
+    run(&l);
+    return l.out;
+}
+
+TokenVec lex_fragment(const char *src, Loc at) {
+    Lexer l = {src, 0, at.file, at.line, at.col, 0, {0}};
+    run(&l);
+    return l.out;
+}

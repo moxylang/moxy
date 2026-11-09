@@ -1,0 +1,45 @@
+// collections and strings are values: copies never affect each other
+void grow(int[] xs) {
+    xs.push(99);
+    assert(xs.len == 4);
+}
+
+int[][] grid() {
+    int[][] g = [];
+    for r in 0..3 {
+        int[] row = [];
+        for c in 0..3 { row.push(r * 3 + c); }
+        g.push(row);
+    }
+    return g;
+}
+
+void main() {
+    int[] a = [1, 2, 3];
+    int[] b = a;
+    b[0] = 100;
+    grow(a);
+    assert(a.len == 3 && a[0] == 1 && b[0] == 100);
+
+    map[string, int] m = { "x": 1 };
+    map[string, int] n = m;
+    n["x"] = 2;
+    n["y"] = 3;
+    assert(m.get("x") == 1 && m.len == 1 && n.len == 2);
+
+    int[][] g = grid();
+    int[][] h = g;
+    h[1][1] = -1;
+    assert(g[1][1] == 4 && h[1][1] == -1);
+
+    string s = "abc";
+    string t = s;
+    t += "d";
+    assert(s == "abc" && t == "abcd");
+
+    int[] big = [];
+    for i in 0..1000 { big.push(i); }
+    int[] copy = big;
+    for i in 0..1000 { copy[i] = 0; }
+    assert(big[999] == 999 && copy[999] == 0);
+}

@@ -1,0 +1,54 @@
+// Result values flow through returns, nested branches and loops
+struct Point { int x; int y; }
+
+Result<int> parse_digit(char c) {
+    if (c >= '0' && c <= '9') {
+        return Ok(c - '0');
+    }
+    return Err("not a digit: \(c)");
+}
+
+Result<int> parse_number(string s) {
+    if (s.len == 0) { return Err("empty"); }
+    int total = 0;
+    for c in s {
+        Result<int> d = parse_digit(c);
+        if (d.is_err()) { return Err(d.error()); }
+        total = total * 10 + d.unwrap();
+    }
+    return Ok(total);
+}
+
+Result<Point> make_point(int x, int y) {
+    if (x < 0) { return Err("negative x"); }
+    return Ok(Point{.x = x,.y = y });
+}
+
+Result<string> greet(string name) {
+    if (name == "") { return Err("no name"); }
+    return Ok("hello " + name);
+}
+
+Result<void> check(bool ok) {
+    if (!ok) { return Err("check failed"); }
+    return Ok();
+}
+
+void main() {
+    assert(parse_number("1234").unwrap() == 1234);
+    assert(parse_number("12x4").error() == "not a digit: x");
+    assert(parse_number("").is_err());
+    assert(parse_number("7a").unwrap_or(-1) == -1);
+    assert(make_point(1, 2).unwrap().y == 2);
+    assert(make_point(-1, 2).error() == "negative x");
+    assert(greet("moxy").unwrap() == "hello moxy");
+    assert(check(true).is_ok());
+    match check(false) {
+        Ok => assert(false),
+        Err(e) => assert(e == "check failed"),
+    }
+    Result<long> n = "42".to_int();
+    assert(n.unwrap() == 42);
+    assert("4x".to_int().is_err());
+    assert("2.5".to_float().unwrap() == 2.5);
+}

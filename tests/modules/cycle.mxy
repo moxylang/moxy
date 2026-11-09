@@ -1,0 +1,6 @@
+// include cycles terminate because each file is included once
+#include "lib/cyclea.mxy"
+
+void main() {
+    assert(from_a() + from_b() == 3);
+}

@@ -1,0 +1,69 @@
+#ifndef MOXY_BASE_H
+#define MOXY_BASE_H
+
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdlib.h>
+
+/* source location: file id (see diag), 1-based line/col, token span */
+typedef struct {
+    int file;
+    int line;
+    int col;
+    int span;
+} Loc;
+
+void *xmalloc(size_t n);
+void *xcalloc(size_t n, size_t size);
+void *xrealloc(void *p, size_t n);
+char *xstrdup(const char *s);
+char *xstrndup(const char *s, size_t n);
+char *xfmt(const char *fmt, ...);
+char *xvfmt(const char *fmt, va_list ap);
+
+/* growable arrays: declare with `typedef Vec(T) TVec;` */
+#define Vec(T) struct { T *items; int len; int cap; }
+
+#define vec_push(v, x)                                                       \
+    do {                                                                     \
+        if ((v).len >= (v).cap) {                                            \
+            (v).cap = (v).cap ? (v).cap * 2 : 8;                             \
+            (v).items = xrealloc((v).items, (size_t)(v).cap * sizeof(*(v).items)); \
+        }                                                                    \
+        (v).items[(v).len++] = (x);                                          \
+    } while (0)
+
+#define vec_last(v) ((v).items[(v).len - 1])
+#define vec_free(v) do { free((v).items); (v).items = NULL; (v).len = (v).cap = 0; } while (0)
+
+typedef struct {
+    char *data;
+    size_t len;
+    size_t cap;
+} Buf;
+
+void buf_put(Buf *b, const char *s);
+void buf_putn(Buf *b, const char *s, size_t n);
+void buf_putc(Buf *b, char c);
+void buf_fmt(Buf *b, const char *fmt, ...);
+void buf_vfmt(Buf *b, const char *fmt, va_list ap);
+const char *buf_str(Buf *b);
+char *buf_take(Buf *b);
+void buf_free(Buf *b);
+
+char *file_read(const char *path);
+int file_write(const char *path, const char *data);
+int file_exists(const char *path);
+int dir_exists(const char *path);
+int dir_make(const char *path);
+char *path_dir(const char *path);
+char *path_join(const char *a, const char *b);
+char *path_real(const char *path);
+const char *path_base(const char *path);
+
+int str_ends(const char *s, const char *suffix);
+int str_starts(const char *s, const char *prefix);
+int str_eq(const char *a, const char *b);
+int str_distance(const char *a, const char *b);
+
+#endif

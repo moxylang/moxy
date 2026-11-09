@@ -1,0 +1,38 @@
+void main() {
+    int x = 10;
+
+    // braceless if with single statement
+    if (x > 5) x = 100;
+    assert(x == 100)
+
+    // braceless if/else
+    int y = 0;
+    if (x > 200) y = 1;
+    else y = 2;
+    assert(y == 2)
+
+    // braceless if with return-style statement
+    int z = 0;
+    if (x == 100) z = x + 1;
+    assert(z == 101)
+
+    // braceless else if
+    int w = 0;
+    if (x == 1) w = 1;
+    else if (x == 100) w = 100;
+    else w = 999;
+    assert(w == 100)
+
+    // braced if still works
+    if (x == 100) {
+        x = 200;
+    }
+    assert(x == 200)
+
+    // mixed: braced then, braceless else
+    int m = 0;
+    if (x == 999) {
+        m = 1;
+    } else m = 2;
+    assert(m == 2)
+}

@@ -1,0 +1,16 @@
+void main() {
+    int[] nums = [10, 20, 30];
+    assert(nums.len == 3);
+    assert(nums[0] == 10);
+    assert(nums[1] == 20);
+    assert(nums[2] == 30);
+
+    nums.push(40);
+    assert(nums.len == 4);
+    assert(nums[3] == 40);
+
+    string[] words = ["hello", "world"];
+    assert(words.len == 2);
+    words.push("moxy");
+    assert(words.len == 3);
+}

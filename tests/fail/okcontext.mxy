@@ -1,0 +1,3 @@
+void main() {
+    auto r = Ok(5);
+}

@@ -1,0 +1,19 @@
+// each function sees its own names; types never leak between scopes
+string name = "global";
+
+string f(int name) { return "int \(name)"; }
+string g() { return name; }
+
+void main() {
+    assert(f(3) == "int 3");
+    assert(g() == "global");
+    {
+        int name = 5;
+        assert(name == 5);
+    }
+    for i in 0..2 {
+        string name = "loop \(i)";
+        assert(name.starts_with("loop"));
+    }
+    assert(name == "global");
+}

@@ -1,0 +1,62 @@
+// Automatic memory management: no malloc, no free, no leaks.
+// Run with: moxy run examples/memory.mxy
+//
+// strings, lists and maps are values with copy-on-write (like Swift):
+// assigning or passing one never lets the other side see your changes.
+// ref structs are shared objects, freed when the last reference goes away.
+// weak references don't keep objects alive, which breaks cycles.
+
+ref struct Employee {
+    string name;
+    Employee[] reports;
+    weak Employee manager;
+}
+
+Employee hire(Employee manager, string name) {
+    Employee e = Employee{.name = name,.manager = manager };
+    manager.reports.push(e);
+    return e;
+}
+
+string chain(Employee e) {
+    Employee boss = e.manager;
+    if (boss == null) { return e.name; }
+    return chain(boss) + " > " + e.name;
+}
+
+int[] squares(int n) {
+    int[] out = [];
+    for i in 1..=n { out.push(i * i); }
+    return out;
+}
+
+void main() {
+    // values: b is an independent copy (cheap until written)
+    int[] a = squares(4);
+    int[] b = a;
+    b.push(100);
+    print("a = \(a)");
+    print("b = \(b)");
+
+    // maps too
+    map[string, int] stock = { "apples": 3 };
+    map[string, int] snapshot = stock;
+    stock["apples"] = 0;
+    print("stock \(stock), snapshot \(snapshot)");
+
+    // shared objects: everyone sees the same employee
+    Employee ceo = Employee{.name = "Ada" };
+    Employee cto = hire(ceo, "Grace");
+    Employee dev = hire(cto, "Linus");
+    print(chain(dev));
+    print("\(ceo.name) has \(ceo.reports.len) report(s)");
+
+    // closures capture what they need and release it when they go away
+    string greeting = "hello";
+    fn(string)->string greet = (string who) => greeting + ", " + who;
+    print(greet(dev.name));
+
+    // defer runs when the scope ends, however it ends
+    defer print("done");
+    print("cleaning up...");
+}

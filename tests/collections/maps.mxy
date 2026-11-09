@@ -1,0 +1,14 @@
+void main() {
+    map[string, int] ages = {};
+    assert(ages.len == 0);
+
+    ages.set("alice", 30);
+    ages.set("bob", 25);
+    assert(ages.len == 2);
+
+    assert(ages.get("alice") == 30);
+    assert(ages.get("bob") == 25);
+
+    assert(ages.has("alice") == 1);
+    assert(ages.has("charlie") == 0);
+}

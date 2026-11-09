@@ -9,13 +9,6 @@ on:
 permissions:
   contents: write
 
-env:
-  CFLAGS_COMMON: "-Wall -Wextra -std=c11 -O2"
-  INCLUDES: "-Isrc -Ilibs/goose/src -Ilibs/goose/libs/libyaml/include"
-  YAML_DEFS: '-DYAML_VERSION_MAJOR=0 -DYAML_VERSION_MINOR=2 -DYAML_VERSION_PATCH=5 -DYAML_VERSION_STRING="0.2.5"'
-  GOOSE_SRC: "libs/goose/src/build.c libs/goose/src/config.c libs/goose/src/fs.c libs/goose/src/lock.c libs/goose/src/pkg.c libs/goose/src/cmake.c libs/goose/src/cmd/*.c"
-  YAML_SRC: "libs/goose/libs/libyaml/src/*.c"
-
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -34,9 +27,9 @@ jobs:
         with:
           submodules: recursive
       - name: Build
-        run: gcc $CFLAGS_COMMON $INCLUDES $YAML_DEFS src/*.c $GOOSE_SRC $YAML_SRC -o moxy
-      - name: Smoke test
-        run: ./moxy 2>&1 || true
+        run: make -j4 CC=gcc && cp build/moxy moxy
+      - name: Test
+        run: ./moxy --version && ./moxy test tests
       - name: Package
         run: |
           mkdir -p dist
@@ -56,7 +49,7 @@ jobs:
       - name: Install cross-compiler
         run: sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu
       - name: Build
-        run: aarch64-linux-gnu-gcc $CFLAGS_COMMON $INCLUDES $YAML_DEFS src/*.c $GOOSE_SRC $YAML_SRC -o moxy
+        run: make -j4 CC=aarch64-linux-gnu-gcc AR=aarch64-linux-gnu-ar && cp build/moxy moxy
       - name: Package
         run: |
           mkdir -p dist
@@ -76,9 +69,9 @@ jobs:
       - name: Install musl
         run: sudo apt-get update && sudo apt-get install -y musl-tools
       - name: Build
-        run: musl-gcc $CFLAGS_COMMON -static $INCLUDES $YAML_DEFS src/*.c $GOOSE_SRC $YAML_SRC -o moxy
+        run: make -j4 CC=musl-gcc LDFLAGS=-static && cp build/moxy moxy
       - name: Smoke test
-        run: ./moxy 2>&1 || true
+        run: ./moxy --version
       - name: Package
         run: |
           mkdir -p dist
@@ -96,7 +89,7 @@ jobs:
         with:
           submodules: recursive
       - name: Build
-        run: cc $CFLAGS_COMMON $INCLUDES $YAML_DEFS -target x86_64-apple-macos12 src/*.c $GOOSE_SRC $YAML_SRC -o moxy
+        run: make -j4 CFLAGS="-O2 -target x86_64-apple-macos12" LDFLAGS="-target x86_64-apple-macos12" && cp build/moxy moxy
       - name: Package
         run: |
           mkdir -p dist
@@ -114,9 +107,9 @@ jobs:
         with:
           submodules: recursive
       - name: Build
-        run: cc $CFLAGS_COMMON $INCLUDES $YAML_DEFS src/*.c $GOOSE_SRC $YAML_SRC -o moxy
-      - name: Smoke test
-        run: ./moxy 2>&1 || true
+        run: make -j4 && cp build/moxy moxy
+      - name: Test
+        run: ./moxy --version && ./moxy test tests
       - name: Package
         run: |
           mkdir -p dist
@@ -165,10 +158,10 @@ jobs:
           Architecture: ${ARCH}
           Maintainer: Wess Cope
           Homepage: https://github.com/wess/moxy
-          Description: Moxy programming language transpiler
-           Moxy is a C-superset language with modern conveniences like string types,
-           auto-format print, tagged enums with match, Result types, generic lists,
-           and maps. Compiles .mxy source files to portable C11.
+          Description: Moxy programming language
+           Moxy is C with modern conveniences: strings, lists, maps, tagged enums,
+           match, Result, closures and automatic reference-counted memory
+           management. Compiles .mxy source files to portable C11.
           CTRL
 
           sed -i 's/^          //' "${PKG}/DEBIAN/control"
@@ -210,9 +203,9 @@ jobs:
           URL:            https://github.com/wess/moxy
 
           %description
-          Moxy is a C-superset language with modern conveniences like string types,
-          auto-format print, tagged enums with match, Result types, generic lists,
-          and maps. Compiles .mxy source files to portable C11.
+          Moxy is C with modern conveniences: strings, lists, maps, tagged enums,
+          match, Result, closures and automatic reference-counted memory
+          management. Compiles .mxy source files to portable C11.
 
           %install
           mkdir -p %{buildroot}%{_bindir}
@@ -259,27 +252,24 @@ jobs:
           source=("${url}/archive/v${pkgver}.tar.gz")
           sha256sums=('SKIP')
 
+          _goose=70460c29d4148141967b122e101ac8e763232d12
+          source+=("goose.tar.gz::https://github.com/wess/goose/archive/${_goose}.tar.gz")
+          sha256sums+=('SKIP')
+
           prepare() {
             cd "${pkgname}-${pkgver}"
-            git submodule update --init --recursive 2>/dev/null || true
+            rm -rf libs/goose
+            mv "../goose-${_goose}" libs/goose
           }
 
           build() {
             cd "${pkgname}-${pkgver}"
-            cc -Wall -Wextra -std=c11 -O2 \
-              -Isrc -Ilibs/goose/src -Ilibs/goose/libs/libyaml/include \
-              -DYAML_VERSION_MAJOR=0 -DYAML_VERSION_MINOR=2 -DYAML_VERSION_PATCH=5 -DYAML_VERSION_STRING='"0.2.5"' \
-              src/*.c \
-              libs/goose/src/build.c libs/goose/src/config.c libs/goose/src/fs.c \
-              libs/goose/src/lock.c libs/goose/src/pkg.c libs/goose/src/cmake.c \
-              libs/goose/src/cmd/*.c \
-              libs/goose/libs/libyaml/src/*.c \
-              -o moxy
+            make
           }
 
           package() {
             cd "${pkgname}-${pkgver}"
-            install -Dm755 moxy "${pkgdir}/usr/bin/moxy"
+            install -Dm755 build/moxy "${pkgdir}/usr/bin/moxy"
           }
           EOF
 
@@ -430,8 +420,9 @@ jobs:
           TARBALL_URL="https://github.com/wess/moxy/archive/refs/tags/v${VERSION}.tar.gz"
           SHA256=$(curl -fsSL "${TARBALL_URL}" | sha256sum | awk '{print $1}')
 
-          sed -i "s|url \".*\"|url \"${TARBALL_URL}\"|" Formula/moxy.rb
-          sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" Formula/moxy.rb
+          # only the first url/sha256 belong to moxy; the goose resource is pinned separately
+          sed -i "0,/^  url \".*\"/s||  url \"${TARBALL_URL}\"|" Formula/moxy.rb
+          sed -i "0,/^  sha256 \".*\"/s||  sha256 \"${SHA256}\"|" Formula/moxy.rb
 
       - name: Commit updated formula
         env:

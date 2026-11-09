@@ -1,0 +1,180 @@
+#include <string.h>
+
+#include "diag/diag.h"
+#include "sema.h"
+
+Type *check_init(Node **slot, Type *t);
+
+static Type *field_path_type(Type *s, const char *path, Loc loc) {
+    char *copy = xstrdup(path);
+    char *seg = copy;
+    Type *cur = s;
+    for (;;) {
+        char *dot = strchr(seg, '.');
+        if (dot) *dot = '\0';
+        Type *ft = NULL;
+        if (!type_field(cur, seg, &ft, NULL)) {
+            Type *u = type_unqual(cur);
+            if (u->decl) {
+                diag_error(loc, "%s has no field '%s'", u->name, seg);
+                free(copy);
+                return NULL;
+            }
+            free(copy);
+            return ty_unknown;
+        }
+        cur = ft;
+        if (!dot) break;
+        seg = dot + 1;
+    }
+    free(copy);
+    return cur;
+}
+
+static Node *nth_field(Type *s, int idx) {
+    Type *u = type_unqual(s);
+    int k = 0;
+    for (int i = 0; i < u->decl->list.len; i++) {
+        Node *f = u->decl->list.items[i];
+        if (f->kind != N_FIELD) continue;
+        if (k++ == idx) return f;
+    }
+    return NULL;
+}
+
+static void init_struct(Node *list, Type *t) {
+    Type *u = type_unqual(t);
+    if (!u->decl) {
+        for (int i = 0; i < list->list.len; i++) {
+            Node *item = list->list.items[i];
+            if (item->kind == N_DESIG) check_init(&item->b, NULL);
+            else if (item->kind != N_KV) check_init(&list->list.items[i], NULL);
+        }
+        return;
+    }
+    int pos = 0;
+    for (int i = 0; i < list->list.len; i++) {
+        Node *item = list->list.items[i];
+        if (item->kind == N_DESIG && item->name) {
+            Type *ft = field_path_type(t, item->name, item->loc);
+            if (!ft) continue;
+            check_init(&item->b, ft);
+            coerce(&item->b, ft, "field initializer");
+            Node *f = type_field(t, item->name, NULL, NULL);
+            if (f) {
+                for (int k = 0; k < u->decl->list.len; k++)
+                    if (u->decl->list.items[k] == f) pos = k + 1;
+            }
+            item->type = ft;
+            continue;
+        }
+        if (item->kind == N_DESIG || item->kind == N_KV) {
+            diag_error(item->loc, "unexpected initializer for a struct");
+            continue;
+        }
+        Node *f = nth_field(t, pos++);
+        if (!f) {
+            diag_error(item->loc, "too many values for %s", u->name);
+            break;
+        }
+        check_init(&list->list.items[i], f->type);
+        coerce(&list->list.items[i], f->type, "field initializer");
+    }
+}
+
+static void init_array(Node *list, Type *t) {
+    Type *u = type_unqual(t);
+    for (int i = 0; i < list->list.len; i++) {
+        Node *item = list->list.items[i];
+        if (item->kind == N_DESIG && item->a) {
+            check_expr(&item->a, NULL);
+            check_init(&item->b, u->base);
+            coerce(&item->b, u->base, "array element");
+        } else if (item->kind == N_DESIG || item->kind == N_KV) {
+            diag_error(item->loc, "unexpected initializer for an array");
+        } else {
+            check_init(&list->list.items[i], u->base);
+            coerce(&list->list.items[i], u->base, "array element");
+        }
+    }
+}
+
+static void init_list(Node *list, Type *t) {
+    Type *u = type_unqual(t);
+    for (int i = 0; i < list->list.len; i++) {
+        Node *item = list->list.items[i];
+        if (item->kind == N_DESIG || item->kind == N_KV) {
+            diag_error(item->loc, "unexpected initializer for a list");
+            continue;
+        }
+        check_init(&list->list.items[i], u->base);
+        coerce(&list->list.items[i], u->base, "list element");
+    }
+    list->op = 1;
+}
+
+static void init_map(Node *list, Type *t) {
+    Type *u = type_unqual(t);
+    for (int i = 0; i < list->list.len; i++) {
+        Node *item = list->list.items[i];
+        if (item->kind != N_KV) {
+            diag_error(item->loc, "map literals need 'key: value' entries");
+            continue;
+        }
+        check_init(&item->a, u->key);
+        coerce(&item->a, u->key, "map key");
+        check_init(&item->b, u->base);
+        coerce(&item->b, u->base, "map value");
+    }
+    list->op = 2;
+}
+
+/* check an initializer (brace list or expression) against type t */
+Type *check_init(Node **slot, Type *t) {
+    Node *n = *slot;
+    if (n->kind != N_INITLIST) return check_expr(slot, t);
+    n->type = t;
+    Type *u = type_unqual(t);
+    if (!u || type_is_unknownish(u)) {
+        for (int i = 0; i < n->list.len; i++) {
+            Node *item = n->list.items[i];
+            if (item->kind == N_DESIG) {
+                if (item->a) check_expr(&item->a, NULL);
+                check_init(&item->b, NULL);
+            } else if (item->kind == N_KV) {
+                check_init(&item->a, NULL);
+                check_init(&item->b, NULL);
+            } else {
+                check_init(&n->list.items[i], NULL);
+            }
+        }
+        if (!u) {
+            diag_error(n->loc, "cannot infer the type of this initializer");
+            return ty_unknown;
+        }
+        return t;
+    }
+    switch (u->kind) {
+    case TY_STRUCT: init_struct(n, t); break;
+    case TY_ARRAY: init_array(n, t); break;
+    case TY_LIST: init_list(n, t); break;
+    case TY_MAP: init_map(n, t); break;
+    default:
+        if (n->list.len > 1) {
+            char *s = type_str(t);
+            diag_error(n->loc, "too many values in initializer for %s", s);
+            free(s);
+        } else if (n->list.len == 1) {
+            check_init(&n->list.items[0], t);
+            coerce(&n->list.items[0], t, "initializer");
+        }
+        if (type_is_managed(u) && n->list.len == 0 && u->kind != TY_STRING && u->kind != TY_CLOSURE &&
+            u->kind != TY_FUTURE && !(u->kind == TY_STRUCT && u->is_ref)) {
+            char *s = type_str(t);
+            diag_error(n->loc, "'{}' cannot initialize %s", s);
+            free(s);
+        }
+        break;
+    }
+    return t;
+}

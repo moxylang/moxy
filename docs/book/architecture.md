@@ -1,176 +1,138 @@
-# Moxy Architecture
+# Architecture
 
-Moxy is a source-to-source transpiler with five stages:
+`moxy` is one executable: the compiler, the test runner, the formatter, the linter, and the project and package manager. Project management comes from [goose](https://github.com/wess/goose), which is linked in as a library (`libgoose.a`). Moxy registers callbacks with goose's framework API for building, running, testing and installing, and goose handles `moxy.yaml`, dependency fetching, lock files, workspaces and the shared commands.
 
 ```
-.mxy source → Preprocessor → Lexer → Parser → AST → Codegen → .c output
+            ┌─────────────── moxy ───────────────┐
+ .mxy ───►  load ─► lex ─► parse ─► sema ─► gen  ├──► .c ──► cc ──► binary
+            │                                    │
+            │  cli: run · build · test · fmt ·   │
+            │       lint · check · emit          │
+            │  goose: new · init · add · remove ·│
+            │         update · workspaces · lock │
+            └────────────────────────────────────┘
 ```
 
 ## Pipeline
 
-### 0. Preprocessor (`main.c`)
+### 1. Load (`src/load`)
 
-Before any lexing occurs, the source text is scanned line-by-line for `#include` directives. This is a textual operation — no tokens or AST are involved.
+`load_program` reads the entry file and lexes it. For every `#include "x.mxy"`, it resolves the path in this order:
 
-**Moxy includes** (`#include "file.mxy"`) read the referenced file relative to the including file's directory, recursively preprocess it, and splice the contents inline. This works like C's `#include` — the included code becomes part of the source as if it were written directly in the file.
+1. relative to the including file;
+2. registered include directories (project `src/`, configured includes, dependency directories);
+3. the standard library embedded in the binary.
 
-**C header includes** (`#include <stdio.h>` or `#include "mylib.h"`) are extracted from the source and registered with the code generator via `codegen_add_include()`. They are not passed to the lexer.
+The included file's tokens are spliced in place. A set of canonical paths makes each file load once, so diamond includes and include cycles are harmless. Every token remembers its file, so diagnostics always name the right file and line.
 
-All other lines pass through unchanged. The result is a single preprocessed string that the lexer receives.
+### 2. Lex (`src/lex`)
 
-### 1. Lexer (`lexer.c`)
+The lexer produces tokens with source locations. Notes:
 
-Converts preprocessed source text into a flat array of tokens. Handles:
+- Preprocessor lines become single `T_DIRECTIVE` tokens.
+- String literals keep their escapes verbatim and allow `\( ... )` interpolation with nested strings.
+- Only C keywords plus `string`, `bool`, `true`, `false` and `null` are reserved. Moxy's other words (`match`, `in`, `map`, `defer`, ...) are recognized by the parser in context, so C code that uses them as names keeps working.
 
-- Keywords: `int`, `float`, `string`, `bool`, `enum`, `match`, `if`, `else`, `for`, `while`, `return`, `Result`, `map`, `Ok`, `Err`, `true`, `false`, `null`, `Future`, `await`, and type keywords (`double`, `char`, `long`, `short`, `void`)
-- Literals: integers, floats, strings, chars
-- Operators: arithmetic, comparison, logical, assignment, increment/decrement
-- Punctuation: braces, parens, brackets, dots, commas, semicolons
-- Two-char tokens: `::`, `=>`, `==`, `!=`, `<=`, `>=`, `&&`, `||`, `+=`, `-=`, `*=`, `/=`, `++`, `--`
-- Comments: `//` line and `/* */` block (skipped as whitespace)
+### 3. Parse (`src/parse`)
 
-The lexer produces tokens into a fixed-size array of 4096 tokens, terminated by `TOK_EOF`.
+The parser is a recursive-descent parser for C11 declarations and statements plus Moxy syntax, producing one AST (`src/ast/ast.h`). Nothing is passed through as raw text: everything is parsed, so typos are reported at the right place.
 
-### 2. Parser (`parser.c`)
+| File | Contents |
+|---|---|
+| `state.c` | token cursor, and the type-name table: a prescan registers every struct, union and enum tag, typedef and `@type` name, so declarations parse before their types are defined |
+| `types.c` | declaration specifiers, C declarators (pointers, arrays, nested function pointers), Moxy types, struct and enum bodies |
+| `expr.c` | precedence climbing, casts and compound literals, lambdas, interpolation (sub-lexed), pipes desugared to calls |
+| `stmt.c` | statements, `for`-in, `match` arms and patterns, `defer`, labels |
+| `top.c` | declarations, namespaces, `using`, and conditional directives |
 
-Recursive descent parser that builds an AST from the token array. Key design decisions:
+Each top-level declaration records the preprocessor condition it sits under, for example `defined(DEBUG) && !(X)`, so code generation can reproduce `#if` blocks around everything it emits, even after reordering.
 
-**Expression parsing** uses precedence climbing (Pratt-style). Precedence levels:
+### 4. Semantic analysis (`src/sema`)
 
-1. `||` (lowest)
-2. `&&`
-3. `==`, `!=`
-4. `<`, `>`, `<=`, `>=`
-5. `+`, `-`
-6. `*`, `/`, `%` (highest)
+Sema resolves every name and computes a type for every expression.
 
-Postfix operations (`.field`, `.method()`, `[index]`, `++/--`) bind tighter than binary operators.
+| File | Contents |
+|---|---|
+| `scope.c` | scope stack and namespace scopes; captures are recorded on lambdas when a name resolves to an enclosing function's local |
+| `resolve.c` | type syntax to `Type`; struct, union and enum registration; typedefs |
+| `decl.c` | three passes: declare everything, resolve signatures and fields, then check initializers and bodies |
+| `expr.c`, `init.c`, `call.c`, `method.c` | expressions, initializer lists, calls and enum constructors, builtin methods on `string`, lists, maps and `Result` |
+| `conv.c` | assignability; inserts `N_CONV` nodes for implicit conversions (C string to `string`, function to closure, capture-free lambda to C function pointer) |
+| `stmt.c`, `match.c`, `lambda.c` | statements, exhaustiveness checking, lambda return inference, lint checks |
 
-**Type parsing** handles compound types: `Result<T>`, `Future<T>`, `map[K,V]`, `T[]`, and simple type keywords. `Future<T>` is gated behind the `--enable-async` flag. Uses backtracking to distinguish variable declarations from expressions (both can start with an identifier).
+Identifiers that Moxy can't resolve are treated as C (`TY_UNKNOWN`): they pass through, and the C compiler checks them. Values of unknown type can't become lists, maps or other managed values.
 
-**Await parsing**: `await` is parsed as a prefix unary expression that captures the next postfix expression (so `await compute(21)` captures the call). Also gated behind `--enable-async`.
+### 5. Code generation (`src/gen`)
 
-**Statement parsing** tries in order: `print`, `match`, `if`, `while`, `for`, `return`, variable declaration, then falls back to expression/assignment.
+Code generation writes one C file in sections, assembled in a fixed order:
 
-**Top-level parsing** accepts three kinds of declarations: enum definitions, function definitions, and global variable declarations. Forward declarations for functions are generated automatically by codegen.
-
-### 3. AST (`ast.h`)
-
-Tagged union nodes. Every node is heap-allocated via `node_new()`. Key node kinds:
-
-- **Declarations**: `NODE_PROGRAM`, `NODE_VAR_DECL`, `NODE_ENUM_DECL`, `NODE_FUNC_DECL`
-- **Statements**: `NODE_PRINT_STMT`, `NODE_MATCH_STMT`, `NODE_IF_STMT`, `NODE_WHILE_STMT`, `NODE_FOR_STMT`, `NODE_RETURN_STMT`, `NODE_ASSIGN`, `NODE_EXPR_STMT`, `NODE_BLOCK`
-- **Expressions**: literals, identifiers, binary ops, unary ops, function calls, method calls, field access, index access, enum constructors, Ok/Err, list literals, parenthesized expressions, empty initializers
-
-### 4. Codegen (`codegen.c`)
-
-Two-pass code generation:
-
-**Pass 1: Type collection** — walks the AST to discover all generic type instantiations (`int[]`, `Result<int>`, `map[string,int]`, etc.).
-
-**Pass 2: Emission** — generates C in this order:
-
-1. User-specified `#include` directives (deduplicated against auto-generated ones)
-2. Auto-generated `#include` directives (`stdio.h`, `stdbool.h`, `stdlib.h`/`string.h` if needed, `pthread.h` if futures are used)
-3. User-defined enum type definitions
-4. Monomorphized generic types (list, Result, map structs + helper functions)
-5. Forward declarations for user-defined functions
-6. Global variables
-7. Function definitions
-
-**Type monomorphization**: Generic types stamp out specialized C code:
-
-| Moxy type | C type | Generated helpers |
-|-----------|--------|-------------------|
-| `int[]` | `list_int` | `list_int_make()`, `list_int_push()` |
-| `int[]` (ARC) | `list_int *` | `_make()`, `_push()`, `_retain()`, `_release()` |
-| `Result<int>` | `Result_int` | Tag enum + tagged struct |
-| `map[string,int]` | `map_string_int` | `_make()`, `_set()`, `_get()`, `_has()` |
-| `map[string,int]` (ARC) | `map_string_int *` | `_make()`, `_set()`, `_get()`, `_has()`, `_retain()`, `_release()` |
-| `Future<int>` | `Future_int` | pthread struct + args struct + thread wrapper + launcher |
-
-**Type inference**: A symbol table (`Sym syms[256]`) tracks variable names to Moxy types. This enables:
-
-- Correct `printf` format specifiers for `print()`
-- Method call translation (`nums.push(4)` → `list_int_push(&nums, 4)`)
-- Field/index type resolution for nested expressions
-
-**ARC (Automatic Reference Counting)**: When `--enable-arc` is active, list and map types are emitted with an `_rc` field, heap-allocated constructors, and `_retain()`/`_release()` helpers. Codegen tracks ARC variables in a scope stack (`ArcScope arc_scopes[16]`). At each scope exit (function, if/else, loop, match arm), release calls are emitted in reverse declaration order. Return statements release all ARC vars except the one being returned (ownership transfer). Assignments to ARC variables release the old value and retain the new one if it's an alias.
-
-**Include deduplication**: When the user specifies `#include <stdlib.h>` via source-level `#include` and the codegen would also auto-generate it (because lists or maps are used), only one copy is emitted.
-
-## Workspace Orchestration
-
-Moxy supports Cargo-style workspaces for multi-project repositories. A root `moxy.yaml` defines workspace members:
-
-```yaml
-workspace:
-  members:
-    - "mylib"
-    - "myapp"
+```
+feature macros, user #include/#define (with their #if conditions)
+runtime (embedded from runtime/*.h)
+string literals (immortal static objects)
+type forward declarations, then definitions in dependency order
+value witnesses and copy/release helpers
+prototypes and globals
+glue: closure thunks, lambda environments, async launchers, main wrapper
+program: functions with #line directives
 ```
 
-Each member has its own `moxy.yaml`. Members can be libraries (`type: "lib"`) or binaries (default).
+Functions are generated first and type definitions last, so every type a function needs (such as `Result<Point>`) is known when the types section is written.
 
-### Build flow
+**Expressions** (`expr.c`, `call.c`, `lvalue.c`) return the C text plus whether the value is *owned* (+1) or *borrowed* (+0). Each statement has a context holding a prelude (statements that must run first) and temporaries to release afterwards. `&&`, `||` and `?:` with preludes on one side are lowered to `if` statements to keep short-circuit evaluation.
 
-1. **Load** — the root config is loaded, detecting `ws_member_count > 0`
-2. **Adjust** — each member's config paths are adjusted relative to workspace root via `ws_adjust_config()` (prepends member directory to `src_dir`, `includes`, and path dependencies)
-3. **Fetch** — external dependencies (git deps) are fetched for all members
-4. **Sort** — members are topologically sorted by inter-member dependencies (`ws_topo_visit()`)
-5. **Build** — each member is built in order:
-   - `.mxy` files are transpiled to `build/gen/{member}/`
-   - Library members compile to `build/lib/lib{name}.a` via `build_library()` (individual `.o` compilation + `ar rcs`)
-   - Binary members compile to `build/{debug|release}/{name}` via `build_project_at()`, with auto-injected `-L build/lib -l{dep}` flags and include paths from workspace library dependencies
+**Statements** (`stmt.c`, `loop.c`, `match.c`) keep a stack of cleanup scopes (managed locals and `defer` statements):
 
-### Target filtering
+- leaving a block releases its scope;
+- `return` releases all scopes, moving out a returned local;
+- `break` and `continue` release only the scopes they leave.
 
-With `-p <member>`, `ws_collect_deps()` computes the transitive closure of that member's workspace dependencies, and only those members are built (in dependency order).
+**Types and helpers** (`types.c`, `helpers.c`): user structs, tagged enums and `Result<T>` structs are emitted in dependency order. Every type that is stored in a collection or printed gets a *value witness*, a table of copy, drop, equality, hash, compare and format functions. That lets one runtime implementation of lists and maps serve every element type.
 
-### Key functions
+**Functions** (`func.c`):
 
-| Function | Purpose |
-|----------|---------|
-| `ws_adjust_config()` | Prepend member dir to relative paths |
-| `ws_find_member()` | Lookup member by name |
-| `ws_topo_visit()` | Topological sort with cycle detection |
-| `ws_collect_deps()` | Transitive dependency closure for `-p` |
-| `build_workspace()` | Full workspace build orchestration |
-| `build_library()` | Compile sources → `.o` → `.a` archive |
-| `build_project_at()` | Compile sources with parameterized gen_dir |
+- Lambdas become functions that take their closure as the first argument; captured variables live in an environment struct after the closure header.
+- Named functions used as closures get a thunk and a static, immortal closure object.
+- `Future<T>` functions are split into a body, an argument struct, a thread entry, and a launcher that returns the future handle.
 
-## Build System
+**Libraries** (`header.c`): library builds also write a C header exposing plain structs and the functions whose signatures C can express.
 
-Moxy is built with [goose](https://github.com/wess/goose), a Cargo-inspired C build tool. The `goose.yaml` config:
+### 6. Runtime (`runtime/*.h`)
 
-```yaml
-project:
-  name: "moxy"
-  version: "0.1.0"
-build:
-  cc: "cc"
-  cflags: "-Wall -Wextra -std=c11"
-  includes:
-    - "src"
+The runtime is C, embedded into every generated program (`scripts/genembed.sh` turns it into `src/embed/embed.c`). All functions are `static`, so separate translation units never collide.
+
+| File | Contents |
+|---|---|
+| `core.h` | atomic reference counts, panics, `mxy_buf`, value witnesses |
+| `str.h` | strings: header `{rc, len}` before the bytes; literals have rc −1 (immortal) |
+| `fmt.h` | printing and value witnesses for builtin types; `MXY_FMT_ANY` uses `_Generic` for C values of unknown type |
+| `list.h` | copy-on-write lists, bounds checks, sort, slices |
+| `map.h` | insertion-ordered hash maps (an entry array plus an open-addressing index) |
+| `obj.h` | ref objects with strong and weak counts |
+| `fn.h` | closures |
+| `future.h` | thread-per-call futures |
+| `process.h` | `args()`, assertions, file reading |
+
+## Command line (`src/cli`, `src/main.c`)
+
+`main.c` handles the commands that work on files (`moxy file.mxy`, `run file.mxy`, `build file.mxy`, `check`, `test`, `fmt`, `lint`, `emit`), and hands everything else to `goose_main`. `-p member` changes into a workspace member first.
+
+| File | Contents |
+|---|---|
+| `project.c` | the goose callbacks: `on_build` compiles the entry file (`src/main.mxy`, or `src/lib.mxy` for libraries) with include paths from configured includes and dependencies, adds extra C sources and dependency C sources, and links or archives; also `on_run`, `on_test`, `on_install`, the `new` template, and the `build:` keys `cc`, `cflags`, `ldflags` |
+| `test.c` | finds tests, compiles each in-process, runs it, and compares against `.out`, `.code` or `.err` files |
+| `compile.c` | the pipeline in one call; errors jump back with `longjmp` instead of exiting, so one bad file doesn't stop a test run |
+
+## Formatter and linter
+
+- `src/fmt` is token-based: it keeps your line breaks and comments, and normalizes spacing and indentation. It is idempotent.
+- The linter runs sema with lint flags (unused variables, shadowing, empty blocks); `moxyfmt.yaml` toggles them.
+
+## Testing the compiler
+
+```sh
+make test                                          # build, then run tests/ and examples
+make sanitize && ./build/asan/moxy test --sanitize tests
 ```
 
-Goose auto-discovers `.c` files in `src/`, resolves headers, and compiles everything. Output goes to `build/debug/moxy`.
-
-## File Map
-
-| File | Lines | Purpose |
-|------|-------|---------|
-| `token.h` | ~80 | Token kind enum and Token struct |
-| `lexer.h` | ~16 | Lexer state and API |
-| `lexer.c` | ~187 | Tokenizer with comment support |
-| `ast.h` | ~106 | AST node definitions (tagged union) |
-| `ast.c` | ~9 | `node_new()` allocator |
-| `parser.h` | ~9 | Parser API |
-| `parser.c` | ~721 | Recursive descent parser |
-| `codegen.h` | ~9 | Codegen API |
-| `codegen.c` | ~1100 | C code generator with monomorphization |
-| `flags.h` | ~7 | Global feature flags (async, arc) |
-| `flags.c` | ~4 | Feature flag storage |
-| `main.c` | ~200 | CLI entry point and source preprocessor |
-
-Total: ~2,272 lines of C.
+CI runs the suite on Linux and macOS, plus an ASan/UBSan build of the compiler running every test with sanitizers (and LeakSanitizer) enabled for the generated programs.

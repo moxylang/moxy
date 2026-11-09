@@ -122,111 +122,111 @@ void cpu_step() {
 
     switch (opcode) {
 
-    // ---- ADC ----
-    case 0x69: { // ADC #imm
-        u8 val = cpu_read(cpu_pc); cpu_pc++;
-        int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
-        if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
-        if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
-        cpu_a = (unsigned char)sum;
-        cpu_set_zn(cpu_a);
-        cpu_cycles = 2; break;
-    }
-    case 0x65: { // ADC zp
-        u8 val = cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++;
-        int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
-        if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
-        if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
-        cpu_a = (unsigned char)sum; cpu_set_zn(cpu_a); cpu_cycles = 3; break;
-    }
-    case 0x75: { // ADC zp,x
-        u8 val = cpu_read((unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF)); cpu_pc++;
-        int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
-        if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
-        if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
-        cpu_a = (unsigned char)sum; cpu_set_zn(cpu_a); cpu_cycles = 4; break;
-    }
-    case 0x6D: { // ADC abs
-        addr = cpu_read16(cpu_pc); cpu_pc += 2;
-        u8 val = cpu_read(addr);
-        int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
-        if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
-        if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
-        cpu_a = (unsigned char)sum; cpu_set_zn(cpu_a); cpu_cycles = 4; break;
-    }
-    case 0x7D: { // ADC abs,x
-        addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2;
-        u8 val = cpu_read(addr);
-        int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
-        if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
-        if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
-        cpu_a = (unsigned char)sum; cpu_set_zn(cpu_a);
-        cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_x, addr); break;
-    }
-    case 0x79: { // ADC abs,y
-        addr = cpu_read16(cpu_pc) + (unsigned short)cpu_y; cpu_pc += 2;
-        u8 val = cpu_read(addr);
-        int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
-        if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
-        if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
-        cpu_a = (unsigned char)sum; cpu_set_zn(cpu_a);
-        cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_y, addr); break;
-    }
-    case 0x61: { // ADC (zp,x)
-        u8 zp = (cpu_read(cpu_pc) + cpu_x) & 0xFF; cpu_pc++;
-        addr = cpu_read16_bug((unsigned short)zp);
-        u8 val = cpu_read(addr);
-        int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
-        if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
-        if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
-        cpu_a = (unsigned char)sum; cpu_set_zn(cpu_a); cpu_cycles = 6; break;
-    }
-    case 0x71: { // ADC (zp),y
-        u8 zp = cpu_read(cpu_pc); cpu_pc++;
-        addr = cpu_read16_bug((unsigned short)zp) + (unsigned short)cpu_y;
-        u8 val = cpu_read(addr);
-        int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
-        if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
-        if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
-        cpu_a = (unsigned char)sum; cpu_set_zn(cpu_a);
-        cpu_cycles = 5 + pages_differ(addr - (unsigned short)cpu_y, addr); break;
-    }
+        // ---- ADC ----
+        case 0x69: { // ADC #imm
+            u8 val = cpu_read(cpu_pc); cpu_pc++;
+            int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
+            if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
+            if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
+            cpu_a = (unsigned char)sum;
+            cpu_set_zn(cpu_a);
+            cpu_cycles = 2; break;
+        }
+        case 0x65: { // ADC zp
+            u8 val = cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++;
+            int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
+            if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
+            if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
+            cpu_a = (unsigned char)sum; cpu_set_zn(cpu_a); cpu_cycles = 3; break;
+        }
+        case 0x75: { // ADC zp,x
+            u8 val = cpu_read((unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF)); cpu_pc++;
+            int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
+            if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
+            if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
+            cpu_a = (unsigned char)sum; cpu_set_zn(cpu_a); cpu_cycles = 4; break;
+        }
+        case 0x6D: { // ADC abs
+            addr = cpu_read16(cpu_pc); cpu_pc += 2;
+            u8 val = cpu_read(addr);
+            int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
+            if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
+            if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
+            cpu_a = (unsigned char)sum; cpu_set_zn(cpu_a); cpu_cycles = 4; break;
+        }
+        case 0x7D: { // ADC abs,x
+            addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2;
+            u8 val = cpu_read(addr);
+            int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
+            if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
+            if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
+            cpu_a = (unsigned char)sum; cpu_set_zn(cpu_a);
+            cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_x, addr); break;
+        }
+        case 0x79: { // ADC abs,y
+            addr = cpu_read16(cpu_pc) + (unsigned short)cpu_y; cpu_pc += 2;
+            u8 val = cpu_read(addr);
+            int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
+            if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
+            if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
+            cpu_a = (unsigned char)sum; cpu_set_zn(cpu_a);
+            cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_y, addr); break;
+        }
+        case 0x61: { // ADC (zp,x)
+            u8 zp = (cpu_read(cpu_pc) + cpu_x) & 0xFF; cpu_pc++;
+            addr = cpu_read16_bug((unsigned short)zp);
+            u8 val = cpu_read(addr);
+            int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
+            if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
+            if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
+            cpu_a = (unsigned char)sum; cpu_set_zn(cpu_a); cpu_cycles = 6; break;
+        }
+        case 0x71: { // ADC (zp),y
+            u8 zp = cpu_read(cpu_pc); cpu_pc++;
+            addr = cpu_read16_bug((unsigned short)zp) + (unsigned short)cpu_y;
+            u8 val = cpu_read(addr);
+            int sum = (int)cpu_a + (int)val + cpu_flag(FLAG_C);
+            if (sum > 255) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
+            if (((cpu_a ^ val ^ 0x80) & (cpu_a ^ (unsigned char)sum) & 0x80)) { cpu_p = cpu_p | FLAG_V; } else { cpu_p = cpu_p & (~FLAG_V); }
+            cpu_a = (unsigned char)sum; cpu_set_zn(cpu_a);
+            cpu_cycles = 5 + pages_differ(addr - (unsigned short)cpu_y, addr); break;
+        }
 
-    // ---- AND ----
-    case 0x29: cpu_a = cpu_a & cpu_read(cpu_pc); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 2; break;
-    case 0x25: cpu_a = cpu_a & cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 3; break;
-    case 0x35: cpu_a = cpu_a & cpu_read((unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 4; break;
-    case 0x2D: addr = cpu_read16(cpu_pc); cpu_pc+=2; cpu_a = cpu_a & cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4; break;
-    case 0x3D: addr = cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; cpu_a = cpu_a & cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4+pages_differ(addr-(unsigned short)cpu_x,addr); break;
-    case 0x39: addr = cpu_read16(cpu_pc)+(unsigned short)cpu_y; cpu_pc+=2; cpu_a = cpu_a & cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4+pages_differ(addr-(unsigned short)cpu_y,addr); break;
-    case 0x21: { u8 zp=(cpu_read(cpu_pc)+cpu_x)&0xFF; cpu_pc++; cpu_a = cpu_a & cpu_read(cpu_read16_bug((unsigned short)zp)); cpu_set_zn(cpu_a); cpu_cycles = 6; break; }
-    case 0x31: { u8 zp=cpu_read(cpu_pc); cpu_pc++; addr=cpu_read16_bug((unsigned short)zp)+(unsigned short)cpu_y; cpu_a = cpu_a & cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 5+pages_differ(addr-(unsigned short)cpu_y,addr); break; }
+        // ---- AND ----
+        case 0x29: cpu_a = cpu_a & cpu_read(cpu_pc); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 2; break;
+        case 0x25: cpu_a = cpu_a & cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 3; break;
+        case 0x35: cpu_a = cpu_a & cpu_read((unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 4; break;
+        case 0x2D: addr = cpu_read16(cpu_pc); cpu_pc += 2; cpu_a = cpu_a & cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4; break;
+        case 0x3D: addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; cpu_a = cpu_a & cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_x, addr); break;
+        case 0x39: addr = cpu_read16(cpu_pc) + (unsigned short)cpu_y; cpu_pc += 2; cpu_a = cpu_a & cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_y, addr); break;
+        case 0x21: { u8 zp = (cpu_read(cpu_pc) + cpu_x) & 0xFF; cpu_pc++; cpu_a = cpu_a & cpu_read(cpu_read16_bug((unsigned short)zp)); cpu_set_zn(cpu_a); cpu_cycles = 6; break; }
+        case 0x31: { u8 zp = cpu_read(cpu_pc); cpu_pc++; addr = cpu_read16_bug((unsigned short)zp) + (unsigned short)cpu_y; cpu_a = cpu_a & cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 5 + pages_differ(addr - (unsigned short)cpu_y, addr); break; }
 
-    // ---- ASL ----
-    case 0x0A: // ASL A
+        // ---- ASL ----
+        case 0x0A: // ASL A
         if (cpu_a & 0x80) { cpu_p = cpu_p | FLAG_C; } else { cpu_p = cpu_p & (~FLAG_C); }
         cpu_a = cpu_a << 1; cpu_set_zn(cpu_a); cpu_cycles = 2; break;
-    case 0x06: { u16 a=(unsigned short)cpu_read(cpu_pc); cpu_pc++; u8 v=cpu_read(a); if(v&0x80){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=v<<1; cpu_write(a,v); cpu_set_zn(v); cpu_cycles=5; break; }
-    case 0x16: { u16 a=(unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF); cpu_pc++; u8 v=cpu_read(a); if(v&0x80){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=v<<1; cpu_write(a,v); cpu_set_zn(v); cpu_cycles=6; break; }
-    case 0x0E: { addr=cpu_read16(cpu_pc); cpu_pc+=2; u8 v=cpu_read(addr); if(v&0x80){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=v<<1; cpu_write(addr,v); cpu_set_zn(v); cpu_cycles=6; break; }
-    case 0x1E: { addr=cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; u8 v=cpu_read(addr); if(v&0x80){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=v<<1; cpu_write(addr,v); cpu_set_zn(v); cpu_cycles=7; break; }
+        case 0x06: { u16 a = (unsigned short)cpu_read(cpu_pc); cpu_pc++; u8 v = cpu_read(a); if (v & 0x80) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = v << 1; cpu_write(a, v); cpu_set_zn(v); cpu_cycles = 5; break; }
+        case 0x16: { u16 a = (unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF); cpu_pc++; u8 v = cpu_read(a); if (v & 0x80) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = v << 1; cpu_write(a, v); cpu_set_zn(v); cpu_cycles = 6; break; }
+        case 0x0E: { addr = cpu_read16(cpu_pc); cpu_pc += 2; u8 v = cpu_read(addr); if (v & 0x80) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = v << 1; cpu_write(addr, v); cpu_set_zn(v); cpu_cycles = 6; break; }
+        case 0x1E: { addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; u8 v = cpu_read(addr); if (v & 0x80) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = v << 1; cpu_write(addr, v); cpu_set_zn(v); cpu_cycles = 7; break; }
 
-    // ---- Branch ----
-    case 0x90: cpu_branch(!cpu_flag(FLAG_C)); cpu_cycles += 2; break; // BCC
-    case 0xB0: cpu_branch(cpu_flag(FLAG_C));  cpu_cycles += 2; break; // BCS
-    case 0xF0: cpu_branch(cpu_flag(FLAG_Z));  cpu_cycles += 2; break; // BEQ
-    case 0xD0: cpu_branch(!cpu_flag(FLAG_Z)); cpu_cycles += 2; break; // BNE
-    case 0x30: cpu_branch(cpu_flag(FLAG_N));  cpu_cycles += 2; break; // BMI
-    case 0x10: cpu_branch(!cpu_flag(FLAG_N)); cpu_cycles += 2; break; // BPL
-    case 0x50: cpu_branch(!cpu_flag(FLAG_V)); cpu_cycles += 2; break; // BVC
-    case 0x70: cpu_branch(cpu_flag(FLAG_V));  cpu_cycles += 2; break; // BVS
+        // ---- Branch ----
+        case 0x90: cpu_branch(!cpu_flag(FLAG_C)); cpu_cycles += 2; break; // BCC
+        case 0xB0: cpu_branch(cpu_flag(FLAG_C)); cpu_cycles += 2; break; // BCS
+        case 0xF0: cpu_branch(cpu_flag(FLAG_Z)); cpu_cycles += 2; break; // BEQ
+        case 0xD0: cpu_branch(!cpu_flag(FLAG_Z)); cpu_cycles += 2; break; // BNE
+        case 0x30: cpu_branch(cpu_flag(FLAG_N)); cpu_cycles += 2; break; // BMI
+        case 0x10: cpu_branch(!cpu_flag(FLAG_N)); cpu_cycles += 2; break; // BPL
+        case 0x50: cpu_branch(!cpu_flag(FLAG_V)); cpu_cycles += 2; break; // BVC
+        case 0x70: cpu_branch(cpu_flag(FLAG_V)); cpu_cycles += 2; break; // BVS
 
-    // ---- BIT ----
-    case 0x24: { u8 v=cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; if(v&0x40){cpu_p|=FLAG_V;}else{cpu_p&=~FLAG_V;} cpu_set_n(v); cpu_set_z(cpu_a&v); cpu_cycles=3; break; }
-    case 0x2C: { addr=cpu_read16(cpu_pc); cpu_pc+=2; u8 v=cpu_read(addr); if(v&0x40){cpu_p|=FLAG_V;}else{cpu_p&=~FLAG_V;} cpu_set_n(v); cpu_set_z(cpu_a&v); cpu_cycles=4; break; }
+        // ---- BIT ----
+        case 0x24: { u8 v = cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; if (v & 0x40) { cpu_p |= FLAG_V; }else { cpu_p &= ~FLAG_V; } cpu_set_n(v); cpu_set_z(cpu_a & v); cpu_cycles = 3; break; }
+        case 0x2C: { addr = cpu_read16(cpu_pc); cpu_pc += 2; u8 v = cpu_read(addr); if (v & 0x40) { cpu_p |= FLAG_V; }else { cpu_p &= ~FLAG_V; } cpu_set_n(v); cpu_set_z(cpu_a & v); cpu_cycles = 4; break; }
 
-    // ---- BRK ----
-    case 0x00:
+        // ---- BRK ----
+        case 0x00:
         cpu_pc++;
         cpu_push16(cpu_pc);
         cpu_push(cpu_p | FLAG_B | FLAG_U);
@@ -234,217 +234,217 @@ void cpu_step() {
         cpu_pc = cpu_read16(0xFFFE);
         cpu_cycles = 7; break;
 
-    // ---- Flag ops ----
-    case 0x18: cpu_p = cpu_p & (~FLAG_C); cpu_cycles = 2; break; // CLC
-    case 0x38: cpu_p = cpu_p | FLAG_C;    cpu_cycles = 2; break; // SEC
-    case 0x58: cpu_p = cpu_p & (~FLAG_I); cpu_cycles = 2; break; // CLI
-    case 0x78: cpu_p = cpu_p | FLAG_I;    cpu_cycles = 2; break; // SEI
-    case 0xB8: cpu_p = cpu_p & (~FLAG_V); cpu_cycles = 2; break; // CLV
-    case 0xD8: cpu_p = cpu_p & (~FLAG_D); cpu_cycles = 2; break; // CLD
-    case 0xF8: cpu_p = cpu_p | FLAG_D;    cpu_cycles = 2; break; // SED
+        // ---- Flag ops ----
+        case 0x18: cpu_p = cpu_p & (~FLAG_C); cpu_cycles = 2; break; // CLC
+        case 0x38: cpu_p = cpu_p | FLAG_C; cpu_cycles = 2; break; // SEC
+        case 0x58: cpu_p = cpu_p & (~FLAG_I); cpu_cycles = 2; break; // CLI
+        case 0x78: cpu_p = cpu_p | FLAG_I; cpu_cycles = 2; break; // SEI
+        case 0xB8: cpu_p = cpu_p & (~FLAG_V); cpu_cycles = 2; break; // CLV
+        case 0xD8: cpu_p = cpu_p & (~FLAG_D); cpu_cycles = 2; break; // CLD
+        case 0xF8: cpu_p = cpu_p | FLAG_D; cpu_cycles = 2; break; // SED
 
-    // ---- CMP ----
-    case 0xC9: { u8 v=cpu_read(cpu_pc); cpu_pc++; if(cpu_a>=v){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} cpu_set_zn(cpu_a-v); cpu_cycles=2; break; }
-    case 0xC5: { u8 v=cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; if(cpu_a>=v){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} cpu_set_zn(cpu_a-v); cpu_cycles=3; break; }
-    case 0xD5: { u8 v=cpu_read((unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF)); cpu_pc++; if(cpu_a>=v){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} cpu_set_zn(cpu_a-v); cpu_cycles=4; break; }
-    case 0xCD: { addr=cpu_read16(cpu_pc); cpu_pc+=2; u8 v=cpu_read(addr); if(cpu_a>=v){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} cpu_set_zn(cpu_a-v); cpu_cycles=4; break; }
-    case 0xDD: { addr=cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; u8 v=cpu_read(addr); if(cpu_a>=v){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} cpu_set_zn(cpu_a-v); cpu_cycles=4+pages_differ(addr-(unsigned short)cpu_x,addr); break; }
-    case 0xD9: { addr=cpu_read16(cpu_pc)+(unsigned short)cpu_y; cpu_pc+=2; u8 v=cpu_read(addr); if(cpu_a>=v){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} cpu_set_zn(cpu_a-v); cpu_cycles=4+pages_differ(addr-(unsigned short)cpu_y,addr); break; }
-    case 0xC1: { u8 zp=(cpu_read(cpu_pc)+cpu_x)&0xFF; cpu_pc++; u8 v=cpu_read(cpu_read16_bug((unsigned short)zp)); if(cpu_a>=v){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} cpu_set_zn(cpu_a-v); cpu_cycles=6; break; }
-    case 0xD1: { u8 zp=cpu_read(cpu_pc); cpu_pc++; addr=cpu_read16_bug((unsigned short)zp)+(unsigned short)cpu_y; u8 v=cpu_read(addr); if(cpu_a>=v){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} cpu_set_zn(cpu_a-v); cpu_cycles=5+pages_differ(addr-(unsigned short)cpu_y,addr); break; }
+        // ---- CMP ----
+        case 0xC9: { u8 v = cpu_read(cpu_pc); cpu_pc++; if (cpu_a >= v) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } cpu_set_zn(cpu_a - v); cpu_cycles = 2; break; }
+        case 0xC5: { u8 v = cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; if (cpu_a >= v) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } cpu_set_zn(cpu_a - v); cpu_cycles = 3; break; }
+        case 0xD5: { u8 v = cpu_read((unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF)); cpu_pc++; if (cpu_a >= v) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } cpu_set_zn(cpu_a - v); cpu_cycles = 4; break; }
+        case 0xCD: { addr = cpu_read16(cpu_pc); cpu_pc += 2; u8 v = cpu_read(addr); if (cpu_a >= v) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } cpu_set_zn(cpu_a - v); cpu_cycles = 4; break; }
+        case 0xDD: { addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; u8 v = cpu_read(addr); if (cpu_a >= v) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } cpu_set_zn(cpu_a - v); cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_x, addr); break; }
+        case 0xD9: { addr = cpu_read16(cpu_pc) + (unsigned short)cpu_y; cpu_pc += 2; u8 v = cpu_read(addr); if (cpu_a >= v) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } cpu_set_zn(cpu_a - v); cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_y, addr); break; }
+        case 0xC1: { u8 zp = (cpu_read(cpu_pc) + cpu_x) & 0xFF; cpu_pc++; u8 v = cpu_read(cpu_read16_bug((unsigned short)zp)); if (cpu_a >= v) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } cpu_set_zn(cpu_a - v); cpu_cycles = 6; break; }
+        case 0xD1: { u8 zp = cpu_read(cpu_pc); cpu_pc++; addr = cpu_read16_bug((unsigned short)zp) + (unsigned short)cpu_y; u8 v = cpu_read(addr); if (cpu_a >= v) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } cpu_set_zn(cpu_a - v); cpu_cycles = 5 + pages_differ(addr - (unsigned short)cpu_y, addr); break; }
 
-    // ---- CPX ----
-    case 0xE0: { u8 v=cpu_read(cpu_pc); cpu_pc++; if(cpu_x>=v){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} cpu_set_zn(cpu_x-v); cpu_cycles=2; break; }
-    case 0xE4: { u8 v=cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; if(cpu_x>=v){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} cpu_set_zn(cpu_x-v); cpu_cycles=3; break; }
-    case 0xEC: { addr=cpu_read16(cpu_pc); cpu_pc+=2; u8 v=cpu_read(addr); if(cpu_x>=v){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} cpu_set_zn(cpu_x-v); cpu_cycles=4; break; }
+        // ---- CPX ----
+        case 0xE0: { u8 v = cpu_read(cpu_pc); cpu_pc++; if (cpu_x >= v) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } cpu_set_zn(cpu_x - v); cpu_cycles = 2; break; }
+        case 0xE4: { u8 v = cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; if (cpu_x >= v) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } cpu_set_zn(cpu_x - v); cpu_cycles = 3; break; }
+        case 0xEC: { addr = cpu_read16(cpu_pc); cpu_pc += 2; u8 v = cpu_read(addr); if (cpu_x >= v) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } cpu_set_zn(cpu_x - v); cpu_cycles = 4; break; }
 
-    // ---- CPY ----
-    case 0xC0: { u8 v=cpu_read(cpu_pc); cpu_pc++; if(cpu_y>=v){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} cpu_set_zn(cpu_y-v); cpu_cycles=2; break; }
-    case 0xC4: { u8 v=cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; if(cpu_y>=v){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} cpu_set_zn(cpu_y-v); cpu_cycles=3; break; }
-    case 0xCC: { addr=cpu_read16(cpu_pc); cpu_pc+=2; u8 v=cpu_read(addr); if(cpu_y>=v){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} cpu_set_zn(cpu_y-v); cpu_cycles=4; break; }
+        // ---- CPY ----
+        case 0xC0: { u8 v = cpu_read(cpu_pc); cpu_pc++; if (cpu_y >= v) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } cpu_set_zn(cpu_y - v); cpu_cycles = 2; break; }
+        case 0xC4: { u8 v = cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; if (cpu_y >= v) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } cpu_set_zn(cpu_y - v); cpu_cycles = 3; break; }
+        case 0xCC: { addr = cpu_read16(cpu_pc); cpu_pc += 2; u8 v = cpu_read(addr); if (cpu_y >= v) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } cpu_set_zn(cpu_y - v); cpu_cycles = 4; break; }
 
-    // ---- DEC ----
-    case 0xC6: { u16 a=(unsigned short)cpu_read(cpu_pc); cpu_pc++; u8 v=cpu_read(a)-1; cpu_write(a,v); cpu_set_zn(v); cpu_cycles=5; break; }
-    case 0xD6: { u16 a=(unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF); cpu_pc++; u8 v=cpu_read(a)-1; cpu_write(a,v); cpu_set_zn(v); cpu_cycles=6; break; }
-    case 0xCE: { addr=cpu_read16(cpu_pc); cpu_pc+=2; u8 v=cpu_read(addr)-1; cpu_write(addr,v); cpu_set_zn(v); cpu_cycles=6; break; }
-    case 0xDE: { addr=cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; u8 v=cpu_read(addr)-1; cpu_write(addr,v); cpu_set_zn(v); cpu_cycles=7; break; }
+        // ---- DEC ----
+        case 0xC6: { u16 a = (unsigned short)cpu_read(cpu_pc); cpu_pc++; u8 v = cpu_read(a) - 1; cpu_write(a, v); cpu_set_zn(v); cpu_cycles = 5; break; }
+        case 0xD6: { u16 a = (unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF); cpu_pc++; u8 v = cpu_read(a) - 1; cpu_write(a, v); cpu_set_zn(v); cpu_cycles = 6; break; }
+        case 0xCE: { addr = cpu_read16(cpu_pc); cpu_pc += 2; u8 v = cpu_read(addr) - 1; cpu_write(addr, v); cpu_set_zn(v); cpu_cycles = 6; break; }
+        case 0xDE: { addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; u8 v = cpu_read(addr) - 1; cpu_write(addr, v); cpu_set_zn(v); cpu_cycles = 7; break; }
 
-    // ---- DEX, DEY ----
-    case 0xCA: cpu_x--; cpu_set_zn(cpu_x); cpu_cycles = 2; break;
-    case 0x88: cpu_y--; cpu_set_zn(cpu_y); cpu_cycles = 2; break;
+        // ---- DEX, DEY ----
+        case 0xCA: cpu_x--; cpu_set_zn(cpu_x); cpu_cycles = 2; break;
+        case 0x88: cpu_y--; cpu_set_zn(cpu_y); cpu_cycles = 2; break;
 
-    // ---- EOR ----
-    case 0x49: cpu_a = cpu_a ^ cpu_read(cpu_pc); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles=2; break;
-    case 0x45: cpu_a = cpu_a ^ cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles=3; break;
-    case 0x55: cpu_a = cpu_a ^ cpu_read((unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles=4; break;
-    case 0x4D: addr=cpu_read16(cpu_pc); cpu_pc+=2; cpu_a = cpu_a ^ cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles=4; break;
-    case 0x5D: addr=cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; cpu_a = cpu_a ^ cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles=4+pages_differ(addr-(unsigned short)cpu_x,addr); break;
-    case 0x59: addr=cpu_read16(cpu_pc)+(unsigned short)cpu_y; cpu_pc+=2; cpu_a = cpu_a ^ cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles=4+pages_differ(addr-(unsigned short)cpu_y,addr); break;
-    case 0x41: { u8 zp=(cpu_read(cpu_pc)+cpu_x)&0xFF; cpu_pc++; cpu_a = cpu_a ^ cpu_read(cpu_read16_bug((unsigned short)zp)); cpu_set_zn(cpu_a); cpu_cycles=6; break; }
-    case 0x51: { u8 zp=cpu_read(cpu_pc); cpu_pc++; addr=cpu_read16_bug((unsigned short)zp)+(unsigned short)cpu_y; cpu_a = cpu_a ^ cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles=5+pages_differ(addr-(unsigned short)cpu_y,addr); break; }
+        // ---- EOR ----
+        case 0x49: cpu_a = cpu_a ^ cpu_read(cpu_pc); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 2; break;
+        case 0x45: cpu_a = cpu_a ^ cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 3; break;
+        case 0x55: cpu_a = cpu_a ^ cpu_read((unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 4; break;
+        case 0x4D: addr = cpu_read16(cpu_pc); cpu_pc += 2; cpu_a = cpu_a ^ cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4; break;
+        case 0x5D: addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; cpu_a = cpu_a ^ cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_x, addr); break;
+        case 0x59: addr = cpu_read16(cpu_pc) + (unsigned short)cpu_y; cpu_pc += 2; cpu_a = cpu_a ^ cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_y, addr); break;
+        case 0x41: { u8 zp = (cpu_read(cpu_pc) + cpu_x) & 0xFF; cpu_pc++; cpu_a = cpu_a ^ cpu_read(cpu_read16_bug((unsigned short)zp)); cpu_set_zn(cpu_a); cpu_cycles = 6; break; }
+        case 0x51: { u8 zp = cpu_read(cpu_pc); cpu_pc++; addr = cpu_read16_bug((unsigned short)zp) + (unsigned short)cpu_y; cpu_a = cpu_a ^ cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 5 + pages_differ(addr - (unsigned short)cpu_y, addr); break; }
 
-    // ---- INC ----
-    case 0xE6: { u16 a=(unsigned short)cpu_read(cpu_pc); cpu_pc++; u8 v=cpu_read(a)+1; cpu_write(a,v); cpu_set_zn(v); cpu_cycles=5; break; }
-    case 0xF6: { u16 a=(unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF); cpu_pc++; u8 v=cpu_read(a)+1; cpu_write(a,v); cpu_set_zn(v); cpu_cycles=6; break; }
-    case 0xEE: { addr=cpu_read16(cpu_pc); cpu_pc+=2; u8 v=cpu_read(addr)+1; cpu_write(addr,v); cpu_set_zn(v); cpu_cycles=6; break; }
-    case 0xFE: { addr=cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; u8 v=cpu_read(addr)+1; cpu_write(addr,v); cpu_set_zn(v); cpu_cycles=7; break; }
+        // ---- INC ----
+        case 0xE6: { u16 a = (unsigned short)cpu_read(cpu_pc); cpu_pc++; u8 v = cpu_read(a) + 1; cpu_write(a, v); cpu_set_zn(v); cpu_cycles = 5; break; }
+        case 0xF6: { u16 a = (unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF); cpu_pc++; u8 v = cpu_read(a) + 1; cpu_write(a, v); cpu_set_zn(v); cpu_cycles = 6; break; }
+        case 0xEE: { addr = cpu_read16(cpu_pc); cpu_pc += 2; u8 v = cpu_read(addr) + 1; cpu_write(addr, v); cpu_set_zn(v); cpu_cycles = 6; break; }
+        case 0xFE: { addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; u8 v = cpu_read(addr) + 1; cpu_write(addr, v); cpu_set_zn(v); cpu_cycles = 7; break; }
 
-    // ---- INX, INY ----
-    case 0xE8: cpu_x++; cpu_set_zn(cpu_x); cpu_cycles = 2; break;
-    case 0xC8: cpu_y++; cpu_set_zn(cpu_y); cpu_cycles = 2; break;
+        // ---- INX, INY ----
+        case 0xE8: cpu_x++; cpu_set_zn(cpu_x); cpu_cycles = 2; break;
+        case 0xC8: cpu_y++; cpu_set_zn(cpu_y); cpu_cycles = 2; break;
 
-    // ---- JMP ----
-    case 0x4C: cpu_pc = cpu_read16(cpu_pc); cpu_cycles = 3; break;
-    case 0x6C: cpu_pc = cpu_read16_bug(cpu_read16(cpu_pc)); cpu_cycles = 5; break;
+        // ---- JMP ----
+        case 0x4C: cpu_pc = cpu_read16(cpu_pc); cpu_cycles = 3; break;
+        case 0x6C: cpu_pc = cpu_read16_bug(cpu_read16(cpu_pc)); cpu_cycles = 5; break;
 
-    // ---- JSR ----
-    case 0x20:
+        // ---- JSR ----
+        case 0x20:
         cpu_push16(cpu_pc + 1);
         cpu_pc = cpu_read16(cpu_pc);
         cpu_cycles = 6; break;
 
-    // ---- LDA ----
-    case 0xA9: cpu_a=cpu_read(cpu_pc); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles=2; break;
-    case 0xA5: cpu_a=cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles=3; break;
-    case 0xB5: cpu_a=cpu_read((unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles=4; break;
-    case 0xAD: addr=cpu_read16(cpu_pc); cpu_pc+=2; cpu_a=cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles=4; break;
-    case 0xBD: addr=cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; cpu_a=cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles=4+pages_differ(addr-(unsigned short)cpu_x,addr); break;
-    case 0xB9: addr=cpu_read16(cpu_pc)+(unsigned short)cpu_y; cpu_pc+=2; cpu_a=cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles=4+pages_differ(addr-(unsigned short)cpu_y,addr); break;
-    case 0xA1: { u8 zp=(cpu_read(cpu_pc)+cpu_x)&0xFF; cpu_pc++; cpu_a=cpu_read(cpu_read16_bug((unsigned short)zp)); cpu_set_zn(cpu_a); cpu_cycles=6; break; }
-    case 0xB1: { u8 zp=cpu_read(cpu_pc); cpu_pc++; addr=cpu_read16_bug((unsigned short)zp)+(unsigned short)cpu_y; cpu_a=cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles=5+pages_differ(addr-(unsigned short)cpu_y,addr); break; }
+        // ---- LDA ----
+        case 0xA9: cpu_a = cpu_read(cpu_pc); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 2; break;
+        case 0xA5: cpu_a = cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 3; break;
+        case 0xB5: cpu_a = cpu_read((unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 4; break;
+        case 0xAD: addr = cpu_read16(cpu_pc); cpu_pc += 2; cpu_a = cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4; break;
+        case 0xBD: addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; cpu_a = cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_x, addr); break;
+        case 0xB9: addr = cpu_read16(cpu_pc) + (unsigned short)cpu_y; cpu_pc += 2; cpu_a = cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_y, addr); break;
+        case 0xA1: { u8 zp = (cpu_read(cpu_pc) + cpu_x) & 0xFF; cpu_pc++; cpu_a = cpu_read(cpu_read16_bug((unsigned short)zp)); cpu_set_zn(cpu_a); cpu_cycles = 6; break; }
+        case 0xB1: { u8 zp = cpu_read(cpu_pc); cpu_pc++; addr = cpu_read16_bug((unsigned short)zp) + (unsigned short)cpu_y; cpu_a = cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 5 + pages_differ(addr - (unsigned short)cpu_y, addr); break; }
 
-    // ---- LDX ----
-    case 0xA2: cpu_x=cpu_read(cpu_pc); cpu_pc++; cpu_set_zn(cpu_x); cpu_cycles=2; break;
-    case 0xA6: cpu_x=cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; cpu_set_zn(cpu_x); cpu_cycles=3; break;
-    case 0xB6: cpu_x=cpu_read((unsigned short)((cpu_read(cpu_pc)+cpu_y)&0xFF)); cpu_pc++; cpu_set_zn(cpu_x); cpu_cycles=4; break;
-    case 0xAE: addr=cpu_read16(cpu_pc); cpu_pc+=2; cpu_x=cpu_read(addr); cpu_set_zn(cpu_x); cpu_cycles=4; break;
-    case 0xBE: addr=cpu_read16(cpu_pc)+(unsigned short)cpu_y; cpu_pc+=2; cpu_x=cpu_read(addr); cpu_set_zn(cpu_x); cpu_cycles=4+pages_differ(addr-(unsigned short)cpu_y,addr); break;
+        // ---- LDX ----
+        case 0xA2: cpu_x = cpu_read(cpu_pc); cpu_pc++; cpu_set_zn(cpu_x); cpu_cycles = 2; break;
+        case 0xA6: cpu_x = cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; cpu_set_zn(cpu_x); cpu_cycles = 3; break;
+        case 0xB6: cpu_x = cpu_read((unsigned short)((cpu_read(cpu_pc) + cpu_y) & 0xFF)); cpu_pc++; cpu_set_zn(cpu_x); cpu_cycles = 4; break;
+        case 0xAE: addr = cpu_read16(cpu_pc); cpu_pc += 2; cpu_x = cpu_read(addr); cpu_set_zn(cpu_x); cpu_cycles = 4; break;
+        case 0xBE: addr = cpu_read16(cpu_pc) + (unsigned short)cpu_y; cpu_pc += 2; cpu_x = cpu_read(addr); cpu_set_zn(cpu_x); cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_y, addr); break;
 
-    // ---- LDY ----
-    case 0xA0: cpu_y=cpu_read(cpu_pc); cpu_pc++; cpu_set_zn(cpu_y); cpu_cycles=2; break;
-    case 0xA4: cpu_y=cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; cpu_set_zn(cpu_y); cpu_cycles=3; break;
-    case 0xB4: cpu_y=cpu_read((unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF)); cpu_pc++; cpu_set_zn(cpu_y); cpu_cycles=4; break;
-    case 0xAC: addr=cpu_read16(cpu_pc); cpu_pc+=2; cpu_y=cpu_read(addr); cpu_set_zn(cpu_y); cpu_cycles=4; break;
-    case 0xBC: addr=cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; cpu_y=cpu_read(addr); cpu_set_zn(cpu_y); cpu_cycles=4+pages_differ(addr-(unsigned short)cpu_x,addr); break;
+        // ---- LDY ----
+        case 0xA0: cpu_y = cpu_read(cpu_pc); cpu_pc++; cpu_set_zn(cpu_y); cpu_cycles = 2; break;
+        case 0xA4: cpu_y = cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; cpu_set_zn(cpu_y); cpu_cycles = 3; break;
+        case 0xB4: cpu_y = cpu_read((unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF)); cpu_pc++; cpu_set_zn(cpu_y); cpu_cycles = 4; break;
+        case 0xAC: addr = cpu_read16(cpu_pc); cpu_pc += 2; cpu_y = cpu_read(addr); cpu_set_zn(cpu_y); cpu_cycles = 4; break;
+        case 0xBC: addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; cpu_y = cpu_read(addr); cpu_set_zn(cpu_y); cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_x, addr); break;
 
-    // ---- LSR ----
-    case 0x4A:
-        if(cpu_a&1){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;}
-        cpu_a=cpu_a>>1; cpu_set_zn(cpu_a); cpu_cycles=2; break;
-    case 0x46: { u16 a=(unsigned short)cpu_read(cpu_pc); cpu_pc++; u8 v=cpu_read(a); if(v&1){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=v>>1; cpu_write(a,v); cpu_set_zn(v); cpu_cycles=5; break; }
-    case 0x56: { u16 a=(unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF); cpu_pc++; u8 v=cpu_read(a); if(v&1){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=v>>1; cpu_write(a,v); cpu_set_zn(v); cpu_cycles=6; break; }
-    case 0x4E: { addr=cpu_read16(cpu_pc); cpu_pc+=2; u8 v=cpu_read(addr); if(v&1){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=v>>1; cpu_write(addr,v); cpu_set_zn(v); cpu_cycles=6; break; }
-    case 0x5E: { addr=cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; u8 v=cpu_read(addr); if(v&1){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=v>>1; cpu_write(addr,v); cpu_set_zn(v); cpu_cycles=7; break; }
+        // ---- LSR ----
+        case 0x4A:
+        if (cpu_a & 1) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; }
+        cpu_a = cpu_a >> 1; cpu_set_zn(cpu_a); cpu_cycles = 2; break;
+        case 0x46: { u16 a = (unsigned short)cpu_read(cpu_pc); cpu_pc++; u8 v = cpu_read(a); if (v & 1) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = v >> 1; cpu_write(a, v); cpu_set_zn(v); cpu_cycles = 5; break; }
+        case 0x56: { u16 a = (unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF); cpu_pc++; u8 v = cpu_read(a); if (v & 1) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = v >> 1; cpu_write(a, v); cpu_set_zn(v); cpu_cycles = 6; break; }
+        case 0x4E: { addr = cpu_read16(cpu_pc); cpu_pc += 2; u8 v = cpu_read(addr); if (v & 1) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = v >> 1; cpu_write(addr, v); cpu_set_zn(v); cpu_cycles = 6; break; }
+        case 0x5E: { addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; u8 v = cpu_read(addr); if (v & 1) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = v >> 1; cpu_write(addr, v); cpu_set_zn(v); cpu_cycles = 7; break; }
 
-    // ---- NOP ----
-    case 0xEA: cpu_cycles = 2; break;
+        // ---- NOP ----
+        case 0xEA: cpu_cycles = 2; break;
 
-    // ---- ORA ----
-    case 0x09: cpu_a = cpu_a | cpu_read(cpu_pc); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles=2; break;
-    case 0x05: cpu_a = cpu_a | cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles=3; break;
-    case 0x15: cpu_a = cpu_a | cpu_read((unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles=4; break;
-    case 0x0D: addr=cpu_read16(cpu_pc); cpu_pc+=2; cpu_a = cpu_a | cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles=4; break;
-    case 0x1D: addr=cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; cpu_a = cpu_a | cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles=4+pages_differ(addr-(unsigned short)cpu_x,addr); break;
-    case 0x19: addr=cpu_read16(cpu_pc)+(unsigned short)cpu_y; cpu_pc+=2; cpu_a = cpu_a | cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles=4+pages_differ(addr-(unsigned short)cpu_y,addr); break;
-    case 0x01: { u8 zp=(cpu_read(cpu_pc)+cpu_x)&0xFF; cpu_pc++; cpu_a = cpu_a | cpu_read(cpu_read16_bug((unsigned short)zp)); cpu_set_zn(cpu_a); cpu_cycles=6; break; }
-    case 0x11: { u8 zp=cpu_read(cpu_pc); cpu_pc++; addr=cpu_read16_bug((unsigned short)zp)+(unsigned short)cpu_y; cpu_a = cpu_a | cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles=5+pages_differ(addr-(unsigned short)cpu_y,addr); break; }
+        // ---- ORA ----
+        case 0x09: cpu_a = cpu_a | cpu_read(cpu_pc); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 2; break;
+        case 0x05: cpu_a = cpu_a | cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 3; break;
+        case 0x15: cpu_a = cpu_a | cpu_read((unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF)); cpu_pc++; cpu_set_zn(cpu_a); cpu_cycles = 4; break;
+        case 0x0D: addr = cpu_read16(cpu_pc); cpu_pc += 2; cpu_a = cpu_a | cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4; break;
+        case 0x1D: addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; cpu_a = cpu_a | cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_x, addr); break;
+        case 0x19: addr = cpu_read16(cpu_pc) + (unsigned short)cpu_y; cpu_pc += 2; cpu_a = cpu_a | cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_y, addr); break;
+        case 0x01: { u8 zp = (cpu_read(cpu_pc) + cpu_x) & 0xFF; cpu_pc++; cpu_a = cpu_a | cpu_read(cpu_read16_bug((unsigned short)zp)); cpu_set_zn(cpu_a); cpu_cycles = 6; break; }
+        case 0x11: { u8 zp = cpu_read(cpu_pc); cpu_pc++; addr = cpu_read16_bug((unsigned short)zp) + (unsigned short)cpu_y; cpu_a = cpu_a | cpu_read(addr); cpu_set_zn(cpu_a); cpu_cycles = 5 + pages_differ(addr - (unsigned short)cpu_y, addr); break; }
 
-    // ---- Stack ----
-    case 0x48: cpu_push(cpu_a); cpu_cycles = 3; break;             // PHA
-    case 0x08: cpu_push(cpu_p | FLAG_B | FLAG_U); cpu_cycles = 3; break; // PHP
-    case 0x68: cpu_a = cpu_pull(); cpu_set_zn(cpu_a); cpu_cycles = 4; break; // PLA
-    case 0x28: cpu_p = (cpu_pull() & 0xEF) | FLAG_U; cpu_cycles = 4; break; // PLP
+        // ---- Stack ----
+        case 0x48: cpu_push(cpu_a); cpu_cycles = 3; break; // PHA
+        case 0x08: cpu_push(cpu_p | FLAG_B | FLAG_U); cpu_cycles = 3; break; // PHP
+        case 0x68: cpu_a = cpu_pull(); cpu_set_zn(cpu_a); cpu_cycles = 4; break; // PLA
+        case 0x28: cpu_p = (cpu_pull() & 0xEF) | FLAG_U; cpu_cycles = 4; break; // PLP
 
-    // ---- ROL ----
-    case 0x2A: {
-        u8 c = cpu_flag(FLAG_C);
-        if(cpu_a&0x80){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;}
-        cpu_a = (cpu_a<<1)|c; cpu_set_zn(cpu_a); cpu_cycles=2; break;
-    }
-    case 0x26: { u16 a=(unsigned short)cpu_read(cpu_pc); cpu_pc++; u8 v=cpu_read(a); u8 c=cpu_flag(FLAG_C); if(v&0x80){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=(v<<1)|c; cpu_write(a,v); cpu_set_zn(v); cpu_cycles=5; break; }
-    case 0x36: { u16 a=(unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF); cpu_pc++; u8 v=cpu_read(a); u8 c=cpu_flag(FLAG_C); if(v&0x80){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=(v<<1)|c; cpu_write(a,v); cpu_set_zn(v); cpu_cycles=6; break; }
-    case 0x2E: { addr=cpu_read16(cpu_pc); cpu_pc+=2; u8 v=cpu_read(addr); u8 c=cpu_flag(FLAG_C); if(v&0x80){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=(v<<1)|c; cpu_write(addr,v); cpu_set_zn(v); cpu_cycles=6; break; }
-    case 0x3E: { addr=cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; u8 v=cpu_read(addr); u8 c=cpu_flag(FLAG_C); if(v&0x80){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=(v<<1)|c; cpu_write(addr,v); cpu_set_zn(v); cpu_cycles=7; break; }
+        // ---- ROL ----
+        case 0x2A: {
+            u8 c = cpu_flag(FLAG_C);
+            if (cpu_a & 0x80) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; }
+            cpu_a = (cpu_a << 1) | c; cpu_set_zn(cpu_a); cpu_cycles = 2; break;
+        }
+        case 0x26: { u16 a = (unsigned short)cpu_read(cpu_pc); cpu_pc++; u8 v = cpu_read(a); u8 c = cpu_flag(FLAG_C); if (v & 0x80) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = (v << 1) | c; cpu_write(a, v); cpu_set_zn(v); cpu_cycles = 5; break; }
+        case 0x36: { u16 a = (unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF); cpu_pc++; u8 v = cpu_read(a); u8 c = cpu_flag(FLAG_C); if (v & 0x80) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = (v << 1) | c; cpu_write(a, v); cpu_set_zn(v); cpu_cycles = 6; break; }
+        case 0x2E: { addr = cpu_read16(cpu_pc); cpu_pc += 2; u8 v = cpu_read(addr); u8 c = cpu_flag(FLAG_C); if (v & 0x80) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = (v << 1) | c; cpu_write(addr, v); cpu_set_zn(v); cpu_cycles = 6; break; }
+        case 0x3E: { addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; u8 v = cpu_read(addr); u8 c = cpu_flag(FLAG_C); if (v & 0x80) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = (v << 1) | c; cpu_write(addr, v); cpu_set_zn(v); cpu_cycles = 7; break; }
 
-    // ---- ROR ----
-    case 0x6A: {
-        u8 c = cpu_flag(FLAG_C);
-        if(cpu_a&1){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;}
-        cpu_a = (cpu_a>>1)|(c<<7); cpu_set_zn(cpu_a); cpu_cycles=2; break;
-    }
-    case 0x66: { u16 a=(unsigned short)cpu_read(cpu_pc); cpu_pc++; u8 v=cpu_read(a); u8 c=cpu_flag(FLAG_C); if(v&1){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=(v>>1)|(c<<7); cpu_write(a,v); cpu_set_zn(v); cpu_cycles=5; break; }
-    case 0x76: { u16 a=(unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF); cpu_pc++; u8 v=cpu_read(a); u8 c=cpu_flag(FLAG_C); if(v&1){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=(v>>1)|(c<<7); cpu_write(a,v); cpu_set_zn(v); cpu_cycles=6; break; }
-    case 0x6E: { addr=cpu_read16(cpu_pc); cpu_pc+=2; u8 v=cpu_read(addr); u8 c=cpu_flag(FLAG_C); if(v&1){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=(v>>1)|(c<<7); cpu_write(addr,v); cpu_set_zn(v); cpu_cycles=6; break; }
-    case 0x7E: { addr=cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; u8 v=cpu_read(addr); u8 c=cpu_flag(FLAG_C); if(v&1){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} v=(v>>1)|(c<<7); cpu_write(addr,v); cpu_set_zn(v); cpu_cycles=7; break; }
+        // ---- ROR ----
+        case 0x6A: {
+            u8 c = cpu_flag(FLAG_C);
+            if (cpu_a & 1) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; }
+            cpu_a = (cpu_a >> 1) | (c << 7); cpu_set_zn(cpu_a); cpu_cycles = 2; break;
+        }
+        case 0x66: { u16 a = (unsigned short)cpu_read(cpu_pc); cpu_pc++; u8 v = cpu_read(a); u8 c = cpu_flag(FLAG_C); if (v & 1) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = (v >> 1) | (c << 7); cpu_write(a, v); cpu_set_zn(v); cpu_cycles = 5; break; }
+        case 0x76: { u16 a = (unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF); cpu_pc++; u8 v = cpu_read(a); u8 c = cpu_flag(FLAG_C); if (v & 1) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = (v >> 1) | (c << 7); cpu_write(a, v); cpu_set_zn(v); cpu_cycles = 6; break; }
+        case 0x6E: { addr = cpu_read16(cpu_pc); cpu_pc += 2; u8 v = cpu_read(addr); u8 c = cpu_flag(FLAG_C); if (v & 1) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = (v >> 1) | (c << 7); cpu_write(addr, v); cpu_set_zn(v); cpu_cycles = 6; break; }
+        case 0x7E: { addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; u8 v = cpu_read(addr); u8 c = cpu_flag(FLAG_C); if (v & 1) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } v = (v >> 1) | (c << 7); cpu_write(addr, v); cpu_set_zn(v); cpu_cycles = 7; break; }
 
-    // ---- RTI ----
-    case 0x40:
+        // ---- RTI ----
+        case 0x40:
         cpu_p = (cpu_pull() & 0xEF) | FLAG_U;
         cpu_pc = cpu_pull16();
         cpu_cycles = 6; break;
 
-    // ---- RTS ----
-    case 0x60:
+        // ---- RTS ----
+        case 0x60:
         cpu_pc = cpu_pull16() + 1;
         cpu_cycles = 6; break;
 
-    // ---- SBC ----
-    case 0xE9: case 0xEB: { // SBC #imm (0xEB unofficial alias)
-        u8 val = cpu_read(cpu_pc); cpu_pc++;
-        int diff = (int)cpu_a - (int)val - (1 - cpu_flag(FLAG_C));
-        if(diff>=0){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;}
-        if(((cpu_a^val)&(cpu_a^(unsigned char)diff)&0x80)){cpu_p|=FLAG_V;}else{cpu_p&=~FLAG_V;}
-        cpu_a = (unsigned char)diff; cpu_set_zn(cpu_a); cpu_cycles=2; break;
-    }
-    case 0xE5: { u8 val=cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; int d=(int)cpu_a-(int)val-(1-cpu_flag(FLAG_C)); if(d>=0){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} if(((cpu_a^val)&(cpu_a^(unsigned char)d)&0x80)){cpu_p|=FLAG_V;}else{cpu_p&=~FLAG_V;} cpu_a=(unsigned char)d; cpu_set_zn(cpu_a); cpu_cycles=3; break; }
-    case 0xF5: { u8 val=cpu_read((unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF)); cpu_pc++; int d=(int)cpu_a-(int)val-(1-cpu_flag(FLAG_C)); if(d>=0){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} if(((cpu_a^val)&(cpu_a^(unsigned char)d)&0x80)){cpu_p|=FLAG_V;}else{cpu_p&=~FLAG_V;} cpu_a=(unsigned char)d; cpu_set_zn(cpu_a); cpu_cycles=4; break; }
-    case 0xED: { addr=cpu_read16(cpu_pc); cpu_pc+=2; u8 val=cpu_read(addr); int d=(int)cpu_a-(int)val-(1-cpu_flag(FLAG_C)); if(d>=0){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} if(((cpu_a^val)&(cpu_a^(unsigned char)d)&0x80)){cpu_p|=FLAG_V;}else{cpu_p&=~FLAG_V;} cpu_a=(unsigned char)d; cpu_set_zn(cpu_a); cpu_cycles=4; break; }
-    case 0xFD: { addr=cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; u8 val=cpu_read(addr); int d=(int)cpu_a-(int)val-(1-cpu_flag(FLAG_C)); if(d>=0){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} if(((cpu_a^val)&(cpu_a^(unsigned char)d)&0x80)){cpu_p|=FLAG_V;}else{cpu_p&=~FLAG_V;} cpu_a=(unsigned char)d; cpu_set_zn(cpu_a); cpu_cycles=4+pages_differ(addr-(unsigned short)cpu_x,addr); break; }
-    case 0xF9: { addr=cpu_read16(cpu_pc)+(unsigned short)cpu_y; cpu_pc+=2; u8 val=cpu_read(addr); int d=(int)cpu_a-(int)val-(1-cpu_flag(FLAG_C)); if(d>=0){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} if(((cpu_a^val)&(cpu_a^(unsigned char)d)&0x80)){cpu_p|=FLAG_V;}else{cpu_p&=~FLAG_V;} cpu_a=(unsigned char)d; cpu_set_zn(cpu_a); cpu_cycles=4+pages_differ(addr-(unsigned short)cpu_y,addr); break; }
-    case 0xE1: { u8 zp=(cpu_read(cpu_pc)+cpu_x)&0xFF; cpu_pc++; u8 val=cpu_read(cpu_read16_bug((unsigned short)zp)); int d=(int)cpu_a-(int)val-(1-cpu_flag(FLAG_C)); if(d>=0){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} if(((cpu_a^val)&(cpu_a^(unsigned char)d)&0x80)){cpu_p|=FLAG_V;}else{cpu_p&=~FLAG_V;} cpu_a=(unsigned char)d; cpu_set_zn(cpu_a); cpu_cycles=6; break; }
-    case 0xF1: { u8 zp=cpu_read(cpu_pc); cpu_pc++; addr=cpu_read16_bug((unsigned short)zp)+(unsigned short)cpu_y; u8 val=cpu_read(addr); int d=(int)cpu_a-(int)val-(1-cpu_flag(FLAG_C)); if(d>=0){cpu_p|=FLAG_C;}else{cpu_p&=~FLAG_C;} if(((cpu_a^val)&(cpu_a^(unsigned char)d)&0x80)){cpu_p|=FLAG_V;}else{cpu_p&=~FLAG_V;} cpu_a=(unsigned char)d; cpu_set_zn(cpu_a); cpu_cycles=5+pages_differ(addr-(unsigned short)cpu_y,addr); break; }
+        // ---- SBC ----
+        case 0xE9: case 0xEB: { // SBC #imm (0xEB unofficial alias)
+            u8 val = cpu_read(cpu_pc); cpu_pc++;
+            int diff = (int)cpu_a - (int)val - (1 - cpu_flag(FLAG_C));
+            if (diff >= 0) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; }
+            if (((cpu_a ^ val) & (cpu_a ^ (unsigned char)diff) & 0x80)) { cpu_p |= FLAG_V; }else { cpu_p &= ~FLAG_V; }
+            cpu_a = (unsigned char)diff; cpu_set_zn(cpu_a); cpu_cycles = 2; break;
+        }
+        case 0xE5: { u8 val = cpu_read((unsigned short)cpu_read(cpu_pc)); cpu_pc++; int d = (int)cpu_a - (int)val - (1 - cpu_flag(FLAG_C)); if (d >= 0) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } if (((cpu_a ^ val) & (cpu_a ^ (unsigned char)d) & 0x80)) { cpu_p |= FLAG_V; }else { cpu_p &= ~FLAG_V; } cpu_a = (unsigned char)d; cpu_set_zn(cpu_a); cpu_cycles = 3; break; }
+        case 0xF5: { u8 val = cpu_read((unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF)); cpu_pc++; int d = (int)cpu_a - (int)val - (1 - cpu_flag(FLAG_C)); if (d >= 0) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } if (((cpu_a ^ val) & (cpu_a ^ (unsigned char)d) & 0x80)) { cpu_p |= FLAG_V; }else { cpu_p &= ~FLAG_V; } cpu_a = (unsigned char)d; cpu_set_zn(cpu_a); cpu_cycles = 4; break; }
+        case 0xED: { addr = cpu_read16(cpu_pc); cpu_pc += 2; u8 val = cpu_read(addr); int d = (int)cpu_a - (int)val - (1 - cpu_flag(FLAG_C)); if (d >= 0) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } if (((cpu_a ^ val) & (cpu_a ^ (unsigned char)d) & 0x80)) { cpu_p |= FLAG_V; }else { cpu_p &= ~FLAG_V; } cpu_a = (unsigned char)d; cpu_set_zn(cpu_a); cpu_cycles = 4; break; }
+        case 0xFD: { addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; u8 val = cpu_read(addr); int d = (int)cpu_a - (int)val - (1 - cpu_flag(FLAG_C)); if (d >= 0) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } if (((cpu_a ^ val) & (cpu_a ^ (unsigned char)d) & 0x80)) { cpu_p |= FLAG_V; }else { cpu_p &= ~FLAG_V; } cpu_a = (unsigned char)d; cpu_set_zn(cpu_a); cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_x, addr); break; }
+        case 0xF9: { addr = cpu_read16(cpu_pc) + (unsigned short)cpu_y; cpu_pc += 2; u8 val = cpu_read(addr); int d = (int)cpu_a - (int)val - (1 - cpu_flag(FLAG_C)); if (d >= 0) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } if (((cpu_a ^ val) & (cpu_a ^ (unsigned char)d) & 0x80)) { cpu_p |= FLAG_V; }else { cpu_p &= ~FLAG_V; } cpu_a = (unsigned char)d; cpu_set_zn(cpu_a); cpu_cycles = 4 + pages_differ(addr - (unsigned short)cpu_y, addr); break; }
+        case 0xE1: { u8 zp = (cpu_read(cpu_pc) + cpu_x) & 0xFF; cpu_pc++; u8 val = cpu_read(cpu_read16_bug((unsigned short)zp)); int d = (int)cpu_a - (int)val - (1 - cpu_flag(FLAG_C)); if (d >= 0) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } if (((cpu_a ^ val) & (cpu_a ^ (unsigned char)d) & 0x80)) { cpu_p |= FLAG_V; }else { cpu_p &= ~FLAG_V; } cpu_a = (unsigned char)d; cpu_set_zn(cpu_a); cpu_cycles = 6; break; }
+        case 0xF1: { u8 zp = cpu_read(cpu_pc); cpu_pc++; addr = cpu_read16_bug((unsigned short)zp) + (unsigned short)cpu_y; u8 val = cpu_read(addr); int d = (int)cpu_a - (int)val - (1 - cpu_flag(FLAG_C)); if (d >= 0) { cpu_p |= FLAG_C; }else { cpu_p &= ~FLAG_C; } if (((cpu_a ^ val) & (cpu_a ^ (unsigned char)d) & 0x80)) { cpu_p |= FLAG_V; }else { cpu_p &= ~FLAG_V; } cpu_a = (unsigned char)d; cpu_set_zn(cpu_a); cpu_cycles = 5 + pages_differ(addr - (unsigned short)cpu_y, addr); break; }
 
-    // ---- STA ----
-    case 0x85: cpu_write((unsigned short)cpu_read(cpu_pc), cpu_a); cpu_pc++; cpu_cycles=3; break;
-    case 0x95: cpu_write((unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF), cpu_a); cpu_pc++; cpu_cycles=4; break;
-    case 0x8D: addr=cpu_read16(cpu_pc); cpu_pc+=2; cpu_write(addr, cpu_a); cpu_cycles=4; break;
-    case 0x9D: addr=cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; cpu_write(addr, cpu_a); cpu_cycles=5; break;
-    case 0x99: addr=cpu_read16(cpu_pc)+(unsigned short)cpu_y; cpu_pc+=2; cpu_write(addr, cpu_a); cpu_cycles=5; break;
-    case 0x81: { u8 zp=(cpu_read(cpu_pc)+cpu_x)&0xFF; cpu_pc++; cpu_write(cpu_read16_bug((unsigned short)zp), cpu_a); cpu_cycles=6; break; }
-    case 0x91: { u8 zp=cpu_read(cpu_pc); cpu_pc++; cpu_write(cpu_read16_bug((unsigned short)zp)+(unsigned short)cpu_y, cpu_a); cpu_cycles=6; break; }
+        // ---- STA ----
+        case 0x85: cpu_write((unsigned short)cpu_read(cpu_pc), cpu_a); cpu_pc++; cpu_cycles = 3; break;
+        case 0x95: cpu_write((unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF), cpu_a); cpu_pc++; cpu_cycles = 4; break;
+        case 0x8D: addr = cpu_read16(cpu_pc); cpu_pc += 2; cpu_write(addr, cpu_a); cpu_cycles = 4; break;
+        case 0x9D: addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; cpu_write(addr, cpu_a); cpu_cycles = 5; break;
+        case 0x99: addr = cpu_read16(cpu_pc) + (unsigned short)cpu_y; cpu_pc += 2; cpu_write(addr, cpu_a); cpu_cycles = 5; break;
+        case 0x81: { u8 zp = (cpu_read(cpu_pc) + cpu_x) & 0xFF; cpu_pc++; cpu_write(cpu_read16_bug((unsigned short)zp), cpu_a); cpu_cycles = 6; break; }
+        case 0x91: { u8 zp = cpu_read(cpu_pc); cpu_pc++; cpu_write(cpu_read16_bug((unsigned short)zp) + (unsigned short)cpu_y, cpu_a); cpu_cycles = 6; break; }
 
-    // ---- STX ----
-    case 0x86: cpu_write((unsigned short)cpu_read(cpu_pc), cpu_x); cpu_pc++; cpu_cycles=3; break;
-    case 0x96: cpu_write((unsigned short)((cpu_read(cpu_pc)+cpu_y)&0xFF), cpu_x); cpu_pc++; cpu_cycles=4; break;
-    case 0x8E: addr=cpu_read16(cpu_pc); cpu_pc+=2; cpu_write(addr, cpu_x); cpu_cycles=4; break;
+        // ---- STX ----
+        case 0x86: cpu_write((unsigned short)cpu_read(cpu_pc), cpu_x); cpu_pc++; cpu_cycles = 3; break;
+        case 0x96: cpu_write((unsigned short)((cpu_read(cpu_pc) + cpu_y) & 0xFF), cpu_x); cpu_pc++; cpu_cycles = 4; break;
+        case 0x8E: addr = cpu_read16(cpu_pc); cpu_pc += 2; cpu_write(addr, cpu_x); cpu_cycles = 4; break;
 
-    // ---- STY ----
-    case 0x84: cpu_write((unsigned short)cpu_read(cpu_pc), cpu_y); cpu_pc++; cpu_cycles=3; break;
-    case 0x94: cpu_write((unsigned short)((cpu_read(cpu_pc)+cpu_x)&0xFF), cpu_y); cpu_pc++; cpu_cycles=4; break;
-    case 0x8C: addr=cpu_read16(cpu_pc); cpu_pc+=2; cpu_write(addr, cpu_y); cpu_cycles=4; break;
+        // ---- STY ----
+        case 0x84: cpu_write((unsigned short)cpu_read(cpu_pc), cpu_y); cpu_pc++; cpu_cycles = 3; break;
+        case 0x94: cpu_write((unsigned short)((cpu_read(cpu_pc) + cpu_x) & 0xFF), cpu_y); cpu_pc++; cpu_cycles = 4; break;
+        case 0x8C: addr = cpu_read16(cpu_pc); cpu_pc += 2; cpu_write(addr, cpu_y); cpu_cycles = 4; break;
 
-    // ---- Transfer ----
-    case 0xAA: cpu_x = cpu_a; cpu_set_zn(cpu_x); cpu_cycles = 2; break; // TAX
-    case 0xA8: cpu_y = cpu_a; cpu_set_zn(cpu_y); cpu_cycles = 2; break; // TAY
-    case 0xBA: cpu_x = cpu_sp; cpu_set_zn(cpu_x); cpu_cycles = 2; break; // TSX
-    case 0x8A: cpu_a = cpu_x; cpu_set_zn(cpu_a); cpu_cycles = 2; break; // TXA
-    case 0x9A: cpu_sp = cpu_x; cpu_cycles = 2; break;                   // TXS
-    case 0x98: cpu_a = cpu_y; cpu_set_zn(cpu_a); cpu_cycles = 2; break; // TYA
+        // ---- Transfer ----
+        case 0xAA: cpu_x = cpu_a; cpu_set_zn(cpu_x); cpu_cycles = 2; break; // TAX
+        case 0xA8: cpu_y = cpu_a; cpu_set_zn(cpu_y); cpu_cycles = 2; break; // TAY
+        case 0xBA: cpu_x = cpu_sp; cpu_set_zn(cpu_x); cpu_cycles = 2; break; // TSX
+        case 0x8A: cpu_a = cpu_x; cpu_set_zn(cpu_a); cpu_cycles = 2; break; // TXA
+        case 0x9A: cpu_sp = cpu_x; cpu_cycles = 2; break; // TXS
+        case 0x98: cpu_a = cpu_y; cpu_set_zn(cpu_a); cpu_cycles = 2; break; // TYA
 
-    // ---- Unofficial NOPs ----
-    default: {
-        // Treat unknown opcodes as NOPs with appropriate byte skip
-        // Single-byte NOPs
-        u8 hi_nib = (opcode >> 4) & 0x0F;
-        u8 lo_nib = opcode & 0x0F;
-        if (lo_nib == 0x02 && hi_nib != 0xA) { cpu_pc++; cpu_cycles = 2; }
-        else if (lo_nib == 0x04 && (hi_nib & 1) == 0) { cpu_pc++; cpu_cycles = 3; }
-        else if (lo_nib == 0x0C && hi_nib == 0x0) { addr=cpu_read16(cpu_pc); cpu_pc+=2; cpu_cycles = 4; }
-        else if (lo_nib == 0x0C && (hi_nib & 1) == 1) { addr=cpu_read16(cpu_pc)+(unsigned short)cpu_x; cpu_pc+=2; cpu_cycles = 4; }
-        else if (lo_nib == 0x04 && (hi_nib & 1) == 1) { cpu_pc++; cpu_cycles = 4; }
-        else { cpu_cycles = 2; }
-        break;
-    }
+        // ---- Unofficial NOPs ----
+        default: {
+            // Treat unknown opcodes as NOPs with appropriate byte skip
+            // Single-byte NOPs
+            u8 hi_nib = (opcode >> 4) & 0x0F;
+            u8 lo_nib = opcode & 0x0F;
+            if (lo_nib == 0x02 && hi_nib != 0xA) { cpu_pc++; cpu_cycles = 2; }
+            else if (lo_nib == 0x04 && (hi_nib & 1) == 0) { cpu_pc++; cpu_cycles = 3; }
+            else if (lo_nib == 0x0C && hi_nib == 0x0) { addr = cpu_read16(cpu_pc); cpu_pc += 2; cpu_cycles = 4; }
+            else if (lo_nib == 0x0C && (hi_nib & 1) == 1) { addr = cpu_read16(cpu_pc) + (unsigned short)cpu_x; cpu_pc += 2; cpu_cycles = 4; }
+            else if (lo_nib == 0x04 && (hi_nib & 1) == 1) { cpu_pc++; cpu_cycles = 4; }
+            else { cpu_cycles = 2; }
+            break;
+        }
     } // end switch
 
     cpu_total_cycles = cpu_total_cycles + cpu_cycles;
