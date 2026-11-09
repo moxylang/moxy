@@ -456,7 +456,7 @@ print(await a + await b);
 
 `#include "file.mxy"` brings another Moxy file into the program. Moxy resolves the path in this order:
 
-1. next to the including file;
+1. next to the including file (a file never resolves to itself, so `tests/words.mxy` can include `words.mxy` from `src/`);
 2. the project's `src/` and configured include directories;
 3. each dependency's directory;
 4. the embedded standard library (`std/...`).
@@ -482,7 +482,24 @@ void log(string s) { }
 - **Strings.** Pass a `string` wherever C wants a `const char *`. Turn C strings into Moxy strings with `string(p)` or by assigning to a `string` variable, which copies. String literals passed to C functions stay plain C literals, so format checking keeps working.
 - **Values Moxy can't see into** (`FILE *`, `size_t`, `struct stat`) flow through unchanged. Moxy refuses to turn them into lists or maps.
 - **@type.** `@type Name` declares a C typedef name so the parser treats it as a type before any header is seen. This is rarely needed: common C typedefs and any `Name name` declaration are recognized automatically.
+- **Headers next to your code.** `#include "native.h"` finds headers beside any `.mxy` file in the program; their directories are passed to the C compiler.
+- **Types as macro arguments.** C macros that take a type work as you'd expect: `va_arg(ap, int)`, `offsetof(Point, y)`.
 - **Generated C** is plain C11 with the GNU builtins `__atomic_*` and `__attribute__`, which gcc and clang support. `moxy emit file.mxy` shows it.
+
+### C syntax Moxy doesn't parse
+
+Moxy parses your C, so it reads only the C it understands. These extensions are not accepted in `.mxy` code. They're fine inside C headers you `#include` and in the body of a `#define`, because Moxy passes both to the C compiler untouched (a macro *used* where a declaration keyword belongs is not understood).
+
+| Construct | Workaround |
+|---|---|
+| `__attribute__((...))` on declarations | declare it in a `.h` file and `#include` it; the definition can stay in Moxy |
+| `_Alignas(n)` | declare the variable or struct in a `.h` file |
+| `_Generic(...)` used directly in code | use it inside a `#define` macro |
+| statement expressions `({ ... })` | a helper function or a block |
+| designator ranges `[0 ... 9] = x` | a loop, or list each element |
+| K&R function definitions `int f(a) int a; {}` | prototype-style parameters |
+| `string`, `bool`, `true`, `false`, `null` as names | they're reserved; rename the variable |
+| inline assembly with operands (`asm("..." : "=r"(x))`) | put it in a C file listed under `sources` in `moxy.yaml` |
 
 ## Standard library
 

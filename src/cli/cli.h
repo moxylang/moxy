@@ -20,6 +20,7 @@ typedef struct {
 
 char *compile_to_c(const char *path, const CompileOpts *o, int *uses_threads, int *has_main);
 int check_file(const char *path, int lint);
+void source_dirs(StrList *out);
 
 /* cc.c: C -> binary */
 typedef struct {

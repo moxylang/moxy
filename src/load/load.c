@@ -16,6 +16,12 @@ void load_add_include_dir(const char *dir) {
     vec_push(include_dirs, xstrdup(dir));
 }
 
+int load_dirs_mark(void) { return include_dirs.len; }
+
+void load_dirs_restore(int mark) {
+    while (include_dirs.len > mark) free(include_dirs.items[--include_dirs.len]);
+}
+
 void load_reset(void) {
     for (int i = 0; i < loaded.len; i++) free(loaded.items[i]);
     loaded.len = 0;
@@ -52,35 +58,41 @@ static char *include_target(const char *text, int *angle) {
     return xstrndup(p + 1, (size_t)(end - p - 1));
 }
 
-static void load_into(TokenVec *out, int file, const char *dir);
+static void load_into(TokenVec *out, int file, const char *dir, const char *self);
 
-static int resolve(const char *target, const char *dir, char **real, const char **embedded) {
+/* an existing candidate other than the including file itself */
+static int usable(const char *cand, const char *self, char **real) {
+    if (!file_exists(cand)) return 0;
+    char *r = path_real(cand);
+    if (self && strcmp(r, self) == 0) {
+        free(r);
+        return 0;
+    }
+    *real = r;
+    return 1;
+}
+
+static int resolve(const char *target, const char *dir, const char *self, char **real, const char **embedded) {
     *real = NULL;
     *embedded = NULL;
     char *cand = path_join(dir, target);
-    if (file_exists(cand)) {
-        *real = path_real(cand);
-        free(cand);
-        return 1;
-    }
+    int found = usable(cand, self, real);
     free(cand);
+    if (found) return 1;
     for (int i = 0; i < include_dirs.len; i++) {
         cand = path_join(include_dirs.items[i], target);
-        if (file_exists(cand)) {
-            *real = path_real(cand);
-            free(cand);
-            return 1;
-        }
+        found = usable(cand, self, real);
         free(cand);
+        if (found) return 1;
     }
     *embedded = embed_std(target);
     return *embedded != NULL;
 }
 
-static void splice(TokenVec *out, Token *dir_tok, const char *target, const char *dir) {
+static void splice(TokenVec *out, Token *dir_tok, const char *target, const char *dir, const char *self) {
     char *real;
     const char *embedded;
-    if (!resolve(target, dir, &real, &embedded)) {
+    if (!resolve(target, dir, self, &real, &embedded)) {
         diag_error(dir_tok->loc, "cannot find '%s'", target);
         diag_hint("looked next to the including file, in include paths, and in the standard library");
         return;
@@ -95,6 +107,7 @@ static void splice(TokenVec *out, Token *dir_tok, const char *target, const char
     char *text;
     int file;
     char *subdir;
+    char *child_self = real ? xstrdup(real) : NULL;
     if (real) {
         text = file_read(real);
         if (!text) {
@@ -112,11 +125,12 @@ static void splice(TokenVec *out, Token *dir_tok, const char *target, const char
         file = diag_add_file(target, target, text);
         subdir = xstrdup(".");
     }
-    load_into(out, file, subdir);
+    load_into(out, file, subdir, child_self);
     free(subdir);
+    free(child_self);
 }
 
-static void load_into(TokenVec *out, int file, const char *dir) {
+static void load_into(TokenVec *out, int file, const char *dir, const char *self) {
     const SrcFile *f = diag_file(file);
     TokenVec toks = lex_file(file, f->text);
     for (int i = 0; i < toks.len; i++) {
@@ -126,7 +140,7 @@ static void load_into(TokenVec *out, int file, const char *dir) {
             int angle = 0;
             char *target = include_target(t->text, &angle);
             if (target && str_ends(target, ".mxy")) {
-                splice(out, t, target, dir);
+                splice(out, t, target, dir, self);
                 free(target);
                 continue;
             }
@@ -156,7 +170,7 @@ TokenVec load_program(const char *path) {
     char *disp = display_path(real);
     int file = diag_add_file(disp, disp, text);
     char *dir = path_dir(real);
-    load_into(&out, file, dir);
+    load_into(&out, file, dir, real);
     free(dir);
     free(disp);
     free(real);
@@ -167,7 +181,7 @@ TokenVec load_source(const char *display, const char *src) {
     TokenVec out = {0};
     int file = diag_add_file(display, display, xstrdup(src));
     char *dir = path_dir(display);
-    load_into(&out, file, dir);
+    load_into(&out, file, dir, NULL);
     free(dir);
     return finish(out, file);
 }

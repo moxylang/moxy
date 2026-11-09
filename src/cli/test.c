@@ -144,11 +144,13 @@ static Outcome run_one(const char *path, int sanitize, int release, char **why) 
     char *bin = xfmt("%s/test", tmp);
     char *out = xfmt("%s/stdout", tmp);
     char *dir = path_dir(path);
+    int mark = load_dirs_mark();
     load_add_include_dir(dir);
     char *errfile = errors_path(path);
     if (file_exists(errfile)) {
         char *log = xfmt("%s/stderr", tmp);
         Outcome r = expect_failure(path, errfile, log, why) ? T_PASS : T_FAIL;
+        load_dirs_restore(mark);
         remove_tree(tmp);
         return r;
     }
@@ -166,6 +168,7 @@ static Outcome run_one(const char *path, int sanitize, int release, char **why) 
         CcOpts cc = {0};
         char *cflags = NULL, *ldflags = NULL;
         project_flags_for(dir, &cflags, &ldflags, &cc.includes, &cc.sources);
+        source_dirs(&cc.includes);
         cc.cflags = cflags;
         cc.ldflags = ldflags;
         cc.output = bin;
@@ -201,6 +204,7 @@ static Outcome run_one(const char *path, int sanitize, int release, char **why) 
             if (result == T_FAIL && got && *got && !file_exists(exp_path)) fputs(got, stderr);
         }
     }
+    load_dirs_restore(mark);
     remove_tree(tmp);
     return result;
 }

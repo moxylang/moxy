@@ -65,6 +65,7 @@ static int build_binary(const FileArgs *a, const char *out, const char *cpath) {
     CcOpts cc = {0};
     char *cflags = NULL, *ldflags = NULL;
     project_flags_for(dir, &cflags, &ldflags, &cc.includes, &cc.sources);
+    source_dirs(&cc.includes);
     cc.cflags = cflags;
     cc.ldflags = ldflags;
     cc.output = out;

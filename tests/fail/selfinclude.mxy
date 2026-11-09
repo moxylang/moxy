@@ -1,0 +1,4 @@
+// a file never includes itself; the search continues past it
+#include "selfinclude.mxy"
+
+void main() {}

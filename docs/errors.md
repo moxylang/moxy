@@ -34,7 +34,7 @@ In the messages below, `<name>`, `<type>` and `<n>` stand for the actual values.
 | `unexpected character '<c>'` | a byte that isn't part of the language, often a stray Unicode character |
 | `unterminated '\(' in string interpolation` | `"\(x"` is missing the closing `)` |
 | `unexpected <token> in interpolation` | `"\(a b)"`: the interpolated part must be one expression |
-| `cannot find '<file>'` | `#include "x.mxy"` wasn't found next to the including file, in an include directory or dependency, or in the standard library |
+| `cannot find '<file>'` | `#include "x.mxy"` wasn't found next to the including file, in an include directory or dependency, or in the standard library; a file never resolves to itself |
 | `cannot read '<file>'` | the file exists but couldn't be read |
 
 ## Syntax
@@ -46,7 +46,7 @@ In the messages below, `<name>`, `<type>` and `<n>` stand for the actual values.
 | `unexpected '<token>' in expression` | an expression was expected, for example `int x = ;` |
 | `unexpected end of file in expression` | the file ended mid-expression |
 | `expected a declaration` | something at file level that isn't a declaration, function or directive |
-| `expected a name in declaration, found '<token>'` | e.g. `int = 5;` |
+| `expected a name in declaration, found '<token>'` | e.g. `int = 5;`, or a reserved word used as a name: `char *string;` |
 | `expected a name or '{' after 'struct'` | `struct` with neither a tag nor a body |
 | `expected a type`, `expected a parameter type`, `expected a field declaration` | a type was required here |
 | `functions cannot be defined inside other functions` | nested function definitions; use a lambda |
@@ -56,6 +56,8 @@ In the messages below, `<name>`, `<type>` and `<n>` stand for the actual values.
 | `'string' is a type; did you mean string(value)?` | `string` used where a value is expected |
 | `unclosed match` | a `match` block was never closed |
 | `#else without #if`, `#elif without #if`, `#endif without #if`, `unterminated #if block` | unbalanced conditional directives |
+
+Unsupported C extensions such as `__attribute__((...))` on a declaration also show up as syntax errors; see [C syntax Moxy doesn't parse](book/reference.md#c-syntax-moxy-doesnt-parse) for workarounds.
 
 A `;` can be left off an expression statement when the next token starts a new line. Declarations always need their `;`:
 

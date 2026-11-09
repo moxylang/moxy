@@ -7,6 +7,10 @@
 void load_add_include_dir(const char *dir);
 void load_reset(void);
 
+/* include directories added after a mark can be dropped again (per test) */
+int load_dirs_mark(void);
+void load_dirs_restore(int mark);
+
 /* read, lex and splice includes (each .mxy file at most once) */
 TokenVec load_program(const char *path);
 

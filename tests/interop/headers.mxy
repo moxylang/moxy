@@ -1,0 +1,11 @@
+// a C header next to the source is found, and its attributes apply
+#include "native.h"
+
+int triple(int x) { return x * 3; }
+
+void main() {
+    Packed p;
+    p.value = 7;
+    assert(sizeof(Packed) == 5);
+    assert(triple(p.value) == 21);
+}

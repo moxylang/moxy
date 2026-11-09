@@ -1,6 +1,7 @@
 #include "cli.h"
 
 #include <setjmp.h>
+#include <string.h>
 
 #include "diag/diag.h"
 #include "gen/gen.h"
@@ -8,7 +9,23 @@
 #include "parse/parse.h"
 #include "sema/sema.h"
 
+static int first_file;
+
+/* directories of the .mxy files in the last compile, so their C headers resolve */
+void source_dirs(StrList *out) {
+    for (int i = first_file; i < diag_file_count(); i++) {
+        const SrcFile *f = diag_file(i);
+        char *dir = path_dir(f->path);
+        int dup = !dir_exists(dir);
+        for (int j = 0; j < out->len && !dup; j++)
+            if (strcmp(out->items[j], dir) == 0) dup = 1;
+        if (dup) free(dir);
+        else vec_push(*out, dir);
+    }
+}
+
 static char *compile_inner(const char *path, const CompileOpts *o, int *uses_threads, int *has_main) {
+    first_file = diag_file_count();
     diag_reset();
     load_reset();
     TokenVec toks = load_program(path);

@@ -39,6 +39,9 @@ A rewrite of the compiler and runtime. Most 0.2 programs compile unchanged; the 
 - Errors report the right file and line after includes, and C compiler errors map back to `.mxy` lines through `#line`.
 - `#if`/`#ifdef`/`#else` are honored around declarations and inside functions, so each branch can define the same function.
 - String literals passed to C functions stay plain C literals (format checking works).
+- Types can be passed to C macros (`va_arg(ap, int)`, `offsetof(T, f)`).
+- C headers next to any `.mxy` file are found, in single-file builds, tests and projects.
+- An include never resolves to the including file, so a test can share its module's name (`tests/words.mxy` including `src/words.mxy`).
 
 ### Safety
 

@@ -8,8 +8,11 @@
    Notation (ISO EBNF): "x" is a terminal, [ x ] is optional, { x } is
    zero or more, ( x | y ) groups alternatives, rules end with ';'.
 
-   Not accepted: K&R function definitions, __attribute__, _Generic,
-   _Alignas, _Atomic and inline asm. *)
+   Not accepted in .mxy code (fine inside macros and C headers): K&R
+   function definitions, __attribute__, _Generic, _Alignas, _Atomic,
+   statement expressions ({ ... }), designator ranges [a ... b], and asm
+   statements with operands. string, bool, true, false and null cannot
+   be used as names. *)
 
 
 (* ---- 1. Lexical structure ----------------------------------------- *)

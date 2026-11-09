@@ -1,6 +1,6 @@
 # Moxy
 
-Moxy is C with the conveniences you reach for every day: real strings, growable lists, hash maps, tagged enums with `match`, `Result` errors, closures, futures, namespaces, and automatic memory management. It compiles to plain, readable C11, and every line of existing C still works.
+Moxy is C with the conveniences you reach for every day: real strings, growable lists, hash maps, tagged enums with `match`, `Result` errors, closures, futures, namespaces, and automatic memory management. It compiles to plain, readable C11, and ordinary C code works unchanged inside a `.mxy` file. A few compiler extensions don't parse; [Working with C](docs/book/reference.md#working-with-c) lists them.
 
 ```c
 #include "std/io.mxy"
@@ -291,8 +291,6 @@ A dependency's `.mxy` files can be included by name (`#include "lib.mxy"`). Libr
 | `moxy lint [paths]` | unused variables, shadowing, empty blocks |
 | `moxy check [paths]` | type-check only |
 | `moxy emit file.mxy [-o out.c]` | the generated C |
-| `tools/moxylsp` | language server (diagnostics, hover, completion, symbols) |
-| `tools/editors/zed` | Zed extension |
 
 Errors look like this, and C compiler errors in generated code point back to your `.mxy` lines:
 
@@ -304,6 +302,23 @@ error: match is not exhaustive; missing Color::Blue
    |     ^^^^^
   = help: add the missing arms or a '_ =>' arm
 ```
+
+### Editor support
+
+**Language server.** `tools/moxylsp` provides diagnostics, hover, completion and document symbols. Build it with the `moxy` you're using and put it on your `PATH`:
+
+```sh
+make -C tools/moxylsp MOXY=moxy        # or MOXY=../../build/moxy from a source checkout
+cp tools/moxylsp/moxylsp ~/.local/bin/
+```
+
+**Zed.** Copy the extension into Zed's extensions directory. It uses `moxylsp` from your `PATH`:
+
+```sh
+cp -r tools/editors/zed ~/.config/zed/extensions/moxy
+```
+
+Other editors can use any C syntax mode for `.mxy` files and connect to `moxylsp` over stdio.
 
 ## Documentation
 

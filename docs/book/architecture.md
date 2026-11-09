@@ -19,7 +19,7 @@
 
 `load_program` reads the entry file and lexes it. For every `#include "x.mxy"`, it resolves the path in this order:
 
-1. relative to the including file;
+1. relative to the including file (never the including file itself);
 2. registered include directories (project `src/`, configured includes, dependency directories);
 3. the standard library embedded in the binary.
 
@@ -120,6 +120,7 @@ The runtime is C, embedded into every generated program (`scripts/genembed.sh` t
 | File | Contents |
 |---|---|
 | `project.c` | the goose callbacks: `on_build` compiles the entry file (`src/main.mxy`, or `src/lib.mxy` for libraries) with include paths from configured includes and dependencies, adds extra C sources and dependency C sources, and links or archives; also `on_run`, `on_test`, `on_install`, the `new` template, and the `build:` keys `cc`, `cflags`, `ldflags` |
+| `compile.c` (also) | `source_dirs` lists the directory of every loaded `.mxy` file; builds pass them as `-I` so C headers next to sources resolve |
 | `test.c` | finds tests, compiles each in-process, runs it, and compares against `.out`, `.code` or `.err` files |
 | `compile.c` | the pipeline in one call; errors jump back with `longjmp` instead of exiting, so one bad file doesn't stop a test run |
 

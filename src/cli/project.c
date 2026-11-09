@@ -126,6 +126,7 @@ static char *build_here(const Config *cfg, int release, const char *build_dir, c
     Buf cflags = {0};
     split_flags(conf.cflags, &cc.includes, &cflags);
     split_flags(flags, &cc.includes, &cflags);
+    source_dirs(&cc.includes);
     cc.cc = conf.cc;
     cc.cflags = buf_str(&cflags);
     cc.ldflags = conf.ldflags;
