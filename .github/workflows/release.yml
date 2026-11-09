@@ -83,7 +83,7 @@ jobs:
 
   build-macos-amd64:
     needs: prepare
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -101,7 +101,7 @@ jobs:
 
   build-macos-arm64:
     needs: prepare
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
         with:
