@@ -1,8 +1,8 @@
 class Moxy < Formula
   desc "C with modern conveniences and automatic memory management"
   homepage "https://github.com/wess/moxy"
-  url "https://github.com/wess/moxy/archive/refs/tags/v0.2.2.tar.gz"
-  sha256 "9cb25d3e9792289d132067451405e8bc0b46a76f849900b9a4ae8657145f49cb"
+  url "https://github.com/wess/moxy/archive/refs/tags/v0.3.1.tar.gz"
+  sha256 "5b659bdcac546f1726d038caa8826793d89b9104a3fcc397eaf5c97b1bd2f70b"
   license "MIT"
 
   head "https://github.com/wess/moxy.git", branch: "main"
