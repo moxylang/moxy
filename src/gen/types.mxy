@@ -97,6 +97,8 @@ static void emit_fields(Buf *b, Node *decl, int indent) {
     }
 }
 
+static MacroCursor fwd_macros, type_macros;
+
 static void emit_struct(Type *u) {
     Node *decl = u->decl;
     Buf b = {0};
@@ -111,7 +113,9 @@ static void emit_struct(Type *u) {
     if (!decl->list.len && !u->is_ref) buf_put(&b, "    char __empty;\n");
     buf_put(&b, "};\n");
     close_cond(&b, decl->cond);
+    macros_at(&type_macros, &out.types, decl);
     buf_put(&out.types, buf_str(&b));
+    macros_after(&type_macros, decl);
     buf_free(&b);
 }
 
@@ -122,6 +126,7 @@ static void emit_tagged_enum(Type *u) {
         for (int j = 0; j < v->params.len; j++) value_deps(v->params.items[j].type->resolved);
     }
     Buf *b = &out.types;
+    macros_at(&type_macros, b, decl);
     open_cond(b, decl->cond);
     buf_fmt(b, "struct %s {\n    %s_Tag tag;\n    union {\n", u->cname, u->cname);
     for (int i = 0; i < decl->list.len; i++) {
@@ -180,6 +185,7 @@ static void emit_def(Type *t) {
 static void emit_cenum(Node *decl) {
     Type *t = decl->type;
     Buf *b = &out.fwd;
+    macros_at(&fwd_macros, b, decl);
     open_cond(b, decl->cond);
     if (t->cname && str_starts(t->cname, "enum ")) buf_fmt(b, "%s {\n", t->cname);
     else if (t->cname) buf_put(b, "typedef enum {\n");
@@ -204,6 +210,7 @@ static void emit_cenum(Node *decl) {
 static void emit_moxy_enum_head(Node *decl) {
     Type *t = decl->type;
     Buf *b = &out.fwd;
+    macros_at(&fwd_macros, b, decl);
     open_cond(b, decl->cond);
     buf_put(b, "typedef enum {\n");
     for (int i = 0; i < decl->list.len; i++) buf_fmt(b, "    %s_%s,\n", t->cname, decl->list.items[i]->name);
@@ -266,6 +273,7 @@ static void emit_typedef(Node *td) {
         free(cn);
         return;
     }
+    macros_at(&type_macros, &out.types, td);
     open_cond(&out.types, td->cond);
     char *d = cdecl(rt, cn);
     buf_fmt(&out.types, "typedef %s;\n", d);
@@ -275,6 +283,8 @@ static void emit_typedef(Node *td) {
 }
 
 void emit_types(void) {
+    fwd_macros = macros_begin();
+    type_macros = macros_begin();
     for (int i = 0; i < prog.cenums.len; i++) emit_cenum(prog.cenums.items[i]);
     for (int i = 0; i < prog.enums.len; i++) emit_moxy_enum_head(prog.enums.items[i]);
     for (int i = 0; i < prog.structs.len; i++) {
@@ -301,6 +311,8 @@ void emit_types(void) {
     }
     /* results may be discovered while emitting, so loop until stable */
     for (int i = 0; i < results.len; i++) emit_def(results.items[i]);
+    macros_end(&fwd_macros, &out.fwd);
+    macros_end(&type_macros, &out.types);
 }
 
 void types_reset_gen(void) {

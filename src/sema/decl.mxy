@@ -133,6 +133,7 @@ static void pass_declare(Node *root) {
         if (n->kind == N_TYPEDEF && n->tref->kind == TR_TAG && n->tref->def && !n->tref->def->name) {
             n->tref->def->ns = n->ns;
             n->tref->def->cond = n->cond;
+            n->tref->def->pos = n->pos;
             if (n->tref->def->kind == N_STRUCT) define_struct(n->tref->def, n->name);
         }
     }

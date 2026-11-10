@@ -465,6 +465,8 @@ Each file is included once, no matter how many times or in what order it's inclu
 
 `#include <header.h>` and `#include "header.h"` are C includes, passed to the C compiler unchanged. `#define`, `#pragma` and the other directives also pass through.
 
+A macro defined once is visible to the whole program, so modules can include each other in any order. A macro that is redefined or `#undef`'d follows C: each use sees the definition in effect where it was written. Moxy's runtime comes before your directives, so your macros never change it.
+
 Conditional compilation works anywhere, including around declarations, inside function bodies and inside struct bodies. Two definitions of the same function or global in different branches are allowed:
 
 ```c

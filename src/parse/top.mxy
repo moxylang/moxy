@@ -126,6 +126,7 @@ static void top_directive(Token *t, NodeList *out, const char *ns) {
     } else {
         Node *d = mk(N_DIRECTIVE, t->loc);
         d->text = xstrdup(t->text);
+        d->pos = P.pos - 1;
         d->cond = current_cond();
         d->ns = xstrdup(ns);
         vec_push(*out, d);
@@ -145,13 +146,15 @@ static void at_type(void) {
 
 static void parse_top_list(NodeList *out, const char *ns, int until_brace);
 
-static void add_decl(NodeList *out, Node *n, const char *ns) {
+static void add_decl(NodeList *out, Node *n, const char *ns, int start) {
+    n->pos = start;
     n->cond = current_cond();
     n->ns = xstrdup(ns);
     vec_push(*out, n);
 }
 
 static void parse_top_one(NodeList *out, const char *ns) {
+    int start = P.pos;
     Token *t = peek();
     if (t->kind == T_DIRECTIVE) {
         next();
@@ -195,11 +198,11 @@ static void parse_top_one(NodeList *out, const char *ns) {
         expect(P_SEMI, "';'");
         Node *u = mk(N_USING, kw->loc);
         u->name = buf_take(&path);
-        add_decl(out, u, ns);
+        add_decl(out, u, ns, start);
         return;
     }
     if (t->kind == K_STATIC_ASSERT) {
-        add_decl(out, parse_stmt(), ns);
+        add_decl(out, parse_stmt(), ns, start);
         return;
     }
     int is_ref = 0;
@@ -208,14 +211,14 @@ static void parse_top_one(NodeList *out, const char *ns) {
         is_ref = 1;
     }
     if (moxy_enum_ahead()) {
-        add_decl(out, parse_moxy_enum(), ns);
+        add_decl(out, parse_moxy_enum(), ns, start);
         return;
     }
     Node *group = parse_decl_group(1);
     for (int i = 0; i < group->list.len; i++) {
         Node *d = group->list.items[i];
         if (is_ref && d->kind == N_STRUCT) d->flags |= F_REF;
-        add_decl(out, d, ns);
+        add_decl(out, d, ns, start);
     }
     free(group->list.items);
     free(group);

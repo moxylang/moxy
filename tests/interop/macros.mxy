@@ -1,0 +1,37 @@
+// a macro that is redefined or #undef'd means what it meant where it was used, as in C
+#define _POSIX_C_SOURCE 200809L
+#include <stdio.h>
+
+#define SIZE 2
+struct Small { int v[SIZE]; }
+int small_len = SIZE;
+#undef SIZE
+#define SIZE 5
+struct Big { int v[SIZE]; }
+int big_len = SIZE;
+
+#define SCALE 10
+int scaled(int x) { return x * SCALE; }
+fn(int) -> int scaler() { return (int x) => x * SCALE; }
+#undef SCALE
+#define SCALE 100
+int scaled_more(int x) { return x * SCALE; }
+
+#define TMP 1
+int with_tmp() { return TMP; }
+#undef TMP
+int TMP = 7;
+
+// short macro names don't reach the runtime
+#define len 3
+
+void main() {
+    assert(sizeof(Small) / sizeof(int) == 2 && small_len == 2);
+    assert(sizeof(Big) / sizeof(int) == 5 && big_len == 5);
+    assert(scaled(1) == 10 && scaler()(1) == 10 && scaled_more(1) == 100);
+    assert(with_tmp() == 1 && TMP == 7);
+    int a[len];
+    assert(sizeof(a) / sizeof(a[0]) == 3);
+    string s = "four";
+    assert(s.len == 4);
+}

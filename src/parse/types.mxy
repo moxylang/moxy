@@ -304,6 +304,7 @@ Node *parse_struct_body(Node *s) {
     while (!at(P_RBRACE)) {
         if (at(T_DIRECTIVE)) {
             Node *d = node_new(N_DIRECTIVE, peek()->loc);
+            d->pos = P.pos;
             d->text = xstrdup(next()->text);
             vec_push(s->list, d);
             continue;

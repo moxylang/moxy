@@ -6,6 +6,7 @@ Node *node_new(NodeKind kind, Loc loc) {
     Node *n = xcalloc(1, sizeof(Node));
     n->kind = kind;
     n->loc = loc;
+    n->pos = -1;
     return n;
 }
 

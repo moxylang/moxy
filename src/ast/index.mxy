@@ -171,6 +171,7 @@ struct Node {
     char *text;
     char *cond;      /* enclosing preprocessor condition (top level) */
     char *ns;        /* enclosing namespace path (top level), "" for global */
+    int pos;         /* index of the node's first token in the spliced stream, -1 if unknown */
     Node *a, *b, *c, *d;
     NodeList list;
     TypeRef *tref;

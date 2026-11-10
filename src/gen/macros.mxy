@@ -1,0 +1,170 @@
+#include <ctype.h>
+#include <stdint.h>
+#include <string.h>
+
+#include "index.mxy"
+
+/* Macros that are redefined or #undef'd follow C's positional rules: each piece of user
+   code is emitted with the definitions in effect where it was written. A macro defined
+   once stays visible everywhere, so included modules can come in any order. */
+
+typedef struct {
+    char *name;
+    NodeList dirs; /* its top-level #define and #undef, in source order */
+    int undefs;    /* how many of dirs are #undef */
+} MacroHist;
+
+typedef struct {
+    MacroHist *items;
+    int len;
+    int cap;
+} MacroHistList;
+
+static MacroHistList hist;
+static StrMap hist_index; /* name -> index + 1 */
+
+/* the macro a #define or #undef acts on, or NULL for any other directive */
+char *macro_target(const char *text, int *is_undef) {
+    const char *p = text;
+    while (*p == ' ' || *p == '\t') p++;
+    if (*p == '#') p++;
+    while (*p == ' ' || *p == '\t') p++;
+    int def = str_starts(p, "define") && (p[6] == ' ' || p[6] == '\t');
+    int undef = str_starts(p, "undef") && (p[5] == ' ' || p[5] == '\t');
+    if (!def && !undef) return NULL;
+    p += def ? 6 : 5;
+    while (*p == ' ' || *p == '\t') p++;
+    const char *s = p;
+    while (*p == '_' || isalnum((unsigned char)*p)) p++;
+    if (p == s) return NULL;
+    if (is_undef) *is_undef = undef;
+    return xstrndup(s, (size_t)(p - s));
+}
+
+/* feature-test macros configure the system headers, so they go before everything */
+int macro_is_feature(const char *text) {
+    char *name = macro_target(text, NULL);
+    if (!name) return 0;
+    int yes = name[0] == '_' && (str_ends(name, "_SOURCE") || str_eq(name, "_FILE_OFFSET_BITS") ||
+                                 str_eq(name, "_TIME_BITS") || str_eq(name, "_REENTRANT") ||
+                                 str_eq(name, "_THREAD_SAFE") || str_eq(name, "_XOPEN_SOURCE_EXTENDED"));
+    free(name);
+    return yes;
+}
+
+static int hist_find(const char *name) { return (int)(intptr_t)strmap_get(&hist_index, name) - 1; }
+
+void macros_init(void) {
+    for (int i = 0; i < hist.len; i++) {
+        free(hist.items[i].name);
+        free(hist.items[i].dirs.items);
+    }
+    hist.len = 0;
+    strmap_free(&hist_index);
+
+    MacroHistList all = {0};
+    StrMap index = {0};
+    for (int i = 0; i < prog.directives.len; i++) {
+        Node *d = prog.directives.items[i];
+        int undef = 0;
+        char *name = macro_target(d->text, &undef);
+        if (!name || d->pos < 0 || macro_is_feature(d->text)) {
+            free(name);
+            continue;
+        }
+        int at = (int)(intptr_t)strmap_get(&index, name) - 1;
+        if (at < 0) {
+            MacroHist h = {name, {0}, 0};
+            vec_push(all, h);
+            at = all.len - 1;
+            strmap_put(&index, name, (void *)(intptr_t)(at + 1));
+        } else {
+            free(name);
+        }
+        vec_push(all.items[at].dirs, d);
+        all.items[at].undefs += undef;
+    }
+    strmap_free(&index);
+
+    /* only names that change need tracking */
+    for (int i = 0; i < all.len; i++) {
+        MacroHist *h = &all.items[i];
+        if (h->dirs.len == 1 && !h->undefs) {
+            free(h->name);
+            free(h->dirs.items);
+            continue;
+        }
+        vec_push(hist, *h);
+        strmap_put(&hist_index, h->name, (void *)(intptr_t)hist.len);
+    }
+    free(all.items);
+}
+
+MacroCursor macros_begin(void) {
+    MacroCursor c = {NULL};
+    if (!hist.len) return c;
+    c.have = xcalloc((size_t)hist.len, sizeof(int));
+    for (int i = 0; i < hist.len; i++) c.have[i] = hist.items[i].dirs.len;
+    return c;
+}
+
+static void replay(Buf *b, MacroHist *h, int from, int to) {
+    for (int i = from; i < to; i++) {
+        Node *d = h->dirs.items[i];
+        if (d->cond) buf_fmt(b, "#if %s\n", d->cond);
+        buf_fmt(b, "%s\n", d->text);
+        if (d->cond) buf_put(b, "#endif\n");
+    }
+}
+
+static void move_to(MacroCursor *cur, Buf *b, int i, int need) {
+    MacroHist *h = &hist.items[i];
+    int have = cur->have[i];
+    if (have == need) return;
+    if (have < 0 || have > need) {
+        buf_fmt(b, "#undef %s\n", h->name);
+        have = 0;
+    }
+    replay(b, h, have, need);
+    cur->have[i] = need;
+}
+
+/* emit what it takes for `item` to see the macros in effect where it was written */
+void macros_at(MacroCursor *cur, Buf *b, Node *item) {
+    if (!cur->have || !item || item->pos < 0) return;
+    for (int i = 0; i < hist.len; i++) {
+        NodeList *ds = &hist.items[i].dirs;
+        int need = 0;
+        while (need < ds->len && ds->items[need]->pos < item->pos) need++;
+        move_to(cur, b, i, need);
+    }
+}
+
+static void forget_nested(MacroCursor *cur, Node *n) {
+    if (!n) return;
+    if (n->kind == N_DIRECTIVE) {
+        char *name = macro_target(n->text, NULL);
+        int i = name ? hist_find(name) : -1;
+        if (i >= 0) cur->have[i] = -1;
+        free(name);
+        return;
+    }
+    forget_nested(cur, n->a);
+    forget_nested(cur, n->b);
+    forget_nested(cur, n->c);
+    forget_nested(cur, n->d);
+    for (int i = 0; i < n->list.len; i++) forget_nested(cur, n->list.items[i]);
+}
+
+/* a #define or #undef inside the item's body changed the output's state */
+void macros_after(MacroCursor *cur, Node *item) {
+    if (cur->have) forget_nested(cur, item);
+}
+
+/* leave the section with every macro in its final state */
+void macros_end(MacroCursor *cur, Buf *b) {
+    if (!cur->have) return;
+    for (int i = 0; i < hist.len; i++) move_to(cur, b, i, hist.items[i].dirs.len);
+    free(cur->have);
+    cur->have = NULL;
+}

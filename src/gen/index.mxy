@@ -152,9 +152,21 @@ void gen_loop(Node *n, Buf *b, int indent);
 /* match.mxy */
 void gen_match(Node *n, Buf *b, int indent);
 
+/* macros.mxy: where user code sees redefined macros */
+typedef struct {
+    int *have; /* per tracked macro: how many of its directives the output has applied, -1 unknown */
+} MacroCursor;
+
+void macros_init(void);
+int macro_is_feature(const char *text);
+MacroCursor macros_begin(void);
+void macros_at(MacroCursor *cur, Buf *b, Node *item);
+void macros_after(MacroCursor *cur, Node *item);
+void macros_end(MacroCursor *cur, Buf *b);
+
 /* func.mxy */
 void gen_function(Node *fn);
-void gen_lambdas(void);
+void gen_lambdas(MacroCursor *mc);
 char *lambda_value(Node *lam, Ctx *c, int *owned);
 char *fn_closure(Sym *fn);
 void gen_globals(void);
@@ -169,6 +181,7 @@ char *capture_ref(Sym *s);
 #include "helpers.mxy"
 #include "loop.mxy"
 #include "lvalue.mxy"
+#include "macros.mxy"
 #include "match.mxy"
 #include "out.mxy"
 #include "own.mxy"

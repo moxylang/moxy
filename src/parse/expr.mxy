@@ -5,7 +5,11 @@
 
 static Node *parse_postfix(void);
 
-static Node *mk(NodeKind kind, Loc loc) { return node_new(kind, loc); }
+static Node *mk(NodeKind kind, Loc loc) {
+    Node *n = node_new(kind, loc);
+    n->pos = P.pos;
+    return n;
+}
 
 static int binary_prec(TokKind k) {
     switch (k) {

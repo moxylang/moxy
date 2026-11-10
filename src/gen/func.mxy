@@ -218,8 +218,11 @@ static void gen_lambda(Node *lam) {
     cur_ret = saved_ret;
 }
 
-void gen_lambdas(void) {
-    for (int i = 0; i < prog.lambdas.len; i++) gen_lambda(prog.lambdas.items[i]);
+void gen_lambdas(MacroCursor *mc) {
+    for (int i = 0; i < prog.lambdas.len; i++) {
+        macros_at(mc, &out.funcs, prog.lambdas.items[i]);
+        gen_lambda(prog.lambdas.items[i]);
+    }
 }
 
 static int const_init(Node *n) {
@@ -266,6 +269,8 @@ static int const_init(Node *n) {
 
 void gen_globals(void) {
     Buf *g = &out.globals;
+    MacroCursor gm = macros_begin();
+    MacroCursor im = macros_begin();
     for (int i = 0; i < prog.globals.len; i++) {
         Node *v = prog.globals.items[i];
         Sym *s = v->sym;
@@ -275,6 +280,7 @@ void gen_globals(void) {
         Type *t = s->type;
         const char *st = (v->flags & F_EXTERN) && !v->a ? "extern " : (v->flags & F_STATIC) ? "static " : "";
         const char *tl = (v->flags & F_THREADLOCAL) ? "_Thread_local " : "";
+        macros_at(&gm, g, v);
         if (v->cond) buf_fmt(g, "#if %s\n", v->cond);
         char *d = cdecl(t, s->cname);
         if (!v->a) {
@@ -296,6 +302,7 @@ void gen_globals(void) {
             CExpr e = gen_init(v->a, t, &c);
             char *val = managed(t) ? consume(&c, e, t) : borrow(&c, e, t);
             if (val[0] == '{') val = xfmt("(%s)%s", ctype(t), val);
+            macros_at(&im, &out.init, v);
             if (v->cond) buf_fmt(&out.init, "#if %s\n", v->cond);
             buf_put(&out.init, buf_str(&c.pre));
             buf_fmt(&out.init, "    %s = %s;\n", s->cname, val);
@@ -305,20 +312,26 @@ void gen_globals(void) {
         }
         if (v->cond) buf_put(g, "#endif\n");
     }
+    macros_end(&gm, g);
+    macros_end(&im, &out.init);
 }
 
 void gen_prototypes(void) {
     StrMap done = {0};
+    MacroCursor mc = macros_begin();
     for (int i = 0; i < prog.funcs.len; i++) {
         Node *fn = prog.funcs.items[i];
         if (!fn->sym) continue;
         char *key = xfmt("%s|%s", fn->sym->cname, fn->cond ? fn->cond : "");
         if (strmap_get(&done, key)) continue;
         strmap_put(&done, key, (void *)1);
+        Node *decl = fn->a ? fn : fn->sym->decl ? fn->sym->decl : fn;
+        macros_at(&mc, &out.protos, decl);
         if (fn->cond) buf_fmt(&out.protos, "#if %s\n", fn->cond);
-        prototype(fn->a ? fn : fn->sym->decl ? fn->sym->decl : fn);
+        prototype(decl);
         if (fn->cond) buf_put(&out.protos, "#endif\n");
     }
+    macros_end(&mc, &out.protos);
     strmap_free(&done);
 }
 
