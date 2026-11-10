@@ -1348,7 +1348,7 @@ MXY_FN bool mxy_write_file(mxy_str path, mxy_str data, const char *mode) {
 #include <string.h>
 #include <string.h>
 #include <string.h>
-#define MOXY_VERSION_STR "0.3.0"
+#define MOXY_VERSION_STR "0.3.1"
 #include <string.h>
 #include <string.h>
 #include <string.h>
