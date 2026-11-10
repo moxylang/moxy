@@ -29,6 +29,7 @@ int at(TokKind kind);
 int at_word(const char *word);
 int word_at(int ahead, const char *word);
 int accept(TokKind kind);
+int name_at(int ahead);
 Token *expect(TokKind kind, const char *what);
 _Noreturn void fail(Loc loc, const char *fmt, ...);
 int match_paren(int open);

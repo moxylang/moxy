@@ -18,8 +18,10 @@
 (* ---- 1. Lexical structure ----------------------------------------- *)
 
 (* Reserved words. __inline and __inline__ spell inline, __restrict
-   spells restrict. Note that string, true, false and null are reserved;
-   NULL is an ordinary identifier. *)
+   spells restrict. true and false are reserved; NULL is an ordinary
+   identifier. string and null lex as keywords but may also be used as a
+   declarator, field, designator or member name, and an expression `string`
+   or `null` refers to a variable of that name when one is in scope. *)
 keyword = "auto" | "break" | "case" | "char" | "const" | "continue"
         | "default" | "do" | "double" | "else" | "enum" | "extern"
         | "float" | "for" | "goto" | "if" | "inline" | "int" | "long"

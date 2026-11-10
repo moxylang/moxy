@@ -22,7 +22,7 @@ Memory management has its own chapter: [memory.md](memory.md).
 
 **Comments**: `// line` and `/* block */`.
 
-**Reserved words**: every C11 keyword, plus `string`, `bool`, `true`, `false` and `null`.
+**Reserved words**: every C11 keyword, plus `bool`, `true` and `false` (keywords in C23 too). `string` and `null` are the string type and the null pointer, but they can also name a variable, parameter, field or function, as they can in C.
 
 **Contextual words**: `match`, `in`, `defer`, `await`, `namespace`, `using`, `ref`, `weak`, `fn`, `map`, `Result`, `Future`, `Ok` and `Err` have meaning only in their own syntax. They remain valid identifiers elsewhere, so C code that uses `map`, `in` or `match` as variable names keeps compiling.
 
@@ -500,7 +500,7 @@ Moxy parses your C, so it reads only the C it understands. These extensions are 
 | statement expressions `({ ... })` | a helper function or a block |
 | designator ranges `[0 ... 9] = x` | a loop, or list each element |
 | K&R function definitions `int f(a) int a; {}` | prototype-style parameters |
-| `string`, `bool`, `true`, `false`, `null` as names | they're reserved; rename the variable |
+| `bool`, `true`, `false` as names | they're keywords, as in C23; rename the variable |
 | inline assembly with operands (`asm("..." : "=r"(x))`) | put it in a C file listed under `sources` in `moxy.yaml` |
 
 ## Standard library

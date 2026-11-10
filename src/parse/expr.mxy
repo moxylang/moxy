@@ -118,11 +118,11 @@ Node *parse_initializer(void) {
     Node *list = mk(N_INITLIST, open->loc);
     while (!at(P_RBRACE)) {
         Loc loc = peek()->loc;
-        if (at(P_DOT) && peek_at(1)->kind == T_IDENT) {
+        if (at(P_DOT) && name_at(1)) {
             next();
             Node *d = mk(N_DESIG, loc);
             d->name = xstrdup(next()->text);
-            while (at(P_DOT) && peek_at(1)->kind == T_IDENT) {
+            while (at(P_DOT) && name_at(1)) {
                 next();
                 char *joined = xfmt("%s.%s", d->name, next()->text);
                 free(d->name);
@@ -310,9 +310,8 @@ static Node *parse_primary(void) {
         next();
         return mk(N_NULL, t->loc);
     case K_STRING: {
-        /* string(x): conversion to string */
+        /* string(x) converts; a bare `string` is a variable with that name */
         next();
-        if (!at(P_LPAREN)) fail(t->loc, "'string' is a type; did you mean string(value)?");
         Node *id = mk(N_IDENT, t->loc);
         id->name = xstrdup("string");
         return id;

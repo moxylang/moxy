@@ -112,7 +112,7 @@ int parse_specifiers(Specs *out) {
         case K_SHORT: shorts = 1; saw = 1; next(); continue;
         case K_LONG: longs++; saw = 1; next(); continue;
         case K_VOID: case K_CHAR: case K_INT: case K_FLOAT: case K_DOUBLE: case K_BOOL: case K_STRING:
-            if (base || named) break;
+            if (base || named || (t->kind == K_STRING && (sign || shorts || longs))) break;
             base = t->kind;
             saw = 1;
             next();
@@ -284,7 +284,7 @@ TypeRef *parse_declarator(TypeRef *base, char **name, ParamList *fparams, Loc *n
         *hole = *outer;
         return inner;
     }
-    if (at(T_IDENT) && name) {
+    if (name_at(0) && name) {
         Token *t = next();
         *name = xstrdup(t->text);
         if (nameloc) *nameloc = t->loc;

@@ -1,4 +1,5 @@
-// C's separate name spaces: struct tags, ordinary names and block-scoped types
+// C's separate name spaces: struct tags, ordinary names, block-scoped types,
+// and `string`/`null` as plain identifiers
 #include <string.h>
 
 struct config { int verbose; }
@@ -6,6 +7,10 @@ static struct config config;
 
 struct timer { int ticks; }
 int timer() { return 3; }
+
+struct token { const char *string; int null; }
+
+static size_t measure(const char *string) { return strlen(string); }
 
 struct opaque;
 struct opaque *nothing() { return NULL; }
@@ -37,6 +42,11 @@ void main() {
     config.verbose = 2;
     struct timer t = { timer() };
     assert(config.verbose == 2 && t.ticks == 3);
+
+    const char *string = "hello";
+    long null = 3;
+    struct token tok = { .string = "tok", .null = 4 };
+    assert(measure(string) == 5 && null == 3 && tok.null == 4 && strlen(tok.string) == 3);
 
     assert(first() == 3 && second() == 12 && table() == 2);
     assert(nothing() == NULL && no_handle() == NULL && handle() == 4);

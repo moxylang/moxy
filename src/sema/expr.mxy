@@ -60,6 +60,10 @@ static Type *check_ident(Node *n) {
             return ty_unknown;
         }
     }
+    if (str_eq(n->name, "string")) {
+        diag_error(n->loc, "'string' is a type; did you mean string(value)?");
+        return ty_unknown;
+    }
     const char *sep = strstr(n->name, "::");
     if (sep) {
         const char *last = n->name;
@@ -429,7 +433,13 @@ static Type *check_inner(Node **slot, Type *expected) {
     }
     case N_INTERP: return check_interp(n);
     case N_BOOL: return ty_bool;
-    case N_NULL: return ty_null;
+    case N_NULL: {
+        Sym *s = lookup_quiet("null");
+        if (!s || s->kind != S_VAR) return ty_null;
+        n->kind = N_IDENT;
+        n->name = xstrdup("null");
+        return check_ident(n);
+    }
     case N_IDENT: return check_ident(n);
     case N_UNARY: return check_unary(n);
     case N_POSTFIX:

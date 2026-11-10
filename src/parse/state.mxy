@@ -234,8 +234,22 @@ static int moxy_type_at(int ahead) {
     return 0;
 }
 
+/* a name in a declarator, designator or member: an identifier, or `string`/`null` as in C */
+int name_at(int ahead) {
+    TokKind k = peek_at(ahead)->kind;
+    return k == T_IDENT || k == K_STRING || k == K_NULL;
+}
+
+static int string_type_at(int ahead) {
+    TokKind n = peek_at(ahead + 1)->kind;
+    if (n == P_LBRACKET) return peek_at(ahead + 2)->kind == P_RBRACKET;
+    return n == T_IDENT || n == P_STAR || n == P_RPAREN || n == P_COMMA || n == P_GT || n == P_RBRACKET ||
+           n == K_STRING || n == K_NULL || n == K_CONST || n == K_VOLATILE;
+}
+
 int is_type_start_at(int ahead) {
     Token *t = peek_at(ahead);
+    if (t->kind == K_STRING) return string_type_at(ahead);
     if (is_type_keyword(t->kind)) return 1;
     if (moxy_type_at(ahead)) return 1;
     if (t->kind == T_IDENT && strcmp(t->text, "weak") == 0 && peek_at(ahead + 1)->kind == T_IDENT) return 1;
