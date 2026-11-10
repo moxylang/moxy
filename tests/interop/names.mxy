@@ -1,0 +1,43 @@
+// C's separate name spaces: struct tags, ordinary names and block-scoped types
+#include <string.h>
+
+struct config { int verbose; }
+static struct config config;
+
+struct timer { int ticks; }
+int timer() { return 3; }
+
+struct opaque;
+struct opaque *nothing() { return NULL; }
+
+struct handle;
+int handle() { return 4; }
+struct handle *no_handle() { return NULL; }
+
+int first() {
+    struct item { int a; } i = { 1 };
+    typedef int score;
+    score s = 2;
+    return i.a + s;
+}
+
+int second() {
+    struct item { long a; long b; } i = { 3, 4 };
+    typedef long score;
+    score s = 5;
+    return (int)(i.a + i.b + s);
+}
+
+int table() {
+    struct { const char *key; int value; } rows[] = { { "a", 1 }, { "b", 2 } };
+    return rows[1].value;
+}
+
+void main() {
+    config.verbose = 2;
+    struct timer t = { timer() };
+    assert(config.verbose == 2 && t.ticks == 3);
+
+    assert(first() == 3 && second() == 12 && table() == 2);
+    assert(nothing() == NULL && no_handle() == NULL && handle() == 4);
+}

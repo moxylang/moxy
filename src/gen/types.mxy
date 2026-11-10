@@ -107,7 +107,7 @@ static void emit_struct(Type *u) {
         if (f->kind == N_FIELD) value_deps(f->type);
     }
     open_cond(&b, decl->cond);
-    buf_fmt(&b, "%s %s {\n", u->is_union ? "union" : "struct", u->cname);
+    buf_fmt(&b, "%s %s {\n", u->is_union ? "union" : "struct", type_tag(u));
     if (u->is_ref) buf_put(&b, "    mxy_obj __hdr;\n");
     emit_fields(&b, decl, 1);
     if (!decl->list.len && !u->is_ref) buf_put(&b, "    char __empty;\n");
@@ -282,19 +282,33 @@ static void emit_typedef(Node *td) {
     free(cn);
 }
 
+static void fwd_typedef(Node *d, StrMap *named) {
+    Type *t = d->type;
+    if (!t || !t->cname || str_starts(t->cname, "struct ")) return;
+    char *key = xfmt("%s|%s", t->cname, d->cond ? d->cond : "");
+    if (strmap_get(named, key)) {
+        free(key);
+        return;
+    }
+    strmap_put(named, key, (void *)1);
+    free(key);
+    open_cond(&out.fwd, d->cond);
+    buf_fmt(&out.fwd, "typedef %s %s %s;\n", t->is_union ? "union" : "struct", type_tag(t), t->cname);
+    close_cond(&out.fwd, d->cond);
+}
+
 void emit_types(void) {
     fwd_macros = macros_begin();
     type_macros = macros_begin();
     for (int i = 0; i < prog.cenums.len; i++) emit_cenum(prog.cenums.items[i]);
     for (int i = 0; i < prog.enums.len; i++) emit_moxy_enum_head(prog.enums.items[i]);
-    for (int i = 0; i < prog.structs.len; i++) {
-        Node *d = prog.structs.items[i];
-        Type *t = d->type;
-        if (!t || (d->flags & F_INLINE) || !t->cname || str_starts(t->cname, "struct ")) continue;
-        open_cond(&out.fwd, d->cond);
-        buf_fmt(&out.fwd, "typedef %s %s %s;\n", t->is_union ? "union" : "struct", t->cname, t->cname);
-        close_cond(&out.fwd, d->cond);
-    }
+    StrMap named = {0};
+    for (int i = 0; i < prog.structs.len; i++)
+        if (!(prog.structs.items[i]->flags & F_INLINE)) fwd_typedef(prog.structs.items[i], &named);
+    /* a struct that is only declared (struct X;) still needs its name */
+    for (int i = 0; i < prog.opaque.len; i++)
+        if (!prog.opaque.items[i]->type || !prog.opaque.items[i]->type->decl) fwd_typedef(prog.opaque.items[i], &named);
+    strmap_free(&named);
     for (int i = 0; i < prog.structs.len; i++) {
         Node *d = prog.structs.items[i];
         if (!d->type || (d->flags & F_INLINE) || !(d->flags & F_BODY)) continue;

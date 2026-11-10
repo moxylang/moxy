@@ -58,7 +58,11 @@ static void declare_func(Node *fn) {
         fn->sym = existing;
         return;
     }
-    if (existing && !(existing->kind == S_TYPE && existing->decl && existing->decl->kind == N_STRUCT)) {
+    if (is_struct_alias(existing)) {
+        struct_cede_name(existing->type);
+        existing = NULL;
+    }
+    if (existing) {
         diag_error(fn->loc, "'%s' is already declared", fn->name);
         return;
     }
@@ -87,6 +91,10 @@ static void declare_global(Node *v) {
         }
         v->sym = existing;
         return;
+    }
+    if (is_struct_alias(existing)) {
+        struct_cede_name(existing->type);
+        existing = NULL;
     }
     if (existing) {
         diag_error(v->loc, "'%s' is already declared", v->name);
@@ -167,7 +175,7 @@ static void pass_declare(Node *root) {
     }
 }
 
-static void complete_struct(Node *decl) {
+void complete_struct(Node *decl) {
     Type *t = decl->type;
     for (int i = 0; i < decl->list.len; i++) {
         Node *f = decl->list.items[i];

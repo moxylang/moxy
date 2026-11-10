@@ -38,6 +38,7 @@ typedef struct {
 struct Scope {
     Scope *parent;
     StrMap names;
+    StrMap tags;     /* struct, union and enum tags declared in a function body */
     int kind;
     char *ns;        /* namespace path for SC_NS/SC_GLOBAL ("" for global) */
     ScopeList imports;
@@ -87,6 +88,7 @@ enum {
 typedef struct {
     Node *prog;
     NodeList structs;    /* N_STRUCT with bodies, in declaration order */
+    NodeList opaque;     /* N_STRUCT forward declarations (struct X;) */
     NodeList enums;      /* N_ENUM */
     NodeList cenums;     /* N_CENUM with bodies */
     NodeList typedefs;   /* N_TYPEDEF */
@@ -123,12 +125,16 @@ Sym *scope_get(Scope *s, const char *name);
 Sym *lookup(const char *name, Loc loc);
 Sym *lookup_quiet(const char *name);
 Sym *lookup_tag(const char *name);
+int in_body(void);
 void declare_tag(const char *name, Sym *sym);
 char *cname_for(const char *ns, const char *name);
 void suggest_name(const char *name, Loc loc);
 
 Type *resolve_type(TypeRef *tr);
 Type *define_struct(Node *decl, const char *typedef_name);
+void struct_cede_name(Type *t);
+void complete_struct(Node *decl);
+int is_struct_alias(Sym *s);
 Type *define_cenum(Node *decl);
 char *const_text(Node *e);
 

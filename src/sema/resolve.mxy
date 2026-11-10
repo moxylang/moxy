@@ -147,21 +147,39 @@ char *const_text(Node *e) {
     }
 }
 
+/* a variable or function took the struct's name: C sees `struct name` through a private alias */
+void struct_cede_name(Type *t) {
+    if (!t || t->ctag) return;
+    t->ctag = t->cname;
+    t->cname = xfmt("__mxy_tag_%s", t->ctag);
+    Sym *tag = t->name ? lookup_tag(t->name) : NULL;
+    if (tag && tag->type == t) tag->cname = xstrdup(t->cname);
+}
+
+int is_struct_alias(Sym *s) { return s && s->kind == S_TYPE && s->decl && s->decl->kind == N_STRUCT; }
+
 Type *define_struct(Node *decl, const char *typedef_name) {
     if (decl->type) return decl->type;
     Type *t = NULL;
-    Sym *existing = decl->name ? lookup_tag(decl->name) : NULL;
+    /* a definition in a body is a new type for that block, emitted at file scope under a unique name */
+    int local = in_body() && (decl->flags & F_BODY);
+    Sym *existing = !decl->name ? NULL : local ? strmap_get(&cur_scope->tags, decl->name) : lookup_tag(decl->name);
     if (existing && existing->type && existing->type->kind == TY_STRUCT) t = existing->type;
     if (!t) t = type_new(TY_STRUCT);
     t->is_union = (decl->flags & F_UNION) != 0;
     if (decl->flags & F_REF) t->is_ref = 1;
     if (decl->name) {
         t->name = xstrdup(decl->name);
-        t->cname = cname_for(decl->ns, decl->name);
+        if (!t->ctag) t->cname = cname_for(decl->ns, decl->name);
     } else if (typedef_name) {
         t->name = xstrdup(typedef_name);
         t->cname = cname_for(decl->ns, typedef_name);
-    } else {
+    }
+    if (local && (decl->name || typedef_name)) {
+        char *base = t->cname;
+        t->cname = xfmt("%s__mxy%d", base, ++anon_counter);
+        free(base);
+    } else if (!decl->name && !typedef_name) {
         t->name = xstrdup("anonymous struct");
         t->cname = xfmt("__mxy_anon%d", ++anon_counter);
     }
@@ -174,14 +192,16 @@ Type *define_struct(Node *decl, const char *typedef_name) {
         vec_push(prog.structs, decl);
     } else {
         decl->type = t;
+        if (decl->name) vec_push(prog.opaque, decl);
     }
     if (decl->name) {
         Sym *tag = existing ? existing : sym_new(S_TYPE, decl->name, decl->loc);
         tag->type = t;
         tag->cname = xstrdup(t->cname);
         declare_tag(decl->name, tag);
-        Scope *s = ns_scope(decl->ns);
+        Scope *s = local ? cur_scope : ns_scope(decl->ns);
         Sym *ord = scope_get(s, decl->name);
+        if (ord && (ord->kind == S_VAR || ord->kind == S_FUNC)) struct_cede_name(t);
         if (!ord) {
             Sym *alias = sym_new(S_TYPE, decl->name, decl->loc);
             alias->type = t;
@@ -190,6 +210,8 @@ Type *define_struct(Node *decl, const char *typedef_name) {
             scope_declare(s, alias);
         }
     }
+    /* global structs get their fields in a later pass; inside a body, the type is complete here */
+    if (local) complete_struct(decl);
     return t;
 }
 

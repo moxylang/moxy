@@ -30,7 +30,7 @@ char *gen_header(const char *libname) {
     for (int i = 0; i < prog.structs.len; i++) {
         Type *t = prog.structs.items[i]->type;
         if (!t || !t->cname || str_starts(t->cname, "struct ") || (prog.structs.items[i]->flags & F_INLINE)) continue;
-        buf_fmt(&b, "typedef %s %s %s;\n", t->is_union ? "union" : "struct", t->cname, t->cname);
+        buf_fmt(&b, "typedef %s %s %s;\n", t->is_union ? "union" : "struct", type_tag(t), t->cname);
     }
     buf_put(&b, "\n");
     /* plain structs are part of the C interface; managed ones stay opaque */
@@ -38,7 +38,7 @@ char *gen_header(const char *libname) {
         Node *d = prog.structs.items[i];
         Type *t = d->type;
         if (!t || t->is_ref || type_is_managed(t) || (d->flags & F_INLINE) || !(d->flags & F_BODY)) continue;
-        buf_fmt(&b, "%s %s {\n", t->is_union ? "union" : "struct", t->cname);
+        buf_fmt(&b, "%s %s {\n", t->is_union ? "union" : "struct", type_tag(t));
         for (int j = 0; j < d->list.len; j++) {
             Node *f = d->list.items[j];
             if (f->kind != N_FIELD || !f->name) continue;

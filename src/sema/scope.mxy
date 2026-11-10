@@ -143,9 +143,18 @@ Sym *lookup(const char *name, Loc loc) {
     return s;
 }
 
-Sym *lookup_tag(const char *name) { return strmap_get(&tags, name); }
+/* inside a function body, where tags are block scoped as in C */
+int in_body(void) { return cur_fn && cur_scope && (cur_scope->kind == SC_FUNC || cur_scope->kind == SC_BLOCK); }
 
-void declare_tag(const char *name, Sym *sym) { strmap_put(&tags, name, sym); }
+Sym *lookup_tag(const char *name) {
+    for (Scope *s = cur_fn ? cur_scope : NULL; s && (s->kind == SC_FUNC || s->kind == SC_BLOCK); s = s->parent) {
+        Sym *t = strmap_get(&s->tags, name);
+        if (t) return t;
+    }
+    return strmap_get(&tags, name);
+}
+
+void declare_tag(const char *name, Sym *sym) { strmap_put(in_body() ? &cur_scope->tags : &tags, name, sym); }
 
 void tags_reset(void) { strmap_free(&tags); }
 

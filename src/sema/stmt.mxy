@@ -99,7 +99,6 @@ static void local_decls(Node *n) {
             }
             s->decl = d;
             scope_declare(cur_scope, s);
-            vec_push(prog.typedefs, d);
             break;
         }
         case N_FUNC:

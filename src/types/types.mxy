@@ -163,6 +163,9 @@ int type_is_char_ptr(Type *t) {
     return b->kind == TY_CHAR || b->kind == TY_SCHAR || b->kind == TY_UCHAR;
 }
 
+/* the C tag of a struct or union: its name, unless a variable or function took that */
+const char *type_tag(Type *t) { return t->ctag ? t->ctag : t->cname; }
+
 int type_is_unknownish(Type *t) {
     t = type_unqual(t);
     return !t || t->kind == TY_UNKNOWN || t->kind == TY_NAMED;
