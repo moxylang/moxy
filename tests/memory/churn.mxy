@@ -2,7 +2,7 @@
 struct Item { string label; int[] values; }
 
 Item make(int i) {
-    return Item{.label = "item \(i)",.values = [i, i + 1] };
+    return Item{ .label = "item \(i)", .values = [i, i + 1] };
 }
 
 void main() {

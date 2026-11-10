@@ -1,11 +1,11 @@
 // lambdas capture values from their surroundings
-struct Counter { fn(int)->int step; }
+struct Counter { fn(int) -> int step; }
 
-int apply(int x, fn(int)->int f) { return f(x); }
+int apply(int x, fn(int) -> int f) { return f(x); }
 int apply_c(int x, int f(int)) { return f(x); }
 int double_it(int x) { return x * 2; }
 
-fn(int)->int adder(int n) {
+fn(int) -> int adder(int n) {
     return (int x) => x + n;
 }
 
@@ -15,8 +15,8 @@ void main() {
     assert(apply(5, double_it) == 10);
     assert(apply_c(5, (int x) => x * 3) == 15);
 
-    fn(int)->int add3 = adder(3);
-    fn(int)->int add7 = adder(7);
+    fn(int) -> int add3 = adder(3);
+    fn(int) -> int add7 = adder(7);
     assert(add3(1) == 4 && add7(1) == 8);
 
     string prefix = "item-";
@@ -32,10 +32,10 @@ void main() {
             print(n * k);
         });
 
-    Counter c = Counter{.step = (int x) => x + k };
+    Counter c = Counter{ .step = (int x) => x + k };
     assert(c.step(1) == 11);
 
-    fn(int)->fn(int)->int curry = (int a) => adder(a);
+    fn(int) -> fn(int) -> int curry = (int a) => adder(a);
     assert(curry(2)(3) == 5);
     print(total, seen.len);
 }

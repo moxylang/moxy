@@ -156,6 +156,10 @@ typedef struct {
     int generic;
     int ternary;
     int unary_prev;
+    int fnparen[32]; /* per open '(' on this line: whether it follows `fn` */
+    int depth;
+    int closed_fn;   /* the last ')' closed an `fn(` group */
+    int fn_arrow;    /* the previous token was a closure type's '->' */
 } LineState;
 
 static int space_between(const FTok *p, const FTok *t, const FTok *n, LineState *ls, const MoxyConfig *cfg,
@@ -164,11 +168,29 @@ static int space_between(const FTok *p, const FTok *t, const FTok *n, LineState 
                                           is(t, "~") || is(t, "++") || is(t, "--"));
     if (maybe_unary && (!p || !valueish(p)) && !(p && (is(t, "++") || is(t, "--")) && valueish(p)))
         ls->unary_prev = 1;
+    if (is(t, "(")) {
+        if (ls->depth < 32) ls->fnparen[ls->depth] = p && is(p, "fn");
+        ls->depth++;
+    } else if (is(t, ")")) {
+        if (ls->depth > 0) ls->depth--;
+        ls->closed_fn = ls->depth < 32 && ls->fnparen[ls->depth];
+    }
     if (!p) return 0;
     if (t->kind == F_LCOMMENT || t->kind == F_BCOMMENT) return 1;
+    /* `fn(A) -> R` is a closure type, not member access */
+    if (is(t, "->") && is(p, ")") && ls->closed_fn) {
+        ls->fn_arrow = 1;
+        return 1;
+    }
+    if (ls->fn_arrow) {
+        ls->fn_arrow = 0;
+        return 1;
+    }
     const char *T = t->text, *Pt = p->text;
     if (is(t, ",") || is(t, ";")) return 0;
     if (is(t, ")") || is(t, "]")) return 0;
+    /* `{ .x = 1, .y = 2 }`: a designator, not member access */
+    if (is(t, ".") && (is(p, "{") || is(p, ","))) return 1;
     if (is(t, ".") || is(t, "->") || is(t, "::") || is(t, "..") || is(t, "..=") || is(t, "...")) return is(t, "...") && is(p, ",");
     if (is(p, ".") || is(p, "->") || is(p, "::") || is(p, "(") || is(p, "[") || is(p, "@") || is(p, "..") ||
         is(p, "..=") || is(p, "!") || is(p, "~"))

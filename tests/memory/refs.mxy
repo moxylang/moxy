@@ -6,7 +6,7 @@ ref struct Node {
 }
 
 Node add_child(Node parent, string name) {
-    Node child = Node{.name = name,.parent = parent };
+    Node child = Node{ .name = name, .parent = parent };
     parent.children.push(child);
     return child;
 }
@@ -18,7 +18,7 @@ string path(Node n) {
 }
 
 void main() {
-    Node root = Node{.name = "root" };
+    Node root = Node{ .name = "root" };
     Node usr = add_child(root, "usr");
     Node bin = add_child(usr, "bin");
     assert(path(bin) == "root/usr/bin");
@@ -29,7 +29,7 @@ void main() {
     assert(path(bin) == "root/home/bin");
     assert(root.children.len == 1 && root.children[0] == usr);
 
-    Node orphan = Node{.name = "orphan" };
+    Node orphan = Node{ .name = "orphan" };
     Node kid = add_child(orphan, "kid");
     orphan = null;
     assert(kid.parent == null);

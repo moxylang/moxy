@@ -13,7 +13,7 @@ ref struct Employee {
 }
 
 Employee hire(Employee manager, string name) {
-    Employee e = Employee{.name = name,.manager = manager };
+    Employee e = Employee{ .name = name, .manager = manager };
     manager.reports.push(e);
     return e;
 }
@@ -45,7 +45,7 @@ void main() {
     print("stock \(stock), snapshot \(snapshot)");
 
     // shared objects: everyone sees the same employee
-    Employee ceo = Employee{.name = "Ada" };
+    Employee ceo = Employee{ .name = "Ada" };
     Employee cto = hire(ceo, "Grace");
     Employee dev = hire(cto, "Linus");
     print(chain(dev));
@@ -53,7 +53,7 @@ void main() {
 
     // closures capture what they need and release it when they go away
     string greeting = "hello";
-    fn(string)->string greet = (string who) => greeting + ", " + who;
+    fn(string) -> string greet = (string who) => greeting + ", " + who;
     print(greet(dev.name));
 
     // defer runs when the scope ends, however it ends

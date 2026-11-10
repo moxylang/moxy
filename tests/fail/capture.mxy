@@ -1,6 +1,6 @@
 void main() {
     int count = 0;
-    fn(int)->int f = (int x) => {
+    fn(int) -> int f = (int x) => {
         count = count + x;
         return count;
     };

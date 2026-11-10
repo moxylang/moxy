@@ -21,7 +21,7 @@ Result<int> parse_number(string s) {
 
 Result<Point> make_point(int x, int y) {
     if (x < 0) { return Err("negative x"); }
-    return Ok(Point{.x = x,.y = y });
+    return Ok(Point{ .x = x, .y = y });
 }
 
 Result<string> greet(string name) {

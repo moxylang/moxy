@@ -26,8 +26,8 @@ namespace text {
 using geo;
 
 void main() {
-    Point a = Point{.x = 0.0,.y = 0.0 };
-    geo::Point b = geo::Point{.x = 3.0,.y = 4.0 };
+    Point a = Point{ .x = 0.0, .y = 0.0 };
+    geo::Point b = geo::Point{ .x = 3.0, .y = 4.0 };
     assert(dist2(a, b) == 25.0);
     assert(geo::shapes::area(geo::shapes::Shape::Square(2.0)) == 4.0);
     assert(text::area("x") == "area:x");

@@ -59,7 +59,7 @@ void main() {
 
     Node c = { 3, NULL };
     Node b = { 2, &c };
-    Node a = {.value = 1,.next = &b };
+    Node a = { .value = 1, .next = &b };
     int total = 0;
     for (Node *n = &a; n; n = n->next) total += n->value;
     assert(total == 6);

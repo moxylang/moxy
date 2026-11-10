@@ -3,7 +3,7 @@ struct Point { int x; int y; }
 void main() {
     string name = "moxy";
     int[] xs = [1, 2];
-    Point p = Point{.x = 1,.y = 2 };
+    Point p = Point{ .x = 1, .y = 2 };
     map[string, int] m = { "k": 1 };
     print("hi \(name), \(name.len) chars, sum \(xs[0] + xs[1])");
     print("list \(xs) point \(p) map \(m)");

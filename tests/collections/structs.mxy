@@ -8,7 +8,7 @@ typedef struct {
 } Player;
 
 Player make_player(string name) {
-    Player p = {.name = name };
+    Player p = { .name = name };
     p.scores.push(10);
     p.tags["team"] = "red";
     return p;
@@ -21,8 +21,8 @@ int total(Player p) {
 }
 
 void main() {
-    Point[] pts = [Point{.x = 1,.y = 2 }, Point{.x = 3,.y = 4 }];
-    pts.push(Point{.x = 5,.y = 6 });
+    Point[] pts = [Point{ .x = 1, .y = 2 }, Point{ .x = 3, .y = 4 }];
+    pts.push(Point{ .x = 5, .y = 6 });
     pts[0].x = 100;
     assert(pts.len == 3 && pts[0].x == 100 && pts[2].y == 6);
 
