@@ -2,120 +2,6 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE 1
 #endif
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <stdlib.h>
-#define vec_push(v, x)                                                       \
-    do {                                                                     \
-        if ((v).len >= (v).cap) {                                            \
-            (v).cap = (v).cap ? (v).cap * 2 : 8;                             \
-            (v).items = xrealloc((v).items, (size_t)(v).cap * sizeof(*(v).items)); \
-        }                                                                    \
-        (v).items[(v).len++] = (x);                                          \
-    } while (0)
-#define vec_last(v) ((v).items[(v).len - 1])
-#define vec_free(v) do { free((v).items); (v).items = NULL; (v).len = (v).cap = 0; } while (0)
-#include <stdio.h>
-#include <string.h>
-#include <limits.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
-#if !defined(PATH_MAX)
-#define PATH_MAX 4096
-#endif
-#include <string.h>
-#include <stdio.h>
-#include <string.h>
-#include <string.h>
-#include <dirent.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <setjmp.h>
-#include <string.h>
-#include <setjmp.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <ctype.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <ctype.h>
-#include <limits.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <stdio.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#define MOXY_VERSION_STR "0.3.0"
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <stdio.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <string.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdio.h>
-#include <string.h>
-#include <string.h>
-#include <ctype.h>
-#include <string.h>
-#include <string.h>
-#include <stdio.h>
-#include <string.h>
-#include <dirent.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <goose.h>
-#define MOXY_CONFIG "moxy.yaml"
-#include <dirent.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/time.h>
-#include <sys/wait.h>
-#include <unistd.h>
 /* moxy runtime: core (reference counts, allocation, panics) */
 #include <limits.h>
 #include <stdarg.h>
@@ -1399,6 +1285,125 @@ MXY_FN bool mxy_write_file(mxy_str path, mxy_str data, const char *mode) {
     return fclose(f) == 0 && ok;
 }
 
+/* directives */
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdlib.h>
+#define vec_push(v, x)                                                       \
+    do {                                                                     \
+        if ((v).len >= (v).cap) {                                            \
+            (v).cap = (v).cap ? (v).cap * 2 : 8;                             \
+            (v).items = xrealloc((v).items, (size_t)(v).cap * sizeof(*(v).items)); \
+        }                                                                    \
+        (v).items[(v).len++] = (x);                                          \
+    } while (0)
+#define vec_last(v) ((v).items[(v).len - 1])
+#define vec_free(v) do { free((v).items); (v).items = NULL; (v).len = (v).cap = 0; } while (0)
+#include <stdio.h>
+#include <string.h>
+#include <limits.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#if !defined(PATH_MAX)
+#define PATH_MAX 4096
+#endif
+#include <string.h>
+#include <stdio.h>
+#include <string.h>
+#include <string.h>
+#include <dirent.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <setjmp.h>
+#include <string.h>
+#include <setjmp.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <ctype.h>
+#include <limits.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <stdio.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#define MOXY_VERSION_STR "0.3.0"
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdint.h>
+#include <string.h>
+#include <string.h>
+#include <stdio.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <string.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+#include <string.h>
+#include <string.h>
+#include <ctype.h>
+#include <string.h>
+#include <string.h>
+#include <stdio.h>
+#include <string.h>
+#include <dirent.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <goose.h>
+#define MOXY_CONFIG "moxy.yaml"
+#include <dirent.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
 /* string literals */
 MXY_LIT(__mxy_s1, "");
 MXY_LIT(__mxy_s2, "s");
@@ -1830,7 +1835,10 @@ typedef struct CleanupVec CleanupVec;
 typedef struct GScope GScope;
 typedef struct Sections Sections;
 typedef struct GScopeVec GScopeVec;
+typedef struct MacroCursor MacroCursor;
 typedef struct StdEntry StdEntry;
+typedef struct MacroHist MacroHist;
+typedef struct MacroHistList MacroHistList;
 typedef struct StrVec StrVec;
 typedef struct Parser Parser;
 typedef struct Specs Specs;
@@ -1960,6 +1968,7 @@ struct ScopeList {
 struct Program {
     Node *prog;
     NodeList structs;
+    NodeList opaque;
     NodeList enums;
     NodeList cenums;
     NodeList typedefs;
@@ -2035,9 +2044,22 @@ struct GScopeVec {
     int len;
     int cap;
 };
+struct MacroCursor {
+    int *have;
+};
 struct StdEntry {
     const char *path;
     const char *source;
+};
+struct MacroHist {
+    char *name;
+    NodeList dirs;
+    int undefs;
+};
+struct MacroHistList {
+    MacroHist *items;
+    int len;
+    int cap;
 };
 struct StrVec {
     char **items;
@@ -2107,6 +2129,10 @@ struct LineState {
     int generic;
     int ternary;
     int unary_prev;
+    int fnparen[32];
+    int depth;
+    int closed_fn;
+    int fn_arrow;
 };
 struct MoxyConf {
     char cc[64];
@@ -2145,6 +2171,7 @@ struct Node {
     char *text;
     char *cond;
     char *ns;
+    int pos;
     Node *a;
     Node *b;
     Node *c;
@@ -2169,6 +2196,7 @@ struct Type {
     int variadic;
     char *name;
     char *cname;
+    char *ctag;
     Node *decl;
     int is_union;
     int is_ref;
@@ -2199,6 +2227,7 @@ struct Sym {
 struct Scope {
     Scope *parent;
     StrMap names;
+    StrMap tags;
     int kind;
     char *ns;
     ScopeList imports;
@@ -2335,6 +2364,7 @@ int type_is_scalar(Type *t);
 int type_is_ptrlike(Type *t);
 int type_is_char_ptr(Type *t);
 int type_is_unknownish(Type *t);
+const char *type_tag(Type *t);
 int type_is_managed(Type *t);
 int type_is_refcounted(Type *t);
 int type_rank(Type *t);
@@ -2358,11 +2388,15 @@ Sym *scope_get(Scope *s, const char *name);
 Sym *lookup(const char *name, Loc loc);
 Sym *lookup_quiet(const char *name);
 Sym *lookup_tag(const char *name);
+int in_body(void);
 void declare_tag(const char *name, Sym *sym);
 char *cname_for(const char *ns, const char *name);
 void suggest_name(const char *name, Loc loc);
 Type *resolve_type(TypeRef *tr);
 Type *define_struct(Node *decl, const char *typedef_name);
+void struct_cede_name(Type *t);
+void complete_struct(Node *decl);
+int is_struct_alias(Sym *s);
 Type *define_cenum(Node *decl);
 char *const_text(Node *e);
 Type *check_expr(Node **slot, Type *expected);
@@ -2399,7 +2433,6 @@ static void declare_func(Node *fn);
 static void declare_global(Node *v);
 static void declare_typedef(Node *td);
 static void pass_declare(Node *root);
-static void complete_struct(Node *decl);
 static void complete_enum(Node *n);
 static void resolve_signature(Node *fn);
 static void resolve_global(Node *v);
@@ -2515,8 +2548,14 @@ void emit_cleanups_to(Buf *b, int indent, int depth, const char *skip);
 void gen_stmt_ctx(Node *n, Buf *b, int indent, void (*fn)(Node *, Ctx *, Buf *, int));
 void gen_loop(Node *n, Buf *b, int indent);
 void gen_match(Node *n, Buf *b, int indent);
+void macros_init(void);
+int macro_is_feature(const char *text);
+MacroCursor macros_begin(void);
+void macros_at(MacroCursor *cur, Buf *b, Node *item);
+void macros_after(MacroCursor *cur, Node *item);
+void macros_end(MacroCursor *cur, Buf *b);
 void gen_function(Node *fn);
-void gen_lambdas(void);
+void gen_lambdas(MacroCursor *mc);
 char *lambda_value(Node *lam, Ctx *c, int *owned);
 char *fn_closure(Sym *fn);
 void gen_globals(void);
@@ -2544,7 +2583,7 @@ void helpers_reset(void);
 void types_reset_gen(void);
 void func_reset(void);
 void gen_prototypes(void);
-static void emit_directives(Buf *b);
+static void emit_directives(Buf *b, int features);
 static void emit_static_asserts(Buf *b);
 static int is_brace(const char *s);
 static CExpr own(char *s);
@@ -2596,6 +2635,11 @@ static char *key_temp(Node *a, Type *t, Ctx *c);
 static int side_effect_free(Node *n);
 static CExpr store_managed(Node *target, CExpr val, Type *t, Ctx *c);
 static CExpr assign_index(Node *n, Ctx *c);
+char *macro_target(const char *text, int *is_undef);
+static int hist_find(const char *name);
+static void replay(Buf *b, MacroHist *h, int from, int to);
+static void move_to(MacroCursor *cur, Buf *b, int i, int need);
+static void forget_nested(MacroCursor *cur, Node *n);
 static void gen_bind(Node *id, const char *value, Buf *b, int indent, Loc loc);
 static char *arm_cond(Node *arm, Type *st, const char *m, Ctx *c);
 static void arm_bindings(Node *arm, Type *st, const char *m, Buf *b, int indent);
@@ -2631,6 +2675,7 @@ static void emit_cenum(Node *decl);
 static void emit_moxy_enum_head(Node *decl);
 static void emit_ref_helpers(Type *u);
 static void emit_typedef(Node *td);
+static void fwd_typedef(Node *d, StrMap *named);
 void load_add_include_dir(const char *dir);
 void load_reset(void);
 int load_dirs_mark(void);
@@ -2655,6 +2700,7 @@ int at(TokKind kind);
 int at_word(const char *word);
 int word_at(int ahead, const char *word);
 int accept(TokKind kind);
+int name_at(int ahead);
 Token *expect(TokKind kind, const char *what);
 _Noreturn void fail(Loc loc, const char *fmt, ...);
 int match_paren(int open);
@@ -2702,6 +2748,7 @@ static unsigned int hash(const char *s);
 static void set_grow(void);
 static int is_type_keyword(TokKind k);
 static int moxy_type_at(int ahead);
+static int string_type_at(int ahead);
 static Node *paren_cond(void);
 static void end_expr_stmt(void);
 static Node *expr_stmt(void);
@@ -2716,7 +2763,7 @@ static char *directive_word(const char *text, const char **rest);
 static void top_directive(Token *t, NodeList *out, const char *ns);
 static void at_type(void);
 static void parse_top_list(NodeList *out, const char *ns, int until_brace);
-static void add_decl(NodeList *out, Node *n, const char *ns);
+static void add_decl(NodeList *out, Node *n, const char *ns, int start);
 static void parse_top_one(NodeList *out, const char *ns);
 static int quals_of(TokKind k);
 static TypeRef *name_ref(const char *name, Loc loc);
@@ -2822,6 +2869,8 @@ static const StdEntry std_entries[7] = {{"std/debug.mxy", "// std/debug.mxy — 
 Buf glue;
 static StrMap thunks;
 static StrMap made;
+static MacroHistList hist;
+static StrMap hist_index;
 Sections out;
 const GenOptions *gopts;
 int tmp_counter;
@@ -2834,6 +2883,8 @@ static TypeList results;
 static StrMap seen_results;
 static StrMap emitted;
 static StrMap visiting;
+static MacroCursor fwd_macros;
+static MacroCursor type_macros;
 static StrVec include_dirs;
 static StrVec loaded;
 Parser P;
@@ -4843,28 +4894,30 @@ Node *node_new(NodeKind kind, Loc loc) {
 #line 8 "src/ast/ast.mxy"
     (n->loc = loc);
 #line 9 "src/ast/ast.mxy"
+    (n->pos = (-1));
+#line 10 "src/ast/ast.mxy"
     return n;
 }
 
-#line 12 "src/ast/ast.mxy"
-TypeRef *tref_new(TypeRefKind kind, Loc loc) {
 #line 13 "src/ast/ast.mxy"
-    TypeRef *t = xcalloc(1, sizeof(TypeRef));
+TypeRef *tref_new(TypeRefKind kind, Loc loc) {
 #line 14 "src/ast/ast.mxy"
-    (t->kind = kind);
+    TypeRef *t = xcalloc(1, sizeof(TypeRef));
 #line 15 "src/ast/ast.mxy"
-    (t->loc = loc);
+    (t->kind = kind);
 #line 16 "src/ast/ast.mxy"
+    (t->loc = loc);
+#line 17 "src/ast/ast.mxy"
     return t;
 }
 
-#line 20 "src/ast/ast.mxy"
-Node *node_clone(Node *n) {
 #line 21 "src/ast/ast.mxy"
-    Node *c = xmalloc(sizeof(Node));
+Node *node_clone(Node *n) {
 #line 22 "src/ast/ast.mxy"
-    memcpy(c, n, sizeof(Node));
+    Node *c = xmalloc(sizeof(Node));
 #line 23 "src/ast/ast.mxy"
+    memcpy(c, n, sizeof(Node));
+#line 24 "src/ast/ast.mxy"
     return c;
 }
 
@@ -5800,316 +5853,322 @@ int type_is_char_ptr(Type *t) {
     return (((b->kind == TY_CHAR) || (b->kind == TY_SCHAR)) || (b->kind == TY_UCHAR));
 }
 
-#line 166 "src/types/types.mxy"
-int type_is_unknownish(Type *t) {
 #line 167 "src/types/types.mxy"
+const char *type_tag(Type *t) {
+#line 167 "src/types/types.mxy"
+    return (t->ctag ? t->ctag : t->cname);
+}
+
+#line 169 "src/types/types.mxy"
+int type_is_unknownish(Type *t) {
+#line 170 "src/types/types.mxy"
     (t = type_unqual(t));
-#line 168 "src/types/types.mxy"
+#line 171 "src/types/types.mxy"
     return (((!t) || (t->kind == TY_UNKNOWN)) || (t->kind == TY_NAMED));
 }
 
-#line 171 "src/types/types.mxy"
+#line 174 "src/types/types.mxy"
 int type_is_scalar(Type *t) {
-#line 172 "src/types/types.mxy"
+#line 175 "src/types/types.mxy"
     (t = type_unqual(t));
-#line 173 "src/types/types.mxy"
+#line 176 "src/types/types.mxy"
     return (((((type_is_arith(t) || type_is_ptrlike(t)) || type_is_unknownish(t)) || (t->kind == TY_STRING)) || ((t->kind == TY_STRUCT) && t->is_ref)) || (t->kind == TY_CLOSURE));
 }
 
-#line 178 "src/types/types.mxy"
+#line 181 "src/types/types.mxy"
 int type_is_refcounted(Type *t) {
-#line 179 "src/types/types.mxy"
+#line 182 "src/types/types.mxy"
     (t = type_unqual(t));
-#line 180 "src/types/types.mxy"
+#line 183 "src/types/types.mxy"
     if (!t) {
-#line 180 "src/types/types.mxy"
+#line 183 "src/types/types.mxy"
         return 0;
     }
-#line 181 "src/types/types.mxy"
-    switch (t->kind) {
-#line 182 "src/types/types.mxy"
-    case TY_STRING:;
-#line 182 "src/types/types.mxy"
-    case TY_LIST:;
-#line 182 "src/types/types.mxy"
-    case TY_MAP:;
-#line 182 "src/types/types.mxy"
-    case TY_FUTURE:;
-#line 182 "src/types/types.mxy"
-    case TY_CLOSURE:;
-#line 183 "src/types/types.mxy"
-        return 1;
 #line 184 "src/types/types.mxy"
-    case TY_STRUCT:;
+    switch (t->kind) {
 #line 185 "src/types/types.mxy"
-        return t->is_ref;
+    case TY_STRING:;
+#line 185 "src/types/types.mxy"
+    case TY_LIST:;
+#line 185 "src/types/types.mxy"
+    case TY_MAP:;
+#line 185 "src/types/types.mxy"
+    case TY_FUTURE:;
+#line 185 "src/types/types.mxy"
+    case TY_CLOSURE:;
 #line 186 "src/types/types.mxy"
-    default:;
+        return 1;
 #line 187 "src/types/types.mxy"
+    case TY_STRUCT:;
+#line 188 "src/types/types.mxy"
+        return t->is_ref;
+#line 189 "src/types/types.mxy"
+    default:;
+#line 190 "src/types/types.mxy"
         return 0;
     }
 }
 
-#line 191 "src/types/types.mxy"
+#line 194 "src/types/types.mxy"
 int type_is_managed(Type *t) {
-#line 192 "src/types/types.mxy"
+#line 195 "src/types/types.mxy"
     (t = type_unqual(t));
-#line 193 "src/types/types.mxy"
+#line 196 "src/types/types.mxy"
     if (!t) {
-#line 193 "src/types/types.mxy"
+#line 196 "src/types/types.mxy"
         return 0;
     }
-#line 194 "src/types/types.mxy"
+#line 197 "src/types/types.mxy"
     if (type_is_refcounted(t)) {
-#line 194 "src/types/types.mxy"
-        return 1;
-    }
-#line 195 "src/types/types.mxy"
-    switch (t->kind) {
-#line 196 "src/types/types.mxy"
-    case TY_RESULT:;
 #line 197 "src/types/types.mxy"
         return 1;
+    }
 #line 198 "src/types/types.mxy"
-    case TY_ARRAY:;
+    switch (t->kind) {
 #line 199 "src/types/types.mxy"
-        return type_is_managed(t->base);
+    case TY_RESULT:;
 #line 200 "src/types/types.mxy"
+        return 1;
+#line 201 "src/types/types.mxy"
+    case TY_ARRAY:;
+#line 202 "src/types/types.mxy"
+        return type_is_managed(t->base);
+#line 203 "src/types/types.mxy"
     case TY_STRUCT:;
         {
-#line 201 "src/types/types.mxy"
+#line 204 "src/types/types.mxy"
             if (t->is_union || (!t->decl)) {
-#line 201 "src/types/types.mxy"
+#line 204 "src/types/types.mxy"
                 return 0;
             }
-#line 202 "src/types/types.mxy"
+#line 205 "src/types/types.mxy"
             if (t->managed >= 0) {
-#line 202 "src/types/types.mxy"
+#line 205 "src/types/types.mxy"
                 return t->managed;
             }
-#line 203 "src/types/types.mxy"
+#line 206 "src/types/types.mxy"
             (t->managed = 0);
             {
-#line 204 "src/types/types.mxy"
+#line 207 "src/types/types.mxy"
                 int i = 0;
-#line 204 "src/types/types.mxy"
+#line 207 "src/types/types.mxy"
                 for (; i < t->decl->list.len; (i++)) {
-#line 205 "src/types/types.mxy"
+#line 208 "src/types/types.mxy"
                     Node *f = t->decl->list.items[i];
-#line 206 "src/types/types.mxy"
+#line 209 "src/types/types.mxy"
                     if (((f->kind == N_FIELD) && f->type) && type_is_managed(f->type)) {
-#line 206 "src/types/types.mxy"
+#line 209 "src/types/types.mxy"
                         (t->managed = 1);
                     }
                 }
             }
-#line 208 "src/types/types.mxy"
+#line 211 "src/types/types.mxy"
             return t->managed;
         }
-#line 210 "src/types/types.mxy"
+#line 213 "src/types/types.mxy"
     case TY_ENUM:;
         {
-#line 211 "src/types/types.mxy"
+#line 214 "src/types/types.mxy"
             if (t->simple || (!t->decl)) {
-#line 211 "src/types/types.mxy"
+#line 214 "src/types/types.mxy"
                 return 0;
             }
-#line 212 "src/types/types.mxy"
+#line 215 "src/types/types.mxy"
             if (t->managed >= 0) {
-#line 212 "src/types/types.mxy"
+#line 215 "src/types/types.mxy"
                 return t->managed;
             }
-#line 213 "src/types/types.mxy"
+#line 216 "src/types/types.mxy"
             (t->managed = 0);
             {
-#line 214 "src/types/types.mxy"
+#line 217 "src/types/types.mxy"
                 int i = 0;
-#line 214 "src/types/types.mxy"
+#line 217 "src/types/types.mxy"
                 for (; i < t->decl->list.len; (i++)) {
-#line 215 "src/types/types.mxy"
+#line 218 "src/types/types.mxy"
                     Node *v = t->decl->list.items[i];
                     {
-#line 216 "src/types/types.mxy"
+#line 219 "src/types/types.mxy"
                         int j = 0;
-#line 216 "src/types/types.mxy"
+#line 219 "src/types/types.mxy"
                         for (; j < v->params.len; (j++)) {
-#line 217 "src/types/types.mxy"
+#line 220 "src/types/types.mxy"
                             TypeRef *r = v->params.items[j].type;
-#line 218 "src/types/types.mxy"
+#line 221 "src/types/types.mxy"
                             if (r->resolved && type_is_managed(r->resolved)) {
-#line 218 "src/types/types.mxy"
+#line 221 "src/types/types.mxy"
                                 (t->managed = 1);
                             }
                         }
                     }
                 }
             }
-#line 221 "src/types/types.mxy"
+#line 224 "src/types/types.mxy"
             return t->managed;
         }
-#line 223 "src/types/types.mxy"
+#line 226 "src/types/types.mxy"
     default:;
-#line 224 "src/types/types.mxy"
+#line 227 "src/types/types.mxy"
         return 0;
     }
 }
 
-#line 228 "src/types/types.mxy"
+#line 231 "src/types/types.mxy"
 int type_rank(Type *t) {
-#line 229 "src/types/types.mxy"
+#line 232 "src/types/types.mxy"
     (t = type_unqual(t));
-#line 230 "src/types/types.mxy"
+#line 233 "src/types/types.mxy"
     switch (t->kind) {
-#line 231 "src/types/types.mxy"
+#line 234 "src/types/types.mxy"
     case TY_BOOL:;
-#line 231 "src/types/types.mxy"
+#line 234 "src/types/types.mxy"
         return 1;
-#line 232 "src/types/types.mxy"
+#line 235 "src/types/types.mxy"
     case TY_CHAR:;
-#line 232 "src/types/types.mxy"
+#line 235 "src/types/types.mxy"
     case TY_SCHAR:;
-#line 232 "src/types/types.mxy"
+#line 235 "src/types/types.mxy"
     case TY_UCHAR:;
-#line 232 "src/types/types.mxy"
+#line 235 "src/types/types.mxy"
         return 2;
-#line 233 "src/types/types.mxy"
+#line 236 "src/types/types.mxy"
     case TY_SHORT:;
-#line 233 "src/types/types.mxy"
+#line 236 "src/types/types.mxy"
     case TY_USHORT:;
-#line 233 "src/types/types.mxy"
+#line 236 "src/types/types.mxy"
         return 3;
-#line 234 "src/types/types.mxy"
+#line 237 "src/types/types.mxy"
     case TY_INT:;
-#line 234 "src/types/types.mxy"
+#line 237 "src/types/types.mxy"
     case TY_CENUM:;
-#line 234 "src/types/types.mxy"
+#line 237 "src/types/types.mxy"
     case TY_ENUM:;
-#line 234 "src/types/types.mxy"
+#line 237 "src/types/types.mxy"
         return 4;
-#line 235 "src/types/types.mxy"
+#line 238 "src/types/types.mxy"
     case TY_UINT:;
-#line 235 "src/types/types.mxy"
+#line 238 "src/types/types.mxy"
         return 5;
-#line 236 "src/types/types.mxy"
+#line 239 "src/types/types.mxy"
     case TY_LONG:;
-#line 236 "src/types/types.mxy"
+#line 239 "src/types/types.mxy"
         return 6;
-#line 237 "src/types/types.mxy"
+#line 240 "src/types/types.mxy"
     case TY_ULONG:;
-#line 237 "src/types/types.mxy"
+#line 240 "src/types/types.mxy"
         return 7;
-#line 238 "src/types/types.mxy"
+#line 241 "src/types/types.mxy"
     case TY_LLONG:;
-#line 238 "src/types/types.mxy"
+#line 241 "src/types/types.mxy"
         return 8;
-#line 239 "src/types/types.mxy"
+#line 242 "src/types/types.mxy"
     case TY_ULLONG:;
-#line 239 "src/types/types.mxy"
+#line 242 "src/types/types.mxy"
         return 9;
-#line 240 "src/types/types.mxy"
+#line 243 "src/types/types.mxy"
     case TY_FLOAT:;
-#line 240 "src/types/types.mxy"
+#line 243 "src/types/types.mxy"
         return 10;
-#line 241 "src/types/types.mxy"
+#line 244 "src/types/types.mxy"
     case TY_DOUBLE:;
-#line 241 "src/types/types.mxy"
+#line 244 "src/types/types.mxy"
         return 11;
-#line 242 "src/types/types.mxy"
+#line 245 "src/types/types.mxy"
     case TY_LDOUBLE:;
-#line 242 "src/types/types.mxy"
+#line 245 "src/types/types.mxy"
         return 12;
-#line 243 "src/types/types.mxy"
+#line 246 "src/types/types.mxy"
     default:;
-#line 243 "src/types/types.mxy"
+#line 246 "src/types/types.mxy"
         return 0;
     }
 }
 
-#line 248 "src/types/types.mxy"
+#line 251 "src/types/types.mxy"
 Type *type_common(Type *a, Type *b) {
-#line 249 "src/types/types.mxy"
+#line 252 "src/types/types.mxy"
     (a = type_unqual(a));
-#line 250 "src/types/types.mxy"
+#line 253 "src/types/types.mxy"
     (b = type_unqual(b));
-#line 251 "src/types/types.mxy"
+#line 254 "src/types/types.mxy"
     if (type_is_unknownish(a)) {
-#line 251 "src/types/types.mxy"
+#line 254 "src/types/types.mxy"
         return (type_is_unknownish(b) ? ty_unknown : (type_is_arith(b) ? ty_unknown : b));
     }
-#line 252 "src/types/types.mxy"
+#line 255 "src/types/types.mxy"
     if (type_is_unknownish(b)) {
-#line 252 "src/types/types.mxy"
+#line 255 "src/types/types.mxy"
         return (type_is_arith(a) ? ty_unknown : a);
     }
-#line 253 "src/types/types.mxy"
+#line 256 "src/types/types.mxy"
     int ra = type_rank(a);
-#line 253 "src/types/types.mxy"
+#line 256 "src/types/types.mxy"
     int rb = type_rank(b);
-#line 254 "src/types/types.mxy"
-    Type *hi = ((ra >= rb) ? a : b);
-#line 255 "src/types/types.mxy"
-    if (type_rank(hi) < 4) {
-#line 255 "src/types/types.mxy"
-        return ty_int;
-    }
-#line 256 "src/types/types.mxy"
-    if ((hi->kind == TY_CENUM) || (hi->kind == TY_ENUM)) {
-#line 256 "src/types/types.mxy"
-        return ty_int;
-    }
 #line 257 "src/types/types.mxy"
+    Type *hi = ((ra >= rb) ? a : b);
+#line 258 "src/types/types.mxy"
+    if (type_rank(hi) < 4) {
+#line 258 "src/types/types.mxy"
+        return ty_int;
+    }
+#line 259 "src/types/types.mxy"
+    if ((hi->kind == TY_CENUM) || (hi->kind == TY_ENUM)) {
+#line 259 "src/types/types.mxy"
+        return ty_int;
+    }
+#line 260 "src/types/types.mxy"
     return hi;
 }
 
-#line 260 "src/types/types.mxy"
+#line 263 "src/types/types.mxy"
 Node *type_field(Type *s, const char *name, Type **ftype, char **path) {
-#line 261 "src/types/types.mxy"
+#line 264 "src/types/types.mxy"
     (s = type_unqual(s));
-#line 262 "src/types/types.mxy"
+#line 265 "src/types/types.mxy"
     if (path) {
-#line 262 "src/types/types.mxy"
+#line 265 "src/types/types.mxy"
         ((*path) = NULL);
     }
-#line 263 "src/types/types.mxy"
+#line 266 "src/types/types.mxy"
     if (((!s) || (s->kind != TY_STRUCT)) || (!s->decl)) {
-#line 263 "src/types/types.mxy"
+#line 266 "src/types/types.mxy"
         return NULL;
     }
     {
-#line 264 "src/types/types.mxy"
+#line 267 "src/types/types.mxy"
         int i = 0;
-#line 264 "src/types/types.mxy"
+#line 267 "src/types/types.mxy"
         for (; i < s->decl->list.len; (i++)) {
-#line 265 "src/types/types.mxy"
+#line 268 "src/types/types.mxy"
             Node *f = s->decl->list.items[i];
-#line 266 "src/types/types.mxy"
+#line 269 "src/types/types.mxy"
             if (f->kind != N_FIELD) {
-#line 266 "src/types/types.mxy"
+#line 269 "src/types/types.mxy"
                 continue;
             }
-#line 267 "src/types/types.mxy"
+#line 270 "src/types/types.mxy"
             if (f->name && (strcmp(f->name, name) == 0)) {
-#line 268 "src/types/types.mxy"
+#line 271 "src/types/types.mxy"
                 if (ftype) {
-#line 268 "src/types/types.mxy"
+#line 271 "src/types/types.mxy"
                     ((*ftype) = f->type);
                 }
-#line 269 "src/types/types.mxy"
+#line 272 "src/types/types.mxy"
                 return f;
             }
-#line 271 "src/types/types.mxy"
+#line 274 "src/types/types.mxy"
             if ((!f->name) && f->type) {
-#line 272 "src/types/types.mxy"
+#line 275 "src/types/types.mxy"
                 Node *inner = type_field(f->type, name, ftype, NULL);
-#line 273 "src/types/types.mxy"
+#line 276 "src/types/types.mxy"
                 if (inner) {
-#line 273 "src/types/types.mxy"
+#line 276 "src/types/types.mxy"
                     return inner;
                 }
             }
         }
     }
-#line 276 "src/types/types.mxy"
+#line 279 "src/types/types.mxy"
     return NULL;
 }
 
@@ -7120,158 +7179,151 @@ static void declare_func(Node *fn) {
         return;
     }
 #line 61 "src/sema/decl.mxy"
-    if (existing && (!(((existing->kind == S_TYPE) && existing->decl) && (existing->decl->kind == N_STRUCT)))) {
+    if (is_struct_alias(existing)) {
 #line 62 "src/sema/decl.mxy"
-        diag_error(fn->loc, "'%s' is already declared", fn->name);
+        struct_cede_name(existing->type);
 #line 63 "src/sema/decl.mxy"
-        return;
+        (existing = NULL);
     }
 #line 65 "src/sema/decl.mxy"
-    Sym *sym = sym_new(S_FUNC, fn->name, fn->loc);
+    if (existing) {
 #line 66 "src/sema/decl.mxy"
-    (sym->global = 1);
+        diag_error(fn->loc, "'%s' is already declared", fn->name);
 #line 67 "src/sema/decl.mxy"
-    (sym->decl = fn);
-#line 68 "src/sema/decl.mxy"
-    (sym->has_body = (fn->a != NULL));
+        return;
+    }
 #line 69 "src/sema/decl.mxy"
-    (sym->cname = cname_for(fn->ns, fn->name));
+    Sym *sym = sym_new(S_FUNC, fn->name, fn->loc);
 #line 70 "src/sema/decl.mxy"
-    scope_declare(s, sym);
+    (sym->global = 1);
 #line 71 "src/sema/decl.mxy"
+    (sym->decl = fn);
+#line 72 "src/sema/decl.mxy"
+    (sym->has_body = (fn->a != NULL));
+#line 73 "src/sema/decl.mxy"
+    (sym->cname = cname_for(fn->ns, fn->name));
+#line 74 "src/sema/decl.mxy"
+    scope_declare(s, sym);
+#line 75 "src/sema/decl.mxy"
     (fn->sym = sym);
 }
 
-#line 74 "src/sema/decl.mxy"
-static void declare_global(Node *v) {
-#line 75 "src/sema/decl.mxy"
-    Scope *s = scope_of(v);
-#line 76 "src/sema/decl.mxy"
-    Sym *existing = scope_get(s, v->name);
-#line 77 "src/sema/decl.mxy"
-    vec_push(prog.globals, v);
 #line 78 "src/sema/decl.mxy"
-    if (existing && (existing->kind == S_VAR)) {
+static void declare_global(Node *v) {
 #line 79 "src/sema/decl.mxy"
-        if (alt_branch(existing->decl, v)) {
+    Scope *s = scope_of(v);
 #line 80 "src/sema/decl.mxy"
-            (v->sym = existing);
+    Sym *existing = scope_get(s, v->name);
 #line 81 "src/sema/decl.mxy"
+    vec_push(prog.globals, v);
+#line 82 "src/sema/decl.mxy"
+    if (existing && (existing->kind == S_VAR)) {
+#line 83 "src/sema/decl.mxy"
+        if (alt_branch(existing->decl, v)) {
+#line 84 "src/sema/decl.mxy"
+            (v->sym = existing);
+#line 85 "src/sema/decl.mxy"
             return;
         }
-#line 83 "src/sema/decl.mxy"
+#line 87 "src/sema/decl.mxy"
         if ((v->a && existing->decl) && existing->decl->a) {
-#line 84 "src/sema/decl.mxy"
+#line 88 "src/sema/decl.mxy"
             diag_error(v->loc, "global '%s' is defined twice", v->name);
         } else {
-#line 85 "src/sema/decl.mxy"
+#line 89 "src/sema/decl.mxy"
             if (v->a || (!(v->flags & F_EXTERN))) {
-#line 86 "src/sema/decl.mxy"
+#line 90 "src/sema/decl.mxy"
                 (existing->decl = v);
             }
         }
-#line 88 "src/sema/decl.mxy"
-        (v->sym = existing);
-#line 89 "src/sema/decl.mxy"
-        return;
-    }
-#line 91 "src/sema/decl.mxy"
-    if (existing) {
 #line 92 "src/sema/decl.mxy"
-        diag_error(v->loc, "'%s' is already declared", v->name);
+        (v->sym = existing);
 #line 93 "src/sema/decl.mxy"
         return;
     }
 #line 95 "src/sema/decl.mxy"
-    Sym *sym = sym_new(S_VAR, v->name, v->loc);
+    if (is_struct_alias(existing)) {
 #line 96 "src/sema/decl.mxy"
-    (sym->global = 1);
+        struct_cede_name(existing->type);
 #line 97 "src/sema/decl.mxy"
-    (sym->decl = v);
-#line 98 "src/sema/decl.mxy"
-    (sym->cname = cname_for(v->ns, v->name));
+        (existing = NULL);
+    }
 #line 99 "src/sema/decl.mxy"
-    scope_declare(s, sym);
+    if (existing) {
 #line 100 "src/sema/decl.mxy"
+        diag_error(v->loc, "'%s' is already declared", v->name);
+#line 101 "src/sema/decl.mxy"
+        return;
+    }
+#line 103 "src/sema/decl.mxy"
+    Sym *sym = sym_new(S_VAR, v->name, v->loc);
+#line 104 "src/sema/decl.mxy"
+    (sym->global = 1);
+#line 105 "src/sema/decl.mxy"
+    (sym->decl = v);
+#line 106 "src/sema/decl.mxy"
+    (sym->cname = cname_for(v->ns, v->name));
+#line 107 "src/sema/decl.mxy"
+    scope_declare(s, sym);
+#line 108 "src/sema/decl.mxy"
     (v->sym = sym);
 }
 
-#line 103 "src/sema/decl.mxy"
-static void declare_typedef(Node *td) {
-#line 104 "src/sema/decl.mxy"
-    Scope *s = scope_of(td);
-#line 105 "src/sema/decl.mxy"
-    vec_push(prog.typedefs, td);
-#line 106 "src/sema/decl.mxy"
-    Sym *existing = scope_get(s, td->name);
-#line 107 "src/sema/decl.mxy"
-    TypeRef *tr = td->tref;
-#line 108 "src/sema/decl.mxy"
-    if (((tr->kind == TR_TAG) && tr->def) && (!tr->def->name)) {
-#line 109 "src/sema/decl.mxy"
-        (tr->def->ns = td->ns);
-#line 110 "src/sema/decl.mxy"
-        (tr->def->cond = td->cond);
 #line 111 "src/sema/decl.mxy"
+static void declare_typedef(Node *td) {
+#line 112 "src/sema/decl.mxy"
+    Scope *s = scope_of(td);
+#line 113 "src/sema/decl.mxy"
+    vec_push(prog.typedefs, td);
+#line 114 "src/sema/decl.mxy"
+    Sym *existing = scope_get(s, td->name);
+#line 115 "src/sema/decl.mxy"
+    TypeRef *tr = td->tref;
+#line 116 "src/sema/decl.mxy"
+    if (((tr->kind == TR_TAG) && tr->def) && (!tr->def->name)) {
+#line 117 "src/sema/decl.mxy"
+        (tr->def->ns = td->ns);
+#line 118 "src/sema/decl.mxy"
+        (tr->def->cond = td->cond);
+#line 119 "src/sema/decl.mxy"
         Type *t = ((tr->def->kind == N_CENUM) ? define_cenum(tr->def) : define_struct(tr->def, td->name));
-#line 112 "src/sema/decl.mxy"
+#line 120 "src/sema/decl.mxy"
         if ((tr->def->kind == N_CENUM) && (!t->cname)) {
-#line 112 "src/sema/decl.mxy"
+#line 120 "src/sema/decl.mxy"
             (void)((t->cname = cname_for(td->ns, td->name)), (td->op = 1));
         }
-#line 113 "src/sema/decl.mxy"
+#line 121 "src/sema/decl.mxy"
         (tr->resolved = t);
     }
-#line 115 "src/sema/decl.mxy"
-    if (((existing && (existing->kind == S_TYPE)) && existing->decl) && (existing->decl->kind == N_TYPEDEF)) {
-#line 117 "src/sema/decl.mxy"
-        return;
-    }
-#line 119 "src/sema/decl.mxy"
-    if (existing && (existing->kind != S_TYPE)) {
-#line 120 "src/sema/decl.mxy"
-        diag_error(td->loc, "'%s' is already declared", td->name);
-#line 121 "src/sema/decl.mxy"
-        return;
-    }
 #line 123 "src/sema/decl.mxy"
-    Sym *sym = (existing ? existing : sym_new(S_TYPE, td->name, td->loc));
-#line 124 "src/sema/decl.mxy"
-    (sym->decl = td);
+    if (((existing && (existing->kind == S_TYPE)) && existing->decl) && (existing->decl->kind == N_TYPEDEF)) {
 #line 125 "src/sema/decl.mxy"
+        return;
+    }
+#line 127 "src/sema/decl.mxy"
+    if (existing && (existing->kind != S_TYPE)) {
+#line 128 "src/sema/decl.mxy"
+        diag_error(td->loc, "'%s' is already declared", td->name);
+#line 129 "src/sema/decl.mxy"
+        return;
+    }
+#line 131 "src/sema/decl.mxy"
+    Sym *sym = (existing ? existing : sym_new(S_TYPE, td->name, td->loc));
+#line 132 "src/sema/decl.mxy"
+    (sym->decl = td);
+#line 133 "src/sema/decl.mxy"
     (sym->type = NULL);
-#line 126 "src/sema/decl.mxy"
+#line 134 "src/sema/decl.mxy"
     (sym->cname = cname_for(td->ns, td->name));
-#line 127 "src/sema/decl.mxy"
+#line 135 "src/sema/decl.mxy"
     if (!existing) {
-#line 127 "src/sema/decl.mxy"
+#line 135 "src/sema/decl.mxy"
         scope_declare(s, sym);
     }
 }
 
-#line 130 "src/sema/decl.mxy"
+#line 138 "src/sema/decl.mxy"
 static void pass_declare(Node *root) {
-    {
-#line 131 "src/sema/decl.mxy"
-        int i = 0;
-#line 131 "src/sema/decl.mxy"
-        for (; i < root->list.len; (i++)) {
-#line 132 "src/sema/decl.mxy"
-            Node *n = root->list.items[i];
-#line 133 "src/sema/decl.mxy"
-            if ((((n->kind == N_TYPEDEF) && (n->tref->kind == TR_TAG)) && n->tref->def) && (!n->tref->def->name)) {
-#line 134 "src/sema/decl.mxy"
-                (n->tref->def->ns = n->ns);
-#line 135 "src/sema/decl.mxy"
-                (n->tref->def->cond = n->cond);
-#line 136 "src/sema/decl.mxy"
-                if (n->tref->def->kind == N_STRUCT) {
-#line 136 "src/sema/decl.mxy"
-                    define_struct(n->tref->def, n->name);
-                }
-            }
-        }
-    }
     {
 #line 139 "src/sema/decl.mxy"
         int i = 0;
@@ -7280,183 +7332,206 @@ static void pass_declare(Node *root) {
 #line 140 "src/sema/decl.mxy"
             Node *n = root->list.items[i];
 #line 141 "src/sema/decl.mxy"
+            if ((((n->kind == N_TYPEDEF) && (n->tref->kind == TR_TAG)) && n->tref->def) && (!n->tref->def->name)) {
+#line 142 "src/sema/decl.mxy"
+                (n->tref->def->ns = n->ns);
+#line 143 "src/sema/decl.mxy"
+                (n->tref->def->cond = n->cond);
+#line 144 "src/sema/decl.mxy"
+                (n->tref->def->pos = n->pos);
+#line 145 "src/sema/decl.mxy"
+                if (n->tref->def->kind == N_STRUCT) {
+#line 145 "src/sema/decl.mxy"
+                    define_struct(n->tref->def, n->name);
+                }
+            }
+        }
+    }
+    {
+#line 148 "src/sema/decl.mxy"
+        int i = 0;
+#line 148 "src/sema/decl.mxy"
+        for (; i < root->list.len; (i++)) {
+#line 149 "src/sema/decl.mxy"
+            Node *n = root->list.items[i];
+#line 150 "src/sema/decl.mxy"
             switch (n->kind) {
-#line 142 "src/sema/decl.mxy"
+#line 151 "src/sema/decl.mxy"
             case N_STRUCT:;
-#line 142 "src/sema/decl.mxy"
+#line 151 "src/sema/decl.mxy"
                 define_struct(n, NULL);
-#line 142 "src/sema/decl.mxy"
+#line 151 "src/sema/decl.mxy"
                 break;
-#line 143 "src/sema/decl.mxy"
+#line 152 "src/sema/decl.mxy"
             case N_CENUM:;
-#line 143 "src/sema/decl.mxy"
+#line 152 "src/sema/decl.mxy"
                 define_cenum(n);
-#line 143 "src/sema/decl.mxy"
+#line 152 "src/sema/decl.mxy"
                 break;
-#line 144 "src/sema/decl.mxy"
+#line 153 "src/sema/decl.mxy"
             case N_ENUM:;
-#line 144 "src/sema/decl.mxy"
+#line 153 "src/sema/decl.mxy"
                 declare_enum(n);
-#line 144 "src/sema/decl.mxy"
+#line 153 "src/sema/decl.mxy"
                 break;
-#line 145 "src/sema/decl.mxy"
+#line 154 "src/sema/decl.mxy"
             case N_FUNC:;
-#line 145 "src/sema/decl.mxy"
+#line 154 "src/sema/decl.mxy"
                 declare_func(n);
-#line 145 "src/sema/decl.mxy"
+#line 154 "src/sema/decl.mxy"
                 break;
-#line 146 "src/sema/decl.mxy"
+#line 155 "src/sema/decl.mxy"
             case N_VAR:;
-#line 146 "src/sema/decl.mxy"
+#line 155 "src/sema/decl.mxy"
                 declare_global(n);
-#line 146 "src/sema/decl.mxy"
+#line 155 "src/sema/decl.mxy"
                 break;
-#line 147 "src/sema/decl.mxy"
+#line 156 "src/sema/decl.mxy"
             case N_TYPEDEF:;
-#line 147 "src/sema/decl.mxy"
+#line 156 "src/sema/decl.mxy"
                 declare_typedef(n);
-#line 147 "src/sema/decl.mxy"
+#line 156 "src/sema/decl.mxy"
                 break;
-#line 148 "src/sema/decl.mxy"
+#line 157 "src/sema/decl.mxy"
             case N_DIRECTIVE:;
-#line 148 "src/sema/decl.mxy"
+#line 157 "src/sema/decl.mxy"
                 vec_push(prog.directives, n);
-#line 148 "src/sema/decl.mxy"
+#line 157 "src/sema/decl.mxy"
                 break;
-#line 149 "src/sema/decl.mxy"
+#line 158 "src/sema/decl.mxy"
             case N_STATIC_ASSERT:;
-#line 149 "src/sema/decl.mxy"
+#line 158 "src/sema/decl.mxy"
                 vec_push(prog.asserts, n);
-#line 149 "src/sema/decl.mxy"
+#line 158 "src/sema/decl.mxy"
                 break;
-#line 150 "src/sema/decl.mxy"
+#line 159 "src/sema/decl.mxy"
             default:;
-#line 150 "src/sema/decl.mxy"
+#line 159 "src/sema/decl.mxy"
                 break;
             }
         }
     }
     {
-#line 153 "src/sema/decl.mxy"
-        int i = 0;
-#line 153 "src/sema/decl.mxy"
-        for (; i < root->list.len; (i++)) {
-#line 154 "src/sema/decl.mxy"
-            Node *n = root->list.items[i];
-#line 155 "src/sema/decl.mxy"
-            if (n->kind != N_USING) {
-#line 155 "src/sema/decl.mxy"
-                continue;
-            }
-#line 156 "src/sema/decl.mxy"
-            Sym *target = NULL;
-#line 157 "src/sema/decl.mxy"
-            Scope *saved = cur_scope;
-#line 158 "src/sema/decl.mxy"
-            (cur_scope = scope_of(n));
-#line 159 "src/sema/decl.mxy"
-            (target = lookup_quiet(n->name));
-#line 160 "src/sema/decl.mxy"
-            (cur_scope = saved);
-#line 161 "src/sema/decl.mxy"
-            if ((!target) || (target->kind != S_NS)) {
 #line 162 "src/sema/decl.mxy"
-                diag_error(n->loc, "unknown namespace '%s'", n->name);
+        int i = 0;
+#line 162 "src/sema/decl.mxy"
+        for (; i < root->list.len; (i++)) {
 #line 163 "src/sema/decl.mxy"
+            Node *n = root->list.items[i];
+#line 164 "src/sema/decl.mxy"
+            if (n->kind != N_USING) {
+#line 164 "src/sema/decl.mxy"
                 continue;
             }
 #line 165 "src/sema/decl.mxy"
+            Sym *target = NULL;
+#line 166 "src/sema/decl.mxy"
+            Scope *saved = cur_scope;
+#line 167 "src/sema/decl.mxy"
+            (cur_scope = scope_of(n));
+#line 168 "src/sema/decl.mxy"
+            (target = lookup_quiet(n->name));
+#line 169 "src/sema/decl.mxy"
+            (cur_scope = saved);
+#line 170 "src/sema/decl.mxy"
+            if ((!target) || (target->kind != S_NS)) {
+#line 171 "src/sema/decl.mxy"
+                diag_error(n->loc, "unknown namespace '%s'", n->name);
+#line 172 "src/sema/decl.mxy"
+                continue;
+            }
+#line 174 "src/sema/decl.mxy"
             vec_push(scope_of(n)->imports, target->members);
         }
     }
 }
 
-#line 169 "src/sema/decl.mxy"
-static void complete_struct(Node *decl) {
-#line 170 "src/sema/decl.mxy"
+#line 178 "src/sema/decl.mxy"
+void complete_struct(Node *decl) {
+#line 179 "src/sema/decl.mxy"
     Type *t = decl->type;
     {
-#line 171 "src/sema/decl.mxy"
+#line 180 "src/sema/decl.mxy"
         int i = 0;
-#line 171 "src/sema/decl.mxy"
+#line 180 "src/sema/decl.mxy"
         for (; i < decl->list.len; (i++)) {
-#line 172 "src/sema/decl.mxy"
+#line 181 "src/sema/decl.mxy"
             Node *f = decl->list.items[i];
-#line 173 "src/sema/decl.mxy"
+#line 182 "src/sema/decl.mxy"
             if (f->kind != N_FIELD) {
-#line 173 "src/sema/decl.mxy"
+#line 182 "src/sema/decl.mxy"
                 continue;
             }
-#line 174 "src/sema/decl.mxy"
+#line 183 "src/sema/decl.mxy"
             if ((f->tref->kind == TR_TAG) && f->tref->def) {
-#line 175 "src/sema/decl.mxy"
+#line 184 "src/sema/decl.mxy"
                 (f->tref->def->ns = decl->ns);
-#line 176 "src/sema/decl.mxy"
+#line 185 "src/sema/decl.mxy"
                 (f->tref->def->cond = decl->cond);
             }
-#line 178 "src/sema/decl.mxy"
+#line 187 "src/sema/decl.mxy"
             (f->type = resolve_type(f->tref));
-#line 179 "src/sema/decl.mxy"
+#line 188 "src/sema/decl.mxy"
             Type *u = type_unqual(f->type);
-#line 180 "src/sema/decl.mxy"
+#line 189 "src/sema/decl.mxy"
             if ((((((u->kind == TY_STRUCT) && u->decl) && (!u->is_ref)) && (u != t)) && (!u->decl->name)) && (f->name == NULL)) {
-#line 181 "src/sema/decl.mxy"
+#line 190 "src/sema/decl.mxy"
                 (u->decl->flags |= F_INLINE);
             }
-#line 183 "src/sema/decl.mxy"
+#line 192 "src/sema/decl.mxy"
             if (f->flags & F_WEAK) {
-#line 184 "src/sema/decl.mxy"
+#line 193 "src/sema/decl.mxy"
                 if ((u->kind != TY_STRUCT) || (!u->is_ref)) {
-#line 185 "src/sema/decl.mxy"
+#line 194 "src/sema/decl.mxy"
                     diag_error(f->loc, "weak fields must hold a ref struct");
                 }
             }
-#line 187 "src/sema/decl.mxy"
+#line 196 "src/sema/decl.mxy"
             if ((u == t) && (!t->is_ref)) {
-#line 187 "src/sema/decl.mxy"
+#line 196 "src/sema/decl.mxy"
                 diag_error(f->loc, "struct '%s' cannot contain itself", t->name);
             }
         }
     }
-#line 189 "src/sema/decl.mxy"
+#line 198 "src/sema/decl.mxy"
     if (t->is_union) {
         {
-#line 190 "src/sema/decl.mxy"
+#line 199 "src/sema/decl.mxy"
             int i = 0;
-#line 190 "src/sema/decl.mxy"
+#line 199 "src/sema/decl.mxy"
             for (; i < decl->list.len; (i++)) {
-#line 191 "src/sema/decl.mxy"
+#line 200 "src/sema/decl.mxy"
                 Node *f = decl->list.items[i];
-#line 192 "src/sema/decl.mxy"
+#line 201 "src/sema/decl.mxy"
                 if (((f->kind == N_FIELD) && f->type) && type_is_managed(f->type)) {
-#line 193 "src/sema/decl.mxy"
+#line 202 "src/sema/decl.mxy"
                     diag_error(f->loc, "unions cannot hold managed values like strings, lists or maps");
                 }
             }
         }
-#line 195 "src/sema/decl.mxy"
+#line 204 "src/sema/decl.mxy"
         if (t->is_ref) {
-#line 195 "src/sema/decl.mxy"
+#line 204 "src/sema/decl.mxy"
             diag_error(decl->loc, "ref unions are not supported");
         }
     }
 }
 
-#line 199 "src/sema/decl.mxy"
+#line 208 "src/sema/decl.mxy"
 static void complete_enum(Node *n) {
     {
-#line 200 "src/sema/decl.mxy"
+#line 209 "src/sema/decl.mxy"
         int i = 0;
-#line 200 "src/sema/decl.mxy"
+#line 209 "src/sema/decl.mxy"
         for (; i < n->list.len; (i++)) {
-#line 201 "src/sema/decl.mxy"
+#line 210 "src/sema/decl.mxy"
             Node *v = n->list.items[i];
             {
-#line 202 "src/sema/decl.mxy"
+#line 211 "src/sema/decl.mxy"
                 int j = 0;
-#line 202 "src/sema/decl.mxy"
+#line 211 "src/sema/decl.mxy"
                 for (; j < v->params.len; (j++)) {
-#line 202 "src/sema/decl.mxy"
+#line 211 "src/sema/decl.mxy"
                     resolve_type(v->params.items[j].type);
                 }
             }
@@ -7464,293 +7539,268 @@ static void complete_enum(Node *n) {
     }
 }
 
-#line 206 "src/sema/decl.mxy"
+#line 215 "src/sema/decl.mxy"
 static void resolve_signature(Node *fn) {
-#line 207 "src/sema/decl.mxy"
+#line 216 "src/sema/decl.mxy"
     Sym *s = fn->sym;
-#line 208 "src/sema/decl.mxy"
+#line 217 "src/sema/decl.mxy"
     if (!s) {
-#line 208 "src/sema/decl.mxy"
+#line 217 "src/sema/decl.mxy"
         return;
     }
-#line 209 "src/sema/decl.mxy"
+#line 218 "src/sema/decl.mxy"
     Scope *saved = cur_scope;
-#line 210 "src/sema/decl.mxy"
+#line 219 "src/sema/decl.mxy"
     (cur_scope = scope_of(fn));
-#line 211 "src/sema/decl.mxy"
+#line 220 "src/sema/decl.mxy"
     Type *ret = resolve_type(fn->tref);
-#line 212 "src/sema/decl.mxy"
+#line 221 "src/sema/decl.mxy"
     TypeList params = {0};
     {
-#line 213 "src/sema/decl.mxy"
+#line 222 "src/sema/decl.mxy"
         int i = 0;
-#line 213 "src/sema/decl.mxy"
+#line 222 "src/sema/decl.mxy"
         for (; i < fn->params.len; (i++)) {
-#line 214 "src/sema/decl.mxy"
+#line 223 "src/sema/decl.mxy"
             Type *p = resolve_type(fn->params.items[i].type);
-#line 215 "src/sema/decl.mxy"
+#line 224 "src/sema/decl.mxy"
             Type *u = type_unqual(p);
-#line 216 "src/sema/decl.mxy"
+#line 225 "src/sema/decl.mxy"
             if (u->kind == TY_ARRAY) {
-#line 216 "src/sema/decl.mxy"
+#line 225 "src/sema/decl.mxy"
                 (p = type_ptr(u->base));
             } else {
-#line 217 "src/sema/decl.mxy"
+#line 226 "src/sema/decl.mxy"
                 if (u->kind == TY_FUNC) {
-#line 217 "src/sema/decl.mxy"
+#line 226 "src/sema/decl.mxy"
                     (p = type_ptr(u));
                 }
             }
-#line 218 "src/sema/decl.mxy"
+#line 227 "src/sema/decl.mxy"
             vec_push(params, p);
         }
     }
-#line 220 "src/sema/decl.mxy"
+#line 229 "src/sema/decl.mxy"
     (cur_scope = saved);
-#line 221 "src/sema/decl.mxy"
+#line 230 "src/sema/decl.mxy"
     Type *ur = type_unqual(ret);
-#line 222 "src/sema/decl.mxy"
+#line 231 "src/sema/decl.mxy"
     if (ur->kind == TY_FUTURE) {
-#line 223 "src/sema/decl.mxy"
+#line 232 "src/sema/decl.mxy"
         if (fn->a) {
-#line 223 "src/sema/decl.mxy"
+#line 232 "src/sema/decl.mxy"
             (s->is_async = 1);
         }
-#line 224 "src/sema/decl.mxy"
+#line 233 "src/sema/decl.mxy"
         if (s->is_async || fn->a) {
-#line 225 "src/sema/decl.mxy"
+#line 234 "src/sema/decl.mxy"
             (ret = ur->base);
-#line 226 "src/sema/decl.mxy"
+#line 235 "src/sema/decl.mxy"
             (prog.threads = 1);
         }
     } else {
-#line 228 "src/sema/decl.mxy"
+#line 237 "src/sema/decl.mxy"
         if (s->is_async && (fn->a == NULL)) {
-#line 229 "src/sema/decl.mxy"
+#line 238 "src/sema/decl.mxy"
             return;
         }
     }
-#line 231 "src/sema/decl.mxy"
+#line 240 "src/sema/decl.mxy"
     Type *ft = type_func(ret, params, fn->op);
-#line 232 "src/sema/decl.mxy"
+#line 241 "src/sema/decl.mxy"
     if (s->type && (fn->a == NULL)) {
-#line 232 "src/sema/decl.mxy"
+#line 241 "src/sema/decl.mxy"
         return;
     }
-#line 233 "src/sema/decl.mxy"
+#line 242 "src/sema/decl.mxy"
     (s->type = ft);
-#line 234 "src/sema/decl.mxy"
+#line 243 "src/sema/decl.mxy"
     (fn->type = ft);
-#line 235 "src/sema/decl.mxy"
+#line 244 "src/sema/decl.mxy"
     if (((strcmp(fn->name, "main") == 0) && (!(*fn->ns))) && fn->a) {
-#line 236 "src/sema/decl.mxy"
+#line 245 "src/sema/decl.mxy"
         (prog.main = fn);
-#line 237 "src/sema/decl.mxy"
+#line 246 "src/sema/decl.mxy"
         if ((ur->kind != TY_VOID) && (ur->kind != TY_INT)) {
-#line 238 "src/sema/decl.mxy"
+#line 247 "src/sema/decl.mxy"
             diag_error(fn->loc, "main must return void or int");
         }
-#line 239 "src/sema/decl.mxy"
+#line 248 "src/sema/decl.mxy"
         int ok = (params.len == 0);
-#line 240 "src/sema/decl.mxy"
+#line 249 "src/sema/decl.mxy"
         if (params.len == 1) {
-#line 241 "src/sema/decl.mxy"
+#line 250 "src/sema/decl.mxy"
             Type *p = type_unqual(params.items[0]);
-#line 242 "src/sema/decl.mxy"
+#line 251 "src/sema/decl.mxy"
             (ok = ((p->kind == TY_LIST) && (type_unqual(p->base)->kind == TY_STRING)));
         }
-#line 244 "src/sema/decl.mxy"
+#line 253 "src/sema/decl.mxy"
         if (params.len == 2) {
-#line 244 "src/sema/decl.mxy"
+#line 253 "src/sema/decl.mxy"
             (ok = type_is_integer(params.items[0]));
         }
-#line 245 "src/sema/decl.mxy"
+#line 254 "src/sema/decl.mxy"
         if (!ok) {
-#line 245 "src/sema/decl.mxy"
+#line 254 "src/sema/decl.mxy"
             diag_error(fn->loc, "main takes no parameters, (string[] args), or (int argc, char **argv)");
         }
     }
 }
 
-#line 249 "src/sema/decl.mxy"
+#line 258 "src/sema/decl.mxy"
 static void resolve_global(Node *v) {
-#line 250 "src/sema/decl.mxy"
+#line 259 "src/sema/decl.mxy"
     Sym *s = v->sym;
-#line 251 "src/sema/decl.mxy"
+#line 260 "src/sema/decl.mxy"
     if ((!s) || (v->op == 1)) {
-#line 251 "src/sema/decl.mxy"
+#line 260 "src/sema/decl.mxy"
         return;
     }
-#line 252 "src/sema/decl.mxy"
+#line 261 "src/sema/decl.mxy"
     Scope *saved = cur_scope;
-#line 253 "src/sema/decl.mxy"
+#line 262 "src/sema/decl.mxy"
     (cur_scope = scope_of(v));
-#line 254 "src/sema/decl.mxy"
+#line 263 "src/sema/decl.mxy"
     Type *t = resolve_type(v->tref);
-#line 255 "src/sema/decl.mxy"
+#line 264 "src/sema/decl.mxy"
     (cur_scope = saved);
-#line 256 "src/sema/decl.mxy"
+#line 265 "src/sema/decl.mxy"
     if ((!s->type) || v->a) {
-#line 256 "src/sema/decl.mxy"
+#line 265 "src/sema/decl.mxy"
         (s->type = t);
     }
-#line 257 "src/sema/decl.mxy"
+#line 266 "src/sema/decl.mxy"
     (v->type = t);
 }
 
-#line 260 "src/sema/decl.mxy"
+#line 269 "src/sema/decl.mxy"
 static void check_global(Node *v) {
-#line 261 "src/sema/decl.mxy"
+#line 270 "src/sema/decl.mxy"
     Sym *s = v->sym;
-#line 262 "src/sema/decl.mxy"
+#line 271 "src/sema/decl.mxy"
     if ((!s) || ((s->decl != v) && (!v->a))) {
-#line 262 "src/sema/decl.mxy"
+#line 271 "src/sema/decl.mxy"
         return;
     }
-#line 263 "src/sema/decl.mxy"
-    Scope *saved = cur_scope;
-#line 264 "src/sema/decl.mxy"
-    FnCtx *saved_fn = cur_fn;
-#line 265 "src/sema/decl.mxy"
-    FnCtx ctx = {0};
-#line 266 "src/sema/decl.mxy"
-    (ctx.ret = ty_void);
-#line 267 "src/sema/decl.mxy"
-    (cur_fn = (&ctx));
-#line 268 "src/sema/decl.mxy"
-    (cur_scope = scope_of(v));
-#line 269 "src/sema/decl.mxy"
-    if (v->op == 1) {
-#line 270 "src/sema/decl.mxy"
-        Type *t = check_expr((&v->a), NULL);
-#line 271 "src/sema/decl.mxy"
-        if ((type_unqual(t)->kind == TY_NULL) || (type_unqual(t)->kind == TY_VOID)) {
 #line 272 "src/sema/decl.mxy"
-            diag_error(v->loc, "cannot infer a type for '%s'", v->name);
+    Scope *saved = cur_scope;
 #line 273 "src/sema/decl.mxy"
+    FnCtx *saved_fn = cur_fn;
+#line 274 "src/sema/decl.mxy"
+    FnCtx ctx = {0};
+#line 275 "src/sema/decl.mxy"
+    (ctx.ret = ty_void);
+#line 276 "src/sema/decl.mxy"
+    (cur_fn = (&ctx));
+#line 277 "src/sema/decl.mxy"
+    (cur_scope = scope_of(v));
+#line 278 "src/sema/decl.mxy"
+    if (v->op == 1) {
+#line 279 "src/sema/decl.mxy"
+        Type *t = check_expr((&v->a), NULL);
+#line 280 "src/sema/decl.mxy"
+        if ((type_unqual(t)->kind == TY_NULL) || (type_unqual(t)->kind == TY_VOID)) {
+#line 281 "src/sema/decl.mxy"
+            diag_error(v->loc, "cannot infer a type for '%s'", v->name);
+#line 282 "src/sema/decl.mxy"
             (t = ty_unknown);
         }
-#line 275 "src/sema/decl.mxy"
+#line 284 "src/sema/decl.mxy"
         (s->type = t);
-#line 276 "src/sema/decl.mxy"
+#line 285 "src/sema/decl.mxy"
         (v->type = t);
     } else {
-#line 277 "src/sema/decl.mxy"
+#line 286 "src/sema/decl.mxy"
         if (v->a) {
-#line 278 "src/sema/decl.mxy"
+#line 287 "src/sema/decl.mxy"
             check_init((&v->a), s->type);
-#line 279 "src/sema/decl.mxy"
+#line 288 "src/sema/decl.mxy"
             coerce((&v->a), s->type, "initializer");
-#line 280 "src/sema/decl.mxy"
+#line 289 "src/sema/decl.mxy"
             Type *u = type_unqual(s->type);
-#line 281 "src/sema/decl.mxy"
+#line 290 "src/sema/decl.mxy"
             if ((((u->kind == TY_ARRAY) && (u->len < 0)) && (!u->cname)) && (v->a->kind == N_INITLIST)) {
-#line 282 "src/sema/decl.mxy"
+#line 291 "src/sema/decl.mxy"
                 (s->type = type_array(u->base, v->a->list.len));
-#line 283 "src/sema/decl.mxy"
+#line 292 "src/sema/decl.mxy"
                 (v->type = s->type);
             }
         }
     }
-#line 286 "src/sema/decl.mxy"
+#line 295 "src/sema/decl.mxy"
     if (v->flags & F_WEAK) {
-#line 286 "src/sema/decl.mxy"
+#line 295 "src/sema/decl.mxy"
         diag_error(v->loc, "'weak' is only allowed on struct fields");
     }
-#line 287 "src/sema/decl.mxy"
+#line 296 "src/sema/decl.mxy"
     if (type_unqual(s->type)->kind == TY_VOID) {
-#line 287 "src/sema/decl.mxy"
+#line 296 "src/sema/decl.mxy"
         diag_error(v->loc, "variables cannot have type void");
     }
-#line 288 "src/sema/decl.mxy"
+#line 297 "src/sema/decl.mxy"
     (cur_scope = saved);
-#line 289 "src/sema/decl.mxy"
+#line 298 "src/sema/decl.mxy"
     (cur_fn = saved_fn);
 }
 
-#line 294 "src/sema/decl.mxy"
+#line 303 "src/sema/decl.mxy"
 static void reset(void) {
-#line 295 "src/sema/decl.mxy"
+#line 304 "src/sema/decl.mxy"
     tags_reset();
-#line 296 "src/sema/decl.mxy"
+#line 305 "src/sema/decl.mxy"
     memset((&prog), 0, sizeof(prog));
-#line 297 "src/sema/decl.mxy"
+#line 306 "src/sema/decl.mxy"
     (global_scope = NULL);
-#line 298 "src/sema/decl.mxy"
+#line 307 "src/sema/decl.mxy"
     (cur_scope = NULL);
-#line 299 "src/sema/decl.mxy"
+#line 308 "src/sema/decl.mxy"
     (cur_fn = NULL);
-#line 300 "src/sema/decl.mxy"
+#line 309 "src/sema/decl.mxy"
     (global_scope = scope_push(SC_GLOBAL));
-#line 301 "src/sema/decl.mxy"
+#line 310 "src/sema/decl.mxy"
     (global_scope->ns = xstrdup(""));
 }
 
-#line 304 "src/sema/decl.mxy"
+#line 313 "src/sema/decl.mxy"
 int sema_check(Node *root, int lint) {
-#line 305 "src/sema/decl.mxy"
+#line 314 "src/sema/decl.mxy"
     types_init();
-#line 306 "src/sema/decl.mxy"
+#line 315 "src/sema/decl.mxy"
     reset();
-#line 307 "src/sema/decl.mxy"
+#line 316 "src/sema/decl.mxy"
     (lint_mode = lint);
-#line 308 "src/sema/decl.mxy"
+#line 317 "src/sema/decl.mxy"
     (prog.prog = root);
-#line 309 "src/sema/decl.mxy"
+#line 318 "src/sema/decl.mxy"
     int before = diag_errors();
-#line 310 "src/sema/decl.mxy"
+#line 319 "src/sema/decl.mxy"
     pass_declare(root);
     {
-#line 311 "src/sema/decl.mxy"
-        int i = 0;
-#line 311 "src/sema/decl.mxy"
-        for (; i < prog.structs.len; (i++)) {
-#line 312 "src/sema/decl.mxy"
-            Scope *saved = cur_scope;
-#line 313 "src/sema/decl.mxy"
-            (cur_scope = scope_of(prog.structs.items[i]));
-#line 314 "src/sema/decl.mxy"
-            complete_struct(prog.structs.items[i]);
-#line 315 "src/sema/decl.mxy"
-            (cur_scope = saved);
-        }
-    }
-    {
-#line 317 "src/sema/decl.mxy"
-        int i = 0;
-#line 317 "src/sema/decl.mxy"
-        for (; i < prog.enums.len; (i++)) {
-#line 318 "src/sema/decl.mxy"
-            Scope *saved = cur_scope;
-#line 319 "src/sema/decl.mxy"
-            (cur_scope = scope_of(prog.enums.items[i]));
 #line 320 "src/sema/decl.mxy"
-            complete_enum(prog.enums.items[i]);
+        int i = 0;
+#line 320 "src/sema/decl.mxy"
+        for (; i < prog.structs.len; (i++)) {
 #line 321 "src/sema/decl.mxy"
+            Scope *saved = cur_scope;
+#line 322 "src/sema/decl.mxy"
+            (cur_scope = scope_of(prog.structs.items[i]));
+#line 323 "src/sema/decl.mxy"
+            complete_struct(prog.structs.items[i]);
+#line 324 "src/sema/decl.mxy"
             (cur_scope = saved);
         }
     }
     {
-#line 323 "src/sema/decl.mxy"
-        int i = 0;
-#line 323 "src/sema/decl.mxy"
-        for (; i < prog.typedefs.len; (i++)) {
-#line 324 "src/sema/decl.mxy"
-            Node *td = prog.typedefs.items[i];
-#line 325 "src/sema/decl.mxy"
-            Scope *saved = cur_scope;
 #line 326 "src/sema/decl.mxy"
-            (cur_scope = scope_of(td));
+        int i = 0;
+#line 326 "src/sema/decl.mxy"
+        for (; i < prog.enums.len; (i++)) {
 #line 327 "src/sema/decl.mxy"
-            Sym *s = lookup_quiet(td->name);
+            Scope *saved = cur_scope;
 #line 328 "src/sema/decl.mxy"
-            if (((s && (s->kind == S_TYPE)) && (!s->type)) && (s->decl == td)) {
-#line 328 "src/sema/decl.mxy"
-                (s->type = resolve_type(td->tref));
-            } else {
+            (cur_scope = scope_of(prog.enums.items[i]));
 #line 329 "src/sema/decl.mxy"
-                resolve_type(td->tref);
-            }
+            complete_enum(prog.enums.items[i]);
 #line 330 "src/sema/decl.mxy"
             (cur_scope = saved);
         }
@@ -7759,72 +7809,97 @@ int sema_check(Node *root, int lint) {
 #line 332 "src/sema/decl.mxy"
         int i = 0;
 #line 332 "src/sema/decl.mxy"
-        for (; i < prog.funcs.len; (i++)) {
+        for (; i < prog.typedefs.len; (i++)) {
 #line 333 "src/sema/decl.mxy"
-            Node *fn = prog.funcs.items[i];
+            Node *td = prog.typedefs.items[i];
 #line 334 "src/sema/decl.mxy"
-            if (fn->a) {
-#line 334 "src/sema/decl.mxy"
-                resolve_signature(fn);
-            }
-        }
-    }
-    {
+            Scope *saved = cur_scope;
+#line 335 "src/sema/decl.mxy"
+            (cur_scope = scope_of(td));
 #line 336 "src/sema/decl.mxy"
-        int i = 0;
-#line 336 "src/sema/decl.mxy"
-        for (; i < prog.funcs.len; (i++)) {
+            Sym *s = lookup_quiet(td->name);
 #line 337 "src/sema/decl.mxy"
+            if (((s && (s->kind == S_TYPE)) && (!s->type)) && (s->decl == td)) {
+#line 337 "src/sema/decl.mxy"
+                (s->type = resolve_type(td->tref));
+            } else {
+#line 338 "src/sema/decl.mxy"
+                resolve_type(td->tref);
+            }
+#line 339 "src/sema/decl.mxy"
+            (cur_scope = saved);
+        }
+    }
+    {
+#line 341 "src/sema/decl.mxy"
+        int i = 0;
+#line 341 "src/sema/decl.mxy"
+        for (; i < prog.funcs.len; (i++)) {
+#line 342 "src/sema/decl.mxy"
             Node *fn = prog.funcs.items[i];
-#line 338 "src/sema/decl.mxy"
-            if (!fn->a) {
-#line 338 "src/sema/decl.mxy"
+#line 343 "src/sema/decl.mxy"
+            if (fn->a) {
+#line 343 "src/sema/decl.mxy"
                 resolve_signature(fn);
             }
         }
     }
     {
-#line 340 "src/sema/decl.mxy"
+#line 345 "src/sema/decl.mxy"
         int i = 0;
-#line 340 "src/sema/decl.mxy"
+#line 345 "src/sema/decl.mxy"
+        for (; i < prog.funcs.len; (i++)) {
+#line 346 "src/sema/decl.mxy"
+            Node *fn = prog.funcs.items[i];
+#line 347 "src/sema/decl.mxy"
+            if (!fn->a) {
+#line 347 "src/sema/decl.mxy"
+                resolve_signature(fn);
+            }
+        }
+    }
+    {
+#line 349 "src/sema/decl.mxy"
+        int i = 0;
+#line 349 "src/sema/decl.mxy"
         for (; i < prog.globals.len; (i++)) {
-#line 340 "src/sema/decl.mxy"
+#line 349 "src/sema/decl.mxy"
             resolve_global(prog.globals.items[i]);
         }
     }
     {
-#line 341 "src/sema/decl.mxy"
+#line 350 "src/sema/decl.mxy"
         int i = 0;
-#line 341 "src/sema/decl.mxy"
+#line 350 "src/sema/decl.mxy"
         for (; i < prog.globals.len; (i++)) {
-#line 341 "src/sema/decl.mxy"
+#line 350 "src/sema/decl.mxy"
             check_global(prog.globals.items[i]);
         }
     }
     {
-#line 342 "src/sema/decl.mxy"
+#line 351 "src/sema/decl.mxy"
         int i = 0;
-#line 342 "src/sema/decl.mxy"
+#line 351 "src/sema/decl.mxy"
         for (; i < prog.funcs.len; (i++)) {
-#line 343 "src/sema/decl.mxy"
+#line 352 "src/sema/decl.mxy"
             Node *fn = prog.funcs.items[i];
-#line 344 "src/sema/decl.mxy"
+#line 353 "src/sema/decl.mxy"
             if ((fn->a && fn->sym) && ((fn->sym->decl == fn) || alt_branch(fn->sym->decl, fn))) {
-#line 344 "src/sema/decl.mxy"
+#line 353 "src/sema/decl.mxy"
                 check_function(fn);
             }
         }
     }
     {
-#line 346 "src/sema/decl.mxy"
+#line 355 "src/sema/decl.mxy"
         int i = 0;
-#line 346 "src/sema/decl.mxy"
+#line 355 "src/sema/decl.mxy"
         for (; i < prog.asserts.len; (i++)) {
-#line 346 "src/sema/decl.mxy"
+#line 355 "src/sema/decl.mxy"
             check_expr((&prog.asserts.items[i]->a), NULL);
         }
     }
-#line 347 "src/sema/decl.mxy"
+#line 356 "src/sema/decl.mxy"
     return (diag_errors() - before);
 }
 
@@ -7960,1092 +8035,1112 @@ static Type *check_ident(Node *n) {
         }
     }
 #line 63 "src/sema/expr.mxy"
-    const char *sep = strstr(n->name, "::");
+    if (str_eq(n->name, "string")) {
 #line 64 "src/sema/expr.mxy"
-    if (sep) {
+        diag_error(n->loc, "'string' is a type; did you mean string(value)?");
 #line 65 "src/sema/expr.mxy"
+        return ty_unknown;
+    }
+#line 67 "src/sema/expr.mxy"
+    const char *sep = strstr(n->name, "::");
+#line 68 "src/sema/expr.mxy"
+    if (sep) {
+#line 69 "src/sema/expr.mxy"
         const char *last = n->name;
         {
-#line 66 "src/sema/expr.mxy"
+#line 70 "src/sema/expr.mxy"
             const char *p = n->name;
-#line 66 "src/sema/expr.mxy"
+#line 70 "src/sema/expr.mxy"
             for (; (p = strstr(p, "::")); (p += 2)) {
-#line 66 "src/sema/expr.mxy"
+#line 70 "src/sema/expr.mxy"
                 (last = p);
             }
         }
-#line 67 "src/sema/expr.mxy"
-        char *prefix = xstrndup(n->name, ((size_t)(last - n->name)));
-#line 68 "src/sema/expr.mxy"
-        Sym *e = lookup_quiet(prefix);
-#line 69 "src/sema/expr.mxy"
-        free(prefix);
-#line 70 "src/sema/expr.mxy"
-        if (((e && (e->kind == S_TYPE)) && e->type) && (type_unqual(e->type)->kind == TY_ENUM)) {
 #line 71 "src/sema/expr.mxy"
+        char *prefix = xstrndup(n->name, ((size_t)(last - n->name)));
+#line 72 "src/sema/expr.mxy"
+        Sym *e = lookup_quiet(prefix);
+#line 73 "src/sema/expr.mxy"
+        free(prefix);
+#line 74 "src/sema/expr.mxy"
+        if (((e && (e->kind == S_TYPE)) && e->type) && (type_unqual(e->type)->kind == TY_ENUM)) {
+#line 75 "src/sema/expr.mxy"
             return variant_ctor(n, e, (last + 2), NULL);
         }
-#line 72 "src/sema/expr.mxy"
+#line 76 "src/sema/expr.mxy"
         diag_error(n->loc, "unknown name '%s'", n->name);
-#line 73 "src/sema/expr.mxy"
+#line 77 "src/sema/expr.mxy"
         return ty_unknown;
     }
-#line 75 "src/sema/expr.mxy"
+#line 79 "src/sema/expr.mxy"
     if (strcmp(n->name, "NULL") == 0) {
-#line 75 "src/sema/expr.mxy"
+#line 79 "src/sema/expr.mxy"
         return ty_null;
     }
-#line 76 "src/sema/expr.mxy"
+#line 80 "src/sema/expr.mxy"
     suggest_name(n->name, n->loc);
-#line 77 "src/sema/expr.mxy"
+#line 81 "src/sema/expr.mxy"
     return ty_unknown;
 }
 
-#line 80 "src/sema/expr.mxy"
+#line 84 "src/sema/expr.mxy"
 static Type *check_unary(Node *n) {
-#line 81 "src/sema/expr.mxy"
-    Type *t = check_expr((&n->a), NULL);
-#line 82 "src/sema/expr.mxy"
-    Type *u = type_unqual(t);
-#line 83 "src/sema/expr.mxy"
-    switch (n->op) {
-#line 84 "src/sema/expr.mxy"
-    case P_MINUS:;
-#line 84 "src/sema/expr.mxy"
-    case P_PLUS:;
 #line 85 "src/sema/expr.mxy"
-        if ((!type_is_arith(u)) && (!type_is_unknownish(u))) {
+    Type *t = check_expr((&n->a), NULL);
 #line 86 "src/sema/expr.mxy"
-            char *s = type_str(t);
+    Type *u = type_unqual(t);
 #line 87 "src/sema/expr.mxy"
-            diag_error(n->loc, "'%s' needs a number, found %s", tok_spell(((TokKind)n->op)), s);
+    switch (n->op) {
 #line 88 "src/sema/expr.mxy"
+    case P_MINUS:;
+#line 88 "src/sema/expr.mxy"
+    case P_PLUS:;
+#line 89 "src/sema/expr.mxy"
+        if ((!type_is_arith(u)) && (!type_is_unknownish(u))) {
+#line 90 "src/sema/expr.mxy"
+            char *s = type_str(t);
+#line 91 "src/sema/expr.mxy"
+            diag_error(n->loc, "'%s' needs a number, found %s", tok_spell(((TokKind)n->op)), s);
+#line 92 "src/sema/expr.mxy"
             free(s);
         }
-#line 90 "src/sema/expr.mxy"
+#line 94 "src/sema/expr.mxy"
         return ((type_is_arith(u) && (type_rank(u) < 4)) ? ty_int : t);
-#line 91 "src/sema/expr.mxy"
+#line 95 "src/sema/expr.mxy"
     case P_TILDE:;
-#line 92 "src/sema/expr.mxy"
+#line 96 "src/sema/expr.mxy"
         if ((!type_is_integer(u)) && (!type_is_unknownish(u))) {
-#line 92 "src/sema/expr.mxy"
+#line 96 "src/sema/expr.mxy"
             diag_error(n->loc, "'~' needs an integer");
         }
-#line 93 "src/sema/expr.mxy"
-        return ((type_is_integer(u) && (type_rank(u) < 4)) ? ty_int : t);
-#line 94 "src/sema/expr.mxy"
-    case P_BANG:;
-#line 95 "src/sema/expr.mxy"
-        check_cond((&n->a));
-#line 96 "src/sema/expr.mxy"
-        return ty_bool;
 #line 97 "src/sema/expr.mxy"
+        return ((type_is_integer(u) && (type_rank(u) < 4)) ? ty_int : t);
+#line 98 "src/sema/expr.mxy"
+    case P_BANG:;
+#line 99 "src/sema/expr.mxy"
+        check_cond((&n->a));
+#line 100 "src/sema/expr.mxy"
+        return ty_bool;
+#line 101 "src/sema/expr.mxy"
     case P_STAR:;
-#line 98 "src/sema/expr.mxy"
+#line 102 "src/sema/expr.mxy"
         if ((u->kind == TY_PTR) || (u->kind == TY_ARRAY)) {
-#line 98 "src/sema/expr.mxy"
+#line 102 "src/sema/expr.mxy"
             return u->base;
         }
-#line 99 "src/sema/expr.mxy"
+#line 103 "src/sema/expr.mxy"
         if (type_is_unknownish(u)) {
-#line 99 "src/sema/expr.mxy"
+#line 103 "src/sema/expr.mxy"
             return ty_unknown;
         }
-#line 100 "src/sema/expr.mxy"
+#line 104 "src/sema/expr.mxy"
         if (u->kind == TY_FUNC) {
-#line 100 "src/sema/expr.mxy"
+#line 104 "src/sema/expr.mxy"
             return u;
         }
         {
-#line 102 "src/sema/expr.mxy"
+#line 106 "src/sema/expr.mxy"
             char *s = type_str(t);
-#line 103 "src/sema/expr.mxy"
+#line 107 "src/sema/expr.mxy"
             diag_error(n->loc, "cannot dereference a value of type %s", s);
-#line 104 "src/sema/expr.mxy"
+#line 108 "src/sema/expr.mxy"
             free(s);
         }
-#line 106 "src/sema/expr.mxy"
+#line 110 "src/sema/expr.mxy"
         return ty_unknown;
-#line 107 "src/sema/expr.mxy"
+#line 111 "src/sema/expr.mxy"
     case P_AMP:;
         {
-#line 108 "src/sema/expr.mxy"
+#line 112 "src/sema/expr.mxy"
             Node *target = n->a;
-#line 109 "src/sema/expr.mxy"
+#line 113 "src/sema/expr.mxy"
             while (target->kind == N_CONV) {
-#line 109 "src/sema/expr.mxy"
+#line 113 "src/sema/expr.mxy"
                 (target = target->a);
             }
-#line 110 "src/sema/expr.mxy"
+#line 114 "src/sema/expr.mxy"
             if ((target->kind == N_IDENT) && target->sym) {
-#line 110 "src/sema/expr.mxy"
+#line 114 "src/sema/expr.mxy"
                 (target->sym->addr_taken = 1);
             }
-#line 111 "src/sema/expr.mxy"
+#line 115 "src/sema/expr.mxy"
             mark_mutated(target);
-#line 112 "src/sema/expr.mxy"
+#line 116 "src/sema/expr.mxy"
             if ((target->kind == N_INDEX) && (type_unqual(target->a->type)->kind == TY_LIST)) {
-#line 112 "src/sema/expr.mxy"
+#line 116 "src/sema/expr.mxy"
                 (target->lvalue = 2);
             }
-#line 113 "src/sema/expr.mxy"
+#line 117 "src/sema/expr.mxy"
             return type_ptr(t);
         }
-#line 115 "src/sema/expr.mxy"
+#line 119 "src/sema/expr.mxy"
     case P_INC:;
-#line 115 "src/sema/expr.mxy"
+#line 119 "src/sema/expr.mxy"
     case P_DEC:;
-#line 116 "src/sema/expr.mxy"
+#line 120 "src/sema/expr.mxy"
         if (!is_lvalue(n->a)) {
-#line 116 "src/sema/expr.mxy"
+#line 120 "src/sema/expr.mxy"
             diag_error(n->loc, "'%s' needs a variable", tok_spell(((TokKind)n->op)));
         }
-#line 117 "src/sema/expr.mxy"
+#line 121 "src/sema/expr.mxy"
         mark_mutated(n->a);
-#line 118 "src/sema/expr.mxy"
+#line 122 "src/sema/expr.mxy"
         return t;
-#line 119 "src/sema/expr.mxy"
+#line 123 "src/sema/expr.mxy"
     default:;
-#line 120 "src/sema/expr.mxy"
+#line 124 "src/sema/expr.mxy"
         return t;
     }
 }
 
-#line 124 "src/sema/expr.mxy"
-static Type *check_binary(Node *n) {
-#line 125 "src/sema/expr.mxy"
-    Type *a = check_expr((&n->a), NULL);
-#line 126 "src/sema/expr.mxy"
-    Type *b = check_expr((&n->b), NULL);
-#line 127 "src/sema/expr.mxy"
-    Type *ua = type_unqual(a);
-#line 127 "src/sema/expr.mxy"
-    Type *ub = type_unqual(b);
 #line 128 "src/sema/expr.mxy"
-    int op = n->op;
+static Type *check_binary(Node *n) {
 #line 129 "src/sema/expr.mxy"
-    if ((op == P_ANDAND) || (op == P_OROR)) {
+    Type *a = check_expr((&n->a), NULL);
 #line 130 "src/sema/expr.mxy"
-        check_cond((&n->a));
+    Type *b = check_expr((&n->b), NULL);
 #line 131 "src/sema/expr.mxy"
-        check_cond((&n->b));
+    Type *ua = type_unqual(a);
+#line 131 "src/sema/expr.mxy"
+    Type *ub = type_unqual(b);
 #line 132 "src/sema/expr.mxy"
+    int op = n->op;
+#line 133 "src/sema/expr.mxy"
+    if ((op == P_ANDAND) || (op == P_OROR)) {
+#line 134 "src/sema/expr.mxy"
+        check_cond((&n->a));
+#line 135 "src/sema/expr.mxy"
+        check_cond((&n->b));
+#line 136 "src/sema/expr.mxy"
         return ty_bool;
     }
-#line 134 "src/sema/expr.mxy"
+#line 138 "src/sema/expr.mxy"
     if ((ua->kind == TY_STRING) || (ub->kind == TY_STRING)) {
-#line 135 "src/sema/expr.mxy"
+#line 139 "src/sema/expr.mxy"
         int other_null = ((ua->kind == TY_NULL) || (ub->kind == TY_NULL));
-#line 136 "src/sema/expr.mxy"
+#line 140 "src/sema/expr.mxy"
         if (((op == P_EQ) || (op == P_NE)) && other_null) {
-#line 136 "src/sema/expr.mxy"
+#line 140 "src/sema/expr.mxy"
             return ty_bool;
         }
-#line 137 "src/sema/expr.mxy"
-        if ((!is_stringish(ua)) || (!is_stringish(ub))) {
-#line 138 "src/sema/expr.mxy"
-            Type *other = ((ua->kind == TY_STRING) ? b : a);
-#line 139 "src/sema/expr.mxy"
-            if ((op == P_PLUS) && type_is_arith(other)) {
-#line 140 "src/sema/expr.mxy"
-                diag_error(n->loc, "cannot add a number to a string");
 #line 141 "src/sema/expr.mxy"
-                diag_hint("use interpolation: \"text \\(value)\"");
+        if ((!is_stringish(ua)) || (!is_stringish(ub))) {
 #line 142 "src/sema/expr.mxy"
+            Type *other = ((ua->kind == TY_STRING) ? b : a);
+#line 143 "src/sema/expr.mxy"
+            if ((op == P_PLUS) && type_is_arith(other)) {
+#line 144 "src/sema/expr.mxy"
+                diag_error(n->loc, "cannot add a number to a string");
+#line 145 "src/sema/expr.mxy"
+                diag_hint("use interpolation: \"text \\(value)\"");
+#line 146 "src/sema/expr.mxy"
                 return ty_string;
             }
-#line 144 "src/sema/expr.mxy"
-            if (!type_is_unknownish(other)) {
-#line 145 "src/sema/expr.mxy"
-                char *os = type_str(other);
-#line 146 "src/sema/expr.mxy"
-                diag_error(n->loc, "'%s' between string and %s", tok_spell(((TokKind)op)), os);
-#line 147 "src/sema/expr.mxy"
-                free(os);
 #line 148 "src/sema/expr.mxy"
+            if (!type_is_unknownish(other)) {
+#line 149 "src/sema/expr.mxy"
+                char *os = type_str(other);
+#line 150 "src/sema/expr.mxy"
+                diag_error(n->loc, "'%s' between string and %s", tok_spell(((TokKind)op)), os);
+#line 151 "src/sema/expr.mxy"
+                free(os);
+#line 152 "src/sema/expr.mxy"
                 return ty_unknown;
             }
         }
-#line 151 "src/sema/expr.mxy"
+#line 155 "src/sema/expr.mxy"
         coerce((&n->a), ty_string, "string operand");
-#line 152 "src/sema/expr.mxy"
+#line 156 "src/sema/expr.mxy"
         coerce((&n->b), ty_string, "string operand");
-#line 153 "src/sema/expr.mxy"
-        switch (op) {
-#line 154 "src/sema/expr.mxy"
-        case P_PLUS:;
-#line 154 "src/sema/expr.mxy"
-            (n->builtin = B_STR_CONCAT);
-#line 154 "src/sema/expr.mxy"
-            return ty_string;
-#line 155 "src/sema/expr.mxy"
-        case P_EQ:;
-#line 155 "src/sema/expr.mxy"
-        case P_NE:;
-#line 155 "src/sema/expr.mxy"
-            (n->builtin = B_STR_EQ);
-#line 155 "src/sema/expr.mxy"
-            return ty_bool;
-#line 156 "src/sema/expr.mxy"
-        case P_LT:;
-#line 156 "src/sema/expr.mxy"
-        case P_GT:;
-#line 156 "src/sema/expr.mxy"
-        case P_LE:;
-#line 156 "src/sema/expr.mxy"
-        case P_GE:;
-#line 156 "src/sema/expr.mxy"
-            (n->builtin = B_STR_CMP);
-#line 156 "src/sema/expr.mxy"
-            return ty_bool;
 #line 157 "src/sema/expr.mxy"
-        default:;
+        switch (op) {
 #line 158 "src/sema/expr.mxy"
-            diag_error(n->loc, "'%s' is not defined for strings", tok_spell(((TokKind)op)));
+        case P_PLUS:;
+#line 158 "src/sema/expr.mxy"
+            (n->builtin = B_STR_CONCAT);
+#line 158 "src/sema/expr.mxy"
+            return ty_string;
 #line 159 "src/sema/expr.mxy"
+        case P_EQ:;
+#line 159 "src/sema/expr.mxy"
+        case P_NE:;
+#line 159 "src/sema/expr.mxy"
+            (n->builtin = B_STR_EQ);
+#line 159 "src/sema/expr.mxy"
+            return ty_bool;
+#line 160 "src/sema/expr.mxy"
+        case P_LT:;
+#line 160 "src/sema/expr.mxy"
+        case P_GT:;
+#line 160 "src/sema/expr.mxy"
+        case P_LE:;
+#line 160 "src/sema/expr.mxy"
+        case P_GE:;
+#line 160 "src/sema/expr.mxy"
+            (n->builtin = B_STR_CMP);
+#line 160 "src/sema/expr.mxy"
+            return ty_bool;
+#line 161 "src/sema/expr.mxy"
+        default:;
+#line 162 "src/sema/expr.mxy"
+            diag_error(n->loc, "'%s' is not defined for strings", tok_spell(((TokKind)op)));
+#line 163 "src/sema/expr.mxy"
             return ty_unknown;
         }
     }
-#line 162 "src/sema/expr.mxy"
-    if ((((((((((ua->kind == TY_LIST) || (ub->kind == TY_LIST)) || (ua->kind == TY_MAP)) || (ub->kind == TY_MAP)) || (ua->kind == TY_RESULT)) || (ub->kind == TY_RESULT)) || ((ua->kind == TY_ENUM) && (!ua->simple))) || ((ub->kind == TY_ENUM) && (!ub->simple))) || ((ua->kind == TY_STRUCT) && (!ua->is_ref))) || ((ub->kind == TY_STRUCT) && (!ub->is_ref))) {
 #line 166 "src/sema/expr.mxy"
-        if ((((op == P_EQ) || (op == P_NE)) && ((ua->kind == TY_NULL) || (ub->kind == TY_NULL))) && ((((ua->kind == TY_LIST) || (ua->kind == TY_MAP)) || (ub->kind == TY_LIST)) || (ub->kind == TY_MAP))) {
-#line 168 "src/sema/expr.mxy"
-            return ty_bool;
-        }
-#line 169 "src/sema/expr.mxy"
-        if (((op == P_PLUS) && (ua->kind == TY_LIST)) && type_eq(ua, ub)) {
+    if ((((((((((ua->kind == TY_LIST) || (ub->kind == TY_LIST)) || (ua->kind == TY_MAP)) || (ub->kind == TY_MAP)) || (ua->kind == TY_RESULT)) || (ub->kind == TY_RESULT)) || ((ua->kind == TY_ENUM) && (!ua->simple))) || ((ub->kind == TY_ENUM) && (!ub->simple))) || ((ua->kind == TY_STRUCT) && (!ua->is_ref))) || ((ub->kind == TY_STRUCT) && (!ub->is_ref))) {
 #line 170 "src/sema/expr.mxy"
-            (n->builtin = B_LIST_CONCAT);
-#line 171 "src/sema/expr.mxy"
-            return a;
+        if ((((op == P_EQ) || (op == P_NE)) && ((ua->kind == TY_NULL) || (ub->kind == TY_NULL))) && ((((ua->kind == TY_LIST) || (ua->kind == TY_MAP)) || (ub->kind == TY_LIST)) || (ub->kind == TY_MAP))) {
+#line 172 "src/sema/expr.mxy"
+            return ty_bool;
         }
 #line 173 "src/sema/expr.mxy"
-        if ((((op == P_EQ) || (op == P_NE)) && type_eq(ua, ub)) && (ua->kind != TY_STRUCT)) {
+        if (((op == P_PLUS) && (ua->kind == TY_LIST)) && type_eq(ua, ub)) {
 #line 174 "src/sema/expr.mxy"
-            (n->builtin = B_VAL_EQ);
+            (n->builtin = B_LIST_CONCAT);
 #line 175 "src/sema/expr.mxy"
+            return a;
+        }
+#line 177 "src/sema/expr.mxy"
+        if ((((op == P_EQ) || (op == P_NE)) && type_eq(ua, ub)) && (ua->kind != TY_STRUCT)) {
+#line 178 "src/sema/expr.mxy"
+            (n->builtin = B_VAL_EQ);
+#line 179 "src/sema/expr.mxy"
             return ty_bool;
         }
-#line 177 "src/sema/expr.mxy"
-        char *as = type_str(a);
-#line 177 "src/sema/expr.mxy"
-        char *bs = type_str(b);
-#line 178 "src/sema/expr.mxy"
-        diag_error(n->loc, "'%s' is not defined between %s and %s", tok_spell(((TokKind)op)), as, bs);
-#line 179 "src/sema/expr.mxy"
-        free(as);
-#line 180 "src/sema/expr.mxy"
-        free(bs);
 #line 181 "src/sema/expr.mxy"
+        char *as = type_str(a);
+#line 181 "src/sema/expr.mxy"
+        char *bs = type_str(b);
+#line 182 "src/sema/expr.mxy"
+        diag_error(n->loc, "'%s' is not defined between %s and %s", tok_spell(((TokKind)op)), as, bs);
+#line 183 "src/sema/expr.mxy"
+        free(as);
+#line 184 "src/sema/expr.mxy"
+        free(bs);
+#line 185 "src/sema/expr.mxy"
         return ty_unknown;
     }
-#line 183 "src/sema/expr.mxy"
-    switch (op) {
-#line 184 "src/sema/expr.mxy"
-    case P_EQ:;
-#line 184 "src/sema/expr.mxy"
-    case P_NE:;
-#line 184 "src/sema/expr.mxy"
-    case P_LT:;
-#line 184 "src/sema/expr.mxy"
-    case P_GT:;
-#line 184 "src/sema/expr.mxy"
-    case P_LE:;
-#line 184 "src/sema/expr.mxy"
-    case P_GE:;
-#line 185 "src/sema/expr.mxy"
-        return ty_bool;
-#line 186 "src/sema/expr.mxy"
-    case P_PLUS:;
-#line 186 "src/sema/expr.mxy"
-    case P_MINUS:;
 #line 187 "src/sema/expr.mxy"
+    switch (op) {
+#line 188 "src/sema/expr.mxy"
+    case P_EQ:;
+#line 188 "src/sema/expr.mxy"
+    case P_NE:;
+#line 188 "src/sema/expr.mxy"
+    case P_LT:;
+#line 188 "src/sema/expr.mxy"
+    case P_GT:;
+#line 188 "src/sema/expr.mxy"
+    case P_LE:;
+#line 188 "src/sema/expr.mxy"
+    case P_GE:;
+#line 189 "src/sema/expr.mxy"
+        return ty_bool;
+#line 190 "src/sema/expr.mxy"
+    case P_PLUS:;
+#line 190 "src/sema/expr.mxy"
+    case P_MINUS:;
+#line 191 "src/sema/expr.mxy"
         if ((ua->kind == TY_PTR) || (ua->kind == TY_ARRAY)) {
-#line 188 "src/sema/expr.mxy"
+#line 192 "src/sema/expr.mxy"
             if ((op == P_MINUS) && ((ub->kind == TY_PTR) || (ub->kind == TY_ARRAY))) {
-#line 188 "src/sema/expr.mxy"
+#line 192 "src/sema/expr.mxy"
                 return ty_long;
             }
-#line 189 "src/sema/expr.mxy"
+#line 193 "src/sema/expr.mxy"
             return ((ua->kind == TY_ARRAY) ? type_ptr(ua->base) : a);
         }
-#line 191 "src/sema/expr.mxy"
+#line 195 "src/sema/expr.mxy"
         if ((ub->kind == TY_PTR) || (ub->kind == TY_ARRAY)) {
-#line 191 "src/sema/expr.mxy"
+#line 195 "src/sema/expr.mxy"
             return ((ub->kind == TY_ARRAY) ? type_ptr(ub->base) : b);
         }
-#line 192 "src/sema/expr.mxy"
+#line 196 "src/sema/expr.mxy"
         break;
-#line 193 "src/sema/expr.mxy"
+#line 197 "src/sema/expr.mxy"
     case P_SHL:;
-#line 193 "src/sema/expr.mxy"
+#line 197 "src/sema/expr.mxy"
     case P_SHR:;
-#line 194 "src/sema/expr.mxy"
+#line 198 "src/sema/expr.mxy"
         if (type_is_integer(ua)) {
-#line 194 "src/sema/expr.mxy"
+#line 198 "src/sema/expr.mxy"
             return ((type_rank(ua) < 4) ? ty_int : a);
         }
-#line 195 "src/sema/expr.mxy"
+#line 199 "src/sema/expr.mxy"
         return (type_is_unknownish(ua) ? ty_unknown : a);
-#line 196 "src/sema/expr.mxy"
+#line 200 "src/sema/expr.mxy"
     default:;
-#line 197 "src/sema/expr.mxy"
+#line 201 "src/sema/expr.mxy"
         break;
     }
-#line 199 "src/sema/expr.mxy"
-    if (((!type_is_arith(ua)) && (!type_is_unknownish(ua))) || ((!type_is_arith(ub)) && (!type_is_unknownish(ub)))) {
-#line 200 "src/sema/expr.mxy"
-        char *as = type_str(a);
-#line 200 "src/sema/expr.mxy"
-        char *bs = type_str(b);
-#line 201 "src/sema/expr.mxy"
-        diag_error(n->loc, "'%s' is not defined between %s and %s", tok_spell(((TokKind)op)), as, bs);
-#line 202 "src/sema/expr.mxy"
-        free(as);
 #line 203 "src/sema/expr.mxy"
-        free(bs);
+    if (((!type_is_arith(ua)) && (!type_is_unknownish(ua))) || ((!type_is_arith(ub)) && (!type_is_unknownish(ub)))) {
 #line 204 "src/sema/expr.mxy"
+        char *as = type_str(a);
+#line 204 "src/sema/expr.mxy"
+        char *bs = type_str(b);
+#line 205 "src/sema/expr.mxy"
+        diag_error(n->loc, "'%s' is not defined between %s and %s", tok_spell(((TokKind)op)), as, bs);
+#line 206 "src/sema/expr.mxy"
+        free(as);
+#line 207 "src/sema/expr.mxy"
+        free(bs);
+#line 208 "src/sema/expr.mxy"
         return ty_unknown;
     }
-#line 206 "src/sema/expr.mxy"
+#line 210 "src/sema/expr.mxy"
     return type_common(a, b);
 }
 
-#line 209 "src/sema/expr.mxy"
+#line 213 "src/sema/expr.mxy"
 static int compound_op_base(int op) {
-#line 210 "src/sema/expr.mxy"
+#line 214 "src/sema/expr.mxy"
     switch (op) {
-#line 211 "src/sema/expr.mxy"
+#line 215 "src/sema/expr.mxy"
     case P_PLUSEQ:;
-#line 211 "src/sema/expr.mxy"
+#line 215 "src/sema/expr.mxy"
         return P_PLUS;
-#line 212 "src/sema/expr.mxy"
+#line 216 "src/sema/expr.mxy"
     case P_MINUSEQ:;
-#line 212 "src/sema/expr.mxy"
+#line 216 "src/sema/expr.mxy"
         return P_MINUS;
-#line 213 "src/sema/expr.mxy"
+#line 217 "src/sema/expr.mxy"
     case P_STAREQ:;
-#line 213 "src/sema/expr.mxy"
+#line 217 "src/sema/expr.mxy"
         return P_STAR;
-#line 214 "src/sema/expr.mxy"
+#line 218 "src/sema/expr.mxy"
     case P_SLASHEQ:;
-#line 214 "src/sema/expr.mxy"
+#line 218 "src/sema/expr.mxy"
         return P_SLASH;
-#line 215 "src/sema/expr.mxy"
+#line 219 "src/sema/expr.mxy"
     case P_PERCENTEQ:;
-#line 215 "src/sema/expr.mxy"
+#line 219 "src/sema/expr.mxy"
         return P_PERCENT;
-#line 216 "src/sema/expr.mxy"
+#line 220 "src/sema/expr.mxy"
     case P_AMPEQ:;
-#line 216 "src/sema/expr.mxy"
+#line 220 "src/sema/expr.mxy"
         return P_AMP;
-#line 217 "src/sema/expr.mxy"
+#line 221 "src/sema/expr.mxy"
     case P_PIPEEQ:;
-#line 217 "src/sema/expr.mxy"
+#line 221 "src/sema/expr.mxy"
         return P_PIPE;
-#line 218 "src/sema/expr.mxy"
+#line 222 "src/sema/expr.mxy"
     case P_CARETEQ:;
-#line 218 "src/sema/expr.mxy"
+#line 222 "src/sema/expr.mxy"
         return P_CARET;
-#line 219 "src/sema/expr.mxy"
+#line 223 "src/sema/expr.mxy"
     case P_SHLEQ:;
-#line 219 "src/sema/expr.mxy"
+#line 223 "src/sema/expr.mxy"
         return P_SHL;
-#line 220 "src/sema/expr.mxy"
+#line 224 "src/sema/expr.mxy"
     case P_SHREQ:;
-#line 220 "src/sema/expr.mxy"
+#line 224 "src/sema/expr.mxy"
         return P_SHR;
-#line 221 "src/sema/expr.mxy"
+#line 225 "src/sema/expr.mxy"
     default:;
-#line 221 "src/sema/expr.mxy"
+#line 225 "src/sema/expr.mxy"
         return 0;
     }
 }
 
-#line 225 "src/sema/expr.mxy"
-static Type *check_assign(Node *n) {
-#line 226 "src/sema/expr.mxy"
-    Type *t = check_expr((&n->a), NULL);
-#line 227 "src/sema/expr.mxy"
-    Node *target = n->a;
-#line 228 "src/sema/expr.mxy"
-    if (!is_lvalue(target)) {
 #line 229 "src/sema/expr.mxy"
-        if ((target->kind == N_INDEX) && (type_unqual(target->a->type)->kind == TY_STRING)) {
+static Type *check_assign(Node *n) {
 #line 230 "src/sema/expr.mxy"
+    Type *t = check_expr((&n->a), NULL);
+#line 231 "src/sema/expr.mxy"
+    Node *target = n->a;
+#line 232 "src/sema/expr.mxy"
+    if (!is_lvalue(target)) {
+#line 233 "src/sema/expr.mxy"
+        if ((target->kind == N_INDEX) && (type_unqual(target->a->type)->kind == TY_STRING)) {
+#line 234 "src/sema/expr.mxy"
             diag_error(n->loc, "strings are immutable; build a new string instead");
         } else {
-#line 231 "src/sema/expr.mxy"
+#line 235 "src/sema/expr.mxy"
             if ((target->kind == N_MEMBER) && target->builtin) {
-#line 232 "src/sema/expr.mxy"
+#line 236 "src/sema/expr.mxy"
                 diag_error(n->loc, "'%s' is read-only", target->name);
             } else {
-#line 234 "src/sema/expr.mxy"
+#line 238 "src/sema/expr.mxy"
                 diag_error(n->loc, "the left side of an assignment must be a variable, field or element");
             }
         }
-#line 235 "src/sema/expr.mxy"
+#line 239 "src/sema/expr.mxy"
         return t;
-    }
-#line 237 "src/sema/expr.mxy"
-    mark_mutated(target);
-#line 238 "src/sema/expr.mxy"
-    if (((((target->kind == N_IDENT) && target->sym) && (target->sym->kind == S_VAR)) && target->sym->decl) && (target->sym->decl->flags & F_WEAK)) {
     }
 #line 241 "src/sema/expr.mxy"
-    Type *u = type_unqual(t);
+    mark_mutated(target);
 #line 242 "src/sema/expr.mxy"
-    if (n->op == P_ASSIGN) {
-#line 243 "src/sema/expr.mxy"
-        check_init((&n->b), t);
-#line 244 "src/sema/expr.mxy"
-        coerce((&n->b), t, "assignment");
+    if (((((target->kind == N_IDENT) && target->sym) && (target->sym->kind == S_VAR)) && target->sym->decl) && (target->sym->decl->flags & F_WEAK)) {
+    }
 #line 245 "src/sema/expr.mxy"
+    Type *u = type_unqual(t);
+#line 246 "src/sema/expr.mxy"
+    if (n->op == P_ASSIGN) {
+#line 247 "src/sema/expr.mxy"
+        check_init((&n->b), t);
+#line 248 "src/sema/expr.mxy"
+        coerce((&n->b), t, "assignment");
+#line 249 "src/sema/expr.mxy"
         return t;
     }
-#line 247 "src/sema/expr.mxy"
+#line 251 "src/sema/expr.mxy"
     Type *v = check_expr((&n->b), ((u->kind == TY_STRING) ? ty_string : NULL));
-#line 248 "src/sema/expr.mxy"
+#line 252 "src/sema/expr.mxy"
     if (u->kind == TY_STRING) {
-#line 249 "src/sema/expr.mxy"
+#line 253 "src/sema/expr.mxy"
         if (n->op != P_PLUSEQ) {
-#line 249 "src/sema/expr.mxy"
+#line 253 "src/sema/expr.mxy"
             diag_error(n->loc, "only '+=' works on strings");
         }
-#line 250 "src/sema/expr.mxy"
-        coerce((&n->b), ty_string, "string append");
-#line 251 "src/sema/expr.mxy"
-        (n->builtin = B_STR_CONCAT);
-#line 252 "src/sema/expr.mxy"
-        return t;
-    }
 #line 254 "src/sema/expr.mxy"
-    if ((u->kind == TY_LIST) && (n->op == P_PLUSEQ)) {
+        coerce((&n->b), ty_string, "string append");
 #line 255 "src/sema/expr.mxy"
-        coerce((&n->b), t, "list append");
+        (n->builtin = B_STR_CONCAT);
 #line 256 "src/sema/expr.mxy"
-        (n->builtin = B_LIST_CONCAT);
-#line 257 "src/sema/expr.mxy"
         return t;
     }
+#line 258 "src/sema/expr.mxy"
+    if ((u->kind == TY_LIST) && (n->op == P_PLUSEQ)) {
 #line 259 "src/sema/expr.mxy"
-    int base = compound_op_base(n->op);
+        coerce((&n->b), t, "list append");
 #line 260 "src/sema/expr.mxy"
-    if ((u->kind == TY_PTR) && ((base == P_PLUS) || (base == P_MINUS))) {
-#line 260 "src/sema/expr.mxy"
+        (n->builtin = B_LIST_CONCAT);
+#line 261 "src/sema/expr.mxy"
         return t;
     }
-#line 261 "src/sema/expr.mxy"
-    if (((!type_is_arith(u)) && (!type_is_unknownish(u))) || ((!type_is_arith(type_unqual(v))) && (!type_is_unknownish(v)))) {
 #line 263 "src/sema/expr.mxy"
-        char *ts = type_str(t);
-#line 263 "src/sema/expr.mxy"
-        char *vs = type_str(v);
+    int base = compound_op_base(n->op);
 #line 264 "src/sema/expr.mxy"
-        diag_error(n->loc, "'%s' is not defined between %s and %s", tok_spell(((TokKind)n->op)), ts, vs);
+    if ((u->kind == TY_PTR) && ((base == P_PLUS) || (base == P_MINUS))) {
+#line 264 "src/sema/expr.mxy"
+        return t;
+    }
 #line 265 "src/sema/expr.mxy"
+    if (((!type_is_arith(u)) && (!type_is_unknownish(u))) || ((!type_is_arith(type_unqual(v))) && (!type_is_unknownish(v)))) {
+#line 267 "src/sema/expr.mxy"
+        char *ts = type_str(t);
+#line 267 "src/sema/expr.mxy"
+        char *vs = type_str(v);
+#line 268 "src/sema/expr.mxy"
+        diag_error(n->loc, "'%s' is not defined between %s and %s", tok_spell(((TokKind)n->op)), ts, vs);
+#line 269 "src/sema/expr.mxy"
         free(ts);
-#line 266 "src/sema/expr.mxy"
+#line 270 "src/sema/expr.mxy"
         free(vs);
     }
-#line 268 "src/sema/expr.mxy"
+#line 272 "src/sema/expr.mxy"
     return t;
 }
 
-#line 271 "src/sema/expr.mxy"
+#line 275 "src/sema/expr.mxy"
 static Type *unify(Node *n, Type *a, Type *b) {
-#line 272 "src/sema/expr.mxy"
+#line 276 "src/sema/expr.mxy"
     Type *ua = type_unqual(a);
-#line 272 "src/sema/expr.mxy"
+#line 276 "src/sema/expr.mxy"
     Type *ub = type_unqual(b);
-#line 273 "src/sema/expr.mxy"
+#line 277 "src/sema/expr.mxy"
     if (type_eq(ua, ub)) {
-#line 273 "src/sema/expr.mxy"
+#line 277 "src/sema/expr.mxy"
         return a;
     }
-#line 274 "src/sema/expr.mxy"
+#line 278 "src/sema/expr.mxy"
     if (type_is_arith(ua) && type_is_arith(ub)) {
-#line 274 "src/sema/expr.mxy"
+#line 278 "src/sema/expr.mxy"
         return type_common(a, b);
     }
-#line 275 "src/sema/expr.mxy"
+#line 279 "src/sema/expr.mxy"
     if (ua->kind == TY_NULL) {
-#line 275 "src/sema/expr.mxy"
+#line 279 "src/sema/expr.mxy"
         return b;
     }
-#line 276 "src/sema/expr.mxy"
+#line 280 "src/sema/expr.mxy"
     if (ub->kind == TY_NULL) {
-#line 276 "src/sema/expr.mxy"
-        return a;
-    }
-#line 277 "src/sema/expr.mxy"
-    if ((ua->kind == TY_STRING) && type_is_char_ptr(ub)) {
-#line 278 "src/sema/expr.mxy"
-        coerce((&n->c), ty_string, "conditional");
-#line 279 "src/sema/expr.mxy"
+#line 280 "src/sema/expr.mxy"
         return a;
     }
 #line 281 "src/sema/expr.mxy"
-    if ((ub->kind == TY_STRING) && type_is_char_ptr(ua)) {
+    if ((ua->kind == TY_STRING) && type_is_char_ptr(ub)) {
 #line 282 "src/sema/expr.mxy"
-        coerce((&n->b), ty_string, "conditional");
+        coerce((&n->c), ty_string, "conditional");
 #line 283 "src/sema/expr.mxy"
-        return b;
-    }
-#line 285 "src/sema/expr.mxy"
-    if (type_is_unknownish(ua)) {
-#line 285 "src/sema/expr.mxy"
-        return b;
-    }
-#line 286 "src/sema/expr.mxy"
-    if (type_is_unknownish(ub)) {
-#line 286 "src/sema/expr.mxy"
         return a;
     }
+#line 285 "src/sema/expr.mxy"
+    if ((ub->kind == TY_STRING) && type_is_char_ptr(ua)) {
+#line 286 "src/sema/expr.mxy"
+        coerce((&n->b), ty_string, "conditional");
 #line 287 "src/sema/expr.mxy"
-    if (type_is_ptrlike(ua) && type_is_ptrlike(ub)) {
-#line 287 "src/sema/expr.mxy"
-        return a;
+        return b;
     }
-#line 288 "src/sema/expr.mxy"
-    char *as = type_str(a);
-#line 288 "src/sema/expr.mxy"
-    char *bs = type_str(b);
 #line 289 "src/sema/expr.mxy"
-    diag_error(n->loc, "the branches of '?:' have different types: %s and %s", as, bs);
+    if (type_is_unknownish(ua)) {
+#line 289 "src/sema/expr.mxy"
+        return b;
+    }
 #line 290 "src/sema/expr.mxy"
-    free(as);
+    if (type_is_unknownish(ub)) {
+#line 290 "src/sema/expr.mxy"
+        return a;
+    }
 #line 291 "src/sema/expr.mxy"
-    free(bs);
+    if (type_is_ptrlike(ua) && type_is_ptrlike(ub)) {
+#line 291 "src/sema/expr.mxy"
+        return a;
+    }
 #line 292 "src/sema/expr.mxy"
+    char *as = type_str(a);
+#line 292 "src/sema/expr.mxy"
+    char *bs = type_str(b);
+#line 293 "src/sema/expr.mxy"
+    diag_error(n->loc, "the branches of '?:' have different types: %s and %s", as, bs);
+#line 294 "src/sema/expr.mxy"
+    free(as);
+#line 295 "src/sema/expr.mxy"
+    free(bs);
+#line 296 "src/sema/expr.mxy"
     return a;
 }
 
-#line 295 "src/sema/expr.mxy"
+#line 299 "src/sema/expr.mxy"
 static Type *check_index(Node *n) {
-#line 296 "src/sema/expr.mxy"
+#line 300 "src/sema/expr.mxy"
     Type *t = check_expr((&n->a), NULL);
-#line 297 "src/sema/expr.mxy"
+#line 301 "src/sema/expr.mxy"
     Type *u = type_unqual(t);
-#line 298 "src/sema/expr.mxy"
+#line 302 "src/sema/expr.mxy"
     switch (u->kind) {
-#line 299 "src/sema/expr.mxy"
+#line 303 "src/sema/expr.mxy"
     case TY_LIST:;
-#line 299 "src/sema/expr.mxy"
+#line 303 "src/sema/expr.mxy"
     case TY_STRING:;
         {
-#line 300 "src/sema/expr.mxy"
+#line 304 "src/sema/expr.mxy"
             Type *i = check_expr((&n->b), NULL);
-#line 301 "src/sema/expr.mxy"
+#line 305 "src/sema/expr.mxy"
             if ((!type_is_integer(i)) && (!type_is_unknownish(i))) {
-#line 301 "src/sema/expr.mxy"
+#line 305 "src/sema/expr.mxy"
                 diag_error(n->b->loc, "index must be an integer");
             }
-#line 302 "src/sema/expr.mxy"
+#line 306 "src/sema/expr.mxy"
             return ((u->kind == TY_LIST) ? u->base : ty_char);
         }
-#line 304 "src/sema/expr.mxy"
+#line 308 "src/sema/expr.mxy"
     case TY_MAP:;
-#line 305 "src/sema/expr.mxy"
-        check_expr((&n->b), u->key);
-#line 306 "src/sema/expr.mxy"
-        coerce((&n->b), u->key, "map key");
-#line 307 "src/sema/expr.mxy"
-        return u->base;
-#line 308 "src/sema/expr.mxy"
-    case TY_PTR:;
-#line 308 "src/sema/expr.mxy"
-    case TY_ARRAY:;
 #line 309 "src/sema/expr.mxy"
-        check_expr((&n->b), NULL);
+        check_expr((&n->b), u->key);
 #line 310 "src/sema/expr.mxy"
-        return u->base;
+        coerce((&n->b), u->key, "map key");
 #line 311 "src/sema/expr.mxy"
-    default:;
+        return u->base;
 #line 312 "src/sema/expr.mxy"
+    case TY_PTR:;
+#line 312 "src/sema/expr.mxy"
+    case TY_ARRAY:;
+#line 313 "src/sema/expr.mxy"
         check_expr((&n->b), NULL);
-#line 313 "src/sema/expr.mxy"
+#line 314 "src/sema/expr.mxy"
+        return u->base;
+#line 315 "src/sema/expr.mxy"
+    default:;
+#line 316 "src/sema/expr.mxy"
+        check_expr((&n->b), NULL);
+#line 317 "src/sema/expr.mxy"
         if (type_is_unknownish(u)) {
-#line 313 "src/sema/expr.mxy"
+#line 317 "src/sema/expr.mxy"
             return ty_unknown;
         }
         {
-#line 315 "src/sema/expr.mxy"
+#line 319 "src/sema/expr.mxy"
             char *s = type_str(t);
-#line 316 "src/sema/expr.mxy"
+#line 320 "src/sema/expr.mxy"
             diag_error(n->loc, "cannot index a value of type %s", s);
-#line 317 "src/sema/expr.mxy"
+#line 321 "src/sema/expr.mxy"
             free(s);
         }
-#line 319 "src/sema/expr.mxy"
+#line 323 "src/sema/expr.mxy"
         return ty_unknown;
     }
 }
 
-#line 323 "src/sema/expr.mxy"
-static Type *check_cast(Node *n) {
-#line 324 "src/sema/expr.mxy"
-    Type *to = resolve_type(n->tref);
-#line 325 "src/sema/expr.mxy"
-    Type *from = check_expr((&n->a), to);
-#line 326 "src/sema/expr.mxy"
-    Type *ut = type_unqual(to);
-#line 326 "src/sema/expr.mxy"
-    Type *uf = type_unqual(from);
 #line 327 "src/sema/expr.mxy"
-    if (ut->kind == TY_STRING) {
+static Type *check_cast(Node *n) {
 #line 328 "src/sema/expr.mxy"
-        if ((uf->kind == TY_STRING) || (uf->kind == TY_NULL)) {
-#line 328 "src/sema/expr.mxy"
-            return to;
-        }
+    Type *to = resolve_type(n->tref);
 #line 329 "src/sema/expr.mxy"
-        if (type_is_char_ptr(uf) || type_is_unknownish(uf)) {
+    Type *from = check_expr((&n->a), to);
 #line 330 "src/sema/expr.mxy"
-            (n->a = wrap_conv(n->a, to, CV_CSTR_TO_STR));
+    Type *ut = type_unqual(to);
+#line 330 "src/sema/expr.mxy"
+    Type *uf = type_unqual(from);
 #line 331 "src/sema/expr.mxy"
-            (n->op = 1);
+    if (ut->kind == TY_STRING) {
+#line 332 "src/sema/expr.mxy"
+        if ((uf->kind == TY_STRING) || (uf->kind == TY_NULL)) {
 #line 332 "src/sema/expr.mxy"
             return to;
         }
+#line 333 "src/sema/expr.mxy"
+        if (type_is_char_ptr(uf) || type_is_unknownish(uf)) {
 #line 334 "src/sema/expr.mxy"
-        diag_error(n->loc, "cannot cast to string; use string(value) to format a value");
+            (n->a = wrap_conv(n->a, to, CV_CSTR_TO_STR));
 #line 335 "src/sema/expr.mxy"
+            (n->op = 1);
+#line 336 "src/sema/expr.mxy"
+            return to;
+        }
+#line 338 "src/sema/expr.mxy"
+        diag_error(n->loc, "cannot cast to string; use string(value) to format a value");
+#line 339 "src/sema/expr.mxy"
         return to;
     }
-#line 337 "src/sema/expr.mxy"
-    if (((type_is_managed(ut) && (!type_eq(ut, uf))) && (uf->kind != TY_NULL)) && (!type_is_unknownish(uf))) {
-#line 338 "src/sema/expr.mxy"
-        char *a = type_str(from);
-#line 338 "src/sema/expr.mxy"
-        char *b = type_str(to);
-#line 339 "src/sema/expr.mxy"
-        diag_error(n->loc, "cannot cast %s to %s", a, b);
-#line 340 "src/sema/expr.mxy"
-        free(a);
 #line 341 "src/sema/expr.mxy"
-        free(b);
-    }
-#line 343 "src/sema/expr.mxy"
-    if ((((type_is_managed(uf) && (uf->kind != TY_STRING)) && (!type_is_managed(ut))) && (!type_is_unknownish(ut))) && (!((uf->kind == TY_STRUCT) && uf->is_ref))) {
-#line 345 "src/sema/expr.mxy"
+    if (((type_is_managed(ut) && (!type_eq(ut, uf))) && (uf->kind != TY_NULL)) && (!type_is_unknownish(uf))) {
+#line 342 "src/sema/expr.mxy"
         char *a = type_str(from);
-#line 345 "src/sema/expr.mxy"
+#line 342 "src/sema/expr.mxy"
         char *b = type_str(to);
-#line 346 "src/sema/expr.mxy"
+#line 343 "src/sema/expr.mxy"
         diag_error(n->loc, "cannot cast %s to %s", a, b);
-#line 347 "src/sema/expr.mxy"
+#line 344 "src/sema/expr.mxy"
         free(a);
-#line 348 "src/sema/expr.mxy"
+#line 345 "src/sema/expr.mxy"
         free(b);
     }
+#line 347 "src/sema/expr.mxy"
+    if ((((type_is_managed(uf) && (uf->kind != TY_STRING)) && (!type_is_managed(ut))) && (!type_is_unknownish(ut))) && (!((uf->kind == TY_STRUCT) && uf->is_ref))) {
+#line 349 "src/sema/expr.mxy"
+        char *a = type_str(from);
+#line 349 "src/sema/expr.mxy"
+        char *b = type_str(to);
 #line 350 "src/sema/expr.mxy"
+        diag_error(n->loc, "cannot cast %s to %s", a, b);
+#line 351 "src/sema/expr.mxy"
+        free(a);
+#line 352 "src/sema/expr.mxy"
+        free(b);
+    }
+#line 354 "src/sema/expr.mxy"
     return to;
 }
 
-#line 353 "src/sema/expr.mxy"
-static Type *check_list_lit(Node *n, Type *expected) {
-#line 354 "src/sema/expr.mxy"
-    Type *ex = type_unqual(expected);
-#line 355 "src/sema/expr.mxy"
-    Type *elem = ((ex && (ex->kind == TY_LIST)) ? ex->base : NULL);
-#line 356 "src/sema/expr.mxy"
-    if (!elem) {
 #line 357 "src/sema/expr.mxy"
-        if (!n->list.len) {
+static Type *check_list_lit(Node *n, Type *expected) {
 #line 358 "src/sema/expr.mxy"
-            diag_error(n->loc, "cannot infer the element type of an empty list");
+    Type *ex = type_unqual(expected);
 #line 359 "src/sema/expr.mxy"
-            diag_hint("give the variable a type, e.g. int[] xs = [];");
+    Type *elem = ((ex && (ex->kind == TY_LIST)) ? ex->base : NULL);
 #line 360 "src/sema/expr.mxy"
+    if (!elem) {
+#line 361 "src/sema/expr.mxy"
+        if (!n->list.len) {
+#line 362 "src/sema/expr.mxy"
+            diag_error(n->loc, "cannot infer the element type of an empty list");
+#line 363 "src/sema/expr.mxy"
+            diag_hint("give the variable a type, e.g. int[] xs = [];");
+#line 364 "src/sema/expr.mxy"
             return type_list(ty_unknown);
         }
-#line 362 "src/sema/expr.mxy"
+#line 366 "src/sema/expr.mxy"
         (elem = check_expr((&n->list.items[0]), NULL));
-#line 363 "src/sema/expr.mxy"
+#line 367 "src/sema/expr.mxy"
         if (type_unqual(elem)->kind == TY_NULL) {
-#line 363 "src/sema/expr.mxy"
+#line 367 "src/sema/expr.mxy"
             (elem = ty_unknown);
         }
     }
     {
-#line 365 "src/sema/expr.mxy"
+#line 369 "src/sema/expr.mxy"
         int i = 0;
-#line 365 "src/sema/expr.mxy"
+#line 369 "src/sema/expr.mxy"
         for (; i < n->list.len; (i++)) {
-#line 366 "src/sema/expr.mxy"
+#line 370 "src/sema/expr.mxy"
             check_init((&n->list.items[i]), elem);
-#line 367 "src/sema/expr.mxy"
+#line 371 "src/sema/expr.mxy"
             coerce((&n->list.items[i]), elem, "list element");
         }
     }
-#line 369 "src/sema/expr.mxy"
+#line 373 "src/sema/expr.mxy"
     return ((ex && (ex->kind == TY_LIST)) ? expected : type_list(elem));
 }
 
-#line 372 "src/sema/expr.mxy"
+#line 376 "src/sema/expr.mxy"
 static Type *check_result_ctor(Node *n, Type *expected) {
-#line 373 "src/sema/expr.mxy"
+#line 377 "src/sema/expr.mxy"
     Type *ex = type_unqual(expected);
-#line 374 "src/sema/expr.mxy"
+#line 378 "src/sema/expr.mxy"
     if ((!ex) || (ex->kind != TY_RESULT)) {
-#line 375 "src/sema/expr.mxy"
+#line 379 "src/sema/expr.mxy"
         if (ex && type_is_unknownish(ex)) {
-#line 375 "src/sema/expr.mxy"
+#line 379 "src/sema/expr.mxy"
             return ty_unknown;
         }
-#line 376 "src/sema/expr.mxy"
+#line 380 "src/sema/expr.mxy"
         diag_error(n->loc, "%s(...) needs a Result<T> context", ((n->kind == N_OK) ? ((mxy_str)__mxy_s8.s) : ((mxy_str)__mxy_s9.s)));
-#line 377 "src/sema/expr.mxy"
+#line 381 "src/sema/expr.mxy"
         diag_hint("return it from a function returning Result<T>, or assign it to a Result<T> variable");
-#line 378 "src/sema/expr.mxy"
+#line 382 "src/sema/expr.mxy"
         if (n->a) {
-#line 378 "src/sema/expr.mxy"
+#line 382 "src/sema/expr.mxy"
             check_expr((&n->a), NULL);
         }
-#line 379 "src/sema/expr.mxy"
+#line 383 "src/sema/expr.mxy"
         return ty_unknown;
     }
-#line 381 "src/sema/expr.mxy"
+#line 385 "src/sema/expr.mxy"
     if (n->kind == N_OK) {
-#line 382 "src/sema/expr.mxy"
+#line 386 "src/sema/expr.mxy"
         if (type_unqual(ex->base)->kind == TY_VOID) {
-#line 383 "src/sema/expr.mxy"
+#line 387 "src/sema/expr.mxy"
             if (n->a) {
-#line 383 "src/sema/expr.mxy"
+#line 387 "src/sema/expr.mxy"
                 diag_error(n->loc, "Ok() of Result<void> takes no value");
             }
         } else {
-#line 384 "src/sema/expr.mxy"
+#line 388 "src/sema/expr.mxy"
             if (!n->a) {
-#line 385 "src/sema/expr.mxy"
+#line 389 "src/sema/expr.mxy"
                 diag_error(n->loc, "Ok(...) needs a value");
             } else {
-#line 387 "src/sema/expr.mxy"
+#line 391 "src/sema/expr.mxy"
                 check_init((&n->a), ex->base);
-#line 388 "src/sema/expr.mxy"
+#line 392 "src/sema/expr.mxy"
                 coerce((&n->a), ex->base, "Ok value");
             }
         }
     } else {
-#line 391 "src/sema/expr.mxy"
+#line 395 "src/sema/expr.mxy"
         if (!n->a) {
-#line 392 "src/sema/expr.mxy"
+#line 396 "src/sema/expr.mxy"
             diag_error(n->loc, "Err(...) needs a message");
         } else {
-#line 394 "src/sema/expr.mxy"
+#line 398 "src/sema/expr.mxy"
             check_expr((&n->a), ty_string);
-#line 395 "src/sema/expr.mxy"
+#line 399 "src/sema/expr.mxy"
             coerce((&n->a), ty_string, "Err message");
         }
     }
-#line 398 "src/sema/expr.mxy"
+#line 402 "src/sema/expr.mxy"
     return expected;
 }
 
-#line 401 "src/sema/expr.mxy"
+#line 405 "src/sema/expr.mxy"
 static Type *check_interp(Node *n) {
     {
-#line 402 "src/sema/expr.mxy"
-        int i = 0;
-#line 402 "src/sema/expr.mxy"
-        for (; i < n->list.len; (i++)) {
-#line 403 "src/sema/expr.mxy"
-            Node *part = n->list.items[i];
-#line 404 "src/sema/expr.mxy"
-            if (part->kind == N_STR) {
-#line 405 "src/sema/expr.mxy"
-                (part->type = ty_string);
 #line 406 "src/sema/expr.mxy"
-                (part->op = 2);
+        int i = 0;
+#line 406 "src/sema/expr.mxy"
+        for (; i < n->list.len; (i++)) {
 #line 407 "src/sema/expr.mxy"
+            Node *part = n->list.items[i];
+#line 408 "src/sema/expr.mxy"
+            if (part->kind == N_STR) {
+#line 409 "src/sema/expr.mxy"
+                (part->type = ty_string);
+#line 410 "src/sema/expr.mxy"
+                (part->op = 2);
+#line 411 "src/sema/expr.mxy"
                 continue;
             }
-#line 409 "src/sema/expr.mxy"
+#line 413 "src/sema/expr.mxy"
             Type *t = check_expr((&n->list.items[i]), NULL);
-#line 410 "src/sema/expr.mxy"
+#line 414 "src/sema/expr.mxy"
             if (type_unqual(t)->kind == TY_VOID) {
-#line 410 "src/sema/expr.mxy"
+#line 414 "src/sema/expr.mxy"
                 diag_error(part->loc, "cannot interpolate a void value");
             }
         }
     }
-#line 412 "src/sema/expr.mxy"
+#line 416 "src/sema/expr.mxy"
     return ty_string;
 }
 
-#line 415 "src/sema/expr.mxy"
+#line 419 "src/sema/expr.mxy"
 static Type *check_inner(Node **slot, Type *expected) {
-#line 416 "src/sema/expr.mxy"
+#line 420 "src/sema/expr.mxy"
     Node *n = (*slot);
-#line 417 "src/sema/expr.mxy"
-    switch (n->kind) {
-#line 418 "src/sema/expr.mxy"
-    case N_INT:;
-#line 418 "src/sema/expr.mxy"
-        return int_literal_type(n->text);
-#line 419 "src/sema/expr.mxy"
-    case N_FLOAT:;
-#line 419 "src/sema/expr.mxy"
-        return float_literal_type(n->text);
-#line 420 "src/sema/expr.mxy"
-    case N_CHAR:;
-#line 420 "src/sema/expr.mxy"
-        return ty_char;
 #line 421 "src/sema/expr.mxy"
+    switch (n->kind) {
+#line 422 "src/sema/expr.mxy"
+    case N_INT:;
+#line 422 "src/sema/expr.mxy"
+        return int_literal_type(n->text);
+#line 423 "src/sema/expr.mxy"
+    case N_FLOAT:;
+#line 423 "src/sema/expr.mxy"
+        return float_literal_type(n->text);
+#line 424 "src/sema/expr.mxy"
+    case N_CHAR:;
+#line 424 "src/sema/expr.mxy"
+        return ty_char;
+#line 425 "src/sema/expr.mxy"
     case N_STR:;
         {
-#line 422 "src/sema/expr.mxy"
+#line 426 "src/sema/expr.mxy"
             Type *ex = type_unqual(expected);
-#line 423 "src/sema/expr.mxy"
+#line 427 "src/sema/expr.mxy"
             if ((ex && (ex->kind == TY_ARRAY)) && type_is_char_ptr(ex)) {
-#line 424 "src/sema/expr.mxy"
+#line 428 "src/sema/expr.mxy"
                 (n->op = 1);
-#line 425 "src/sema/expr.mxy"
+#line 429 "src/sema/expr.mxy"
                 return expected;
             }
-#line 427 "src/sema/expr.mxy"
+#line 431 "src/sema/expr.mxy"
             if (ex && ((ex->kind == TY_PTR) || (ex->kind == TY_NAMED))) {
-#line 427 "src/sema/expr.mxy"
+#line 431 "src/sema/expr.mxy"
                 (n->op = 1);
             }
-#line 428 "src/sema/expr.mxy"
+#line 432 "src/sema/expr.mxy"
             return ty_string;
         }
-#line 430 "src/sema/expr.mxy"
+#line 434 "src/sema/expr.mxy"
     case N_INTERP:;
-#line 430 "src/sema/expr.mxy"
+#line 434 "src/sema/expr.mxy"
         return check_interp(n);
-#line 431 "src/sema/expr.mxy"
-    case N_BOOL:;
-#line 431 "src/sema/expr.mxy"
-        return ty_bool;
-#line 432 "src/sema/expr.mxy"
-    case N_NULL:;
-#line 432 "src/sema/expr.mxy"
-        return ty_null;
-#line 433 "src/sema/expr.mxy"
-    case N_IDENT:;
-#line 433 "src/sema/expr.mxy"
-        return check_ident(n);
-#line 434 "src/sema/expr.mxy"
-    case N_UNARY:;
-#line 434 "src/sema/expr.mxy"
-        return check_unary(n);
 #line 435 "src/sema/expr.mxy"
-    case N_POSTFIX:;
+    case N_BOOL:;
+#line 435 "src/sema/expr.mxy"
+        return ty_bool;
 #line 436 "src/sema/expr.mxy"
+    case N_NULL:;
+        {
+#line 437 "src/sema/expr.mxy"
+            Sym *s = lookup_quiet("null");
+#line 438 "src/sema/expr.mxy"
+            if ((!s) || (s->kind != S_VAR)) {
+#line 438 "src/sema/expr.mxy"
+                return ty_null;
+            }
+#line 439 "src/sema/expr.mxy"
+            (n->kind = N_IDENT);
+#line 440 "src/sema/expr.mxy"
+            (n->name = xstrdup("null"));
+#line 441 "src/sema/expr.mxy"
+            return check_ident(n);
+        }
+#line 443 "src/sema/expr.mxy"
+    case N_IDENT:;
+#line 443 "src/sema/expr.mxy"
+        return check_ident(n);
+#line 444 "src/sema/expr.mxy"
+    case N_UNARY:;
+#line 444 "src/sema/expr.mxy"
+        return check_unary(n);
+#line 445 "src/sema/expr.mxy"
+    case N_POSTFIX:;
+#line 446 "src/sema/expr.mxy"
         check_expr((&n->a), NULL);
-#line 437 "src/sema/expr.mxy"
+#line 447 "src/sema/expr.mxy"
         if (!is_lvalue(n->a)) {
-#line 437 "src/sema/expr.mxy"
+#line 447 "src/sema/expr.mxy"
             diag_error(n->loc, "'%s' needs a variable", tok_spell(((TokKind)n->op)));
         }
-#line 438 "src/sema/expr.mxy"
+#line 448 "src/sema/expr.mxy"
         mark_mutated(n->a);
-#line 439 "src/sema/expr.mxy"
+#line 449 "src/sema/expr.mxy"
         return n->a->type;
-#line 440 "src/sema/expr.mxy"
+#line 450 "src/sema/expr.mxy"
     case N_BINARY:;
-#line 440 "src/sema/expr.mxy"
+#line 450 "src/sema/expr.mxy"
         return check_binary(n);
-#line 441 "src/sema/expr.mxy"
+#line 451 "src/sema/expr.mxy"
     case N_ASSIGN:;
-#line 441 "src/sema/expr.mxy"
+#line 451 "src/sema/expr.mxy"
         return check_assign(n);
-#line 442 "src/sema/expr.mxy"
+#line 452 "src/sema/expr.mxy"
     case N_TERNARY:;
         {
-#line 443 "src/sema/expr.mxy"
+#line 453 "src/sema/expr.mxy"
             check_cond((&n->a));
-#line 444 "src/sema/expr.mxy"
+#line 454 "src/sema/expr.mxy"
             Type *a = check_expr((&n->b), expected);
-#line 445 "src/sema/expr.mxy"
+#line 455 "src/sema/expr.mxy"
             Type *b = check_expr((&n->c), expected);
-#line 446 "src/sema/expr.mxy"
+#line 456 "src/sema/expr.mxy"
             if (expected && (!type_is_unknownish(expected))) {
-#line 447 "src/sema/expr.mxy"
+#line 457 "src/sema/expr.mxy"
                 coerce((&n->b), expected, "conditional branch");
-#line 448 "src/sema/expr.mxy"
+#line 458 "src/sema/expr.mxy"
                 coerce((&n->c), expected, "conditional branch");
-#line 449 "src/sema/expr.mxy"
+#line 459 "src/sema/expr.mxy"
                 return expected;
             }
-#line 451 "src/sema/expr.mxy"
+#line 461 "src/sema/expr.mxy"
             return unify(n, a, b);
         }
-#line 453 "src/sema/expr.mxy"
+#line 463 "src/sema/expr.mxy"
     case N_COMMA:;
-#line 454 "src/sema/expr.mxy"
+#line 464 "src/sema/expr.mxy"
         check_expr((&n->a), NULL);
-#line 455 "src/sema/expr.mxy"
+#line 465 "src/sema/expr.mxy"
         return check_expr((&n->b), expected);
-#line 456 "src/sema/expr.mxy"
+#line 466 "src/sema/expr.mxy"
     case N_CALL:;
-#line 456 "src/sema/expr.mxy"
+#line 466 "src/sema/expr.mxy"
         return check_call(slot, expected);
-#line 457 "src/sema/expr.mxy"
+#line 467 "src/sema/expr.mxy"
     case N_INDEX:;
-#line 457 "src/sema/expr.mxy"
+#line 467 "src/sema/expr.mxy"
         return check_index(n);
-#line 458 "src/sema/expr.mxy"
+#line 468 "src/sema/expr.mxy"
     case N_MEMBER:;
-#line 458 "src/sema/expr.mxy"
+#line 468 "src/sema/expr.mxy"
         return check_member(slot);
-#line 459 "src/sema/expr.mxy"
+#line 469 "src/sema/expr.mxy"
     case N_CAST:;
-#line 459 "src/sema/expr.mxy"
+#line 469 "src/sema/expr.mxy"
         return check_cast(n);
-#line 460 "src/sema/expr.mxy"
+#line 470 "src/sema/expr.mxy"
     case N_SIZEOF:;
-#line 461 "src/sema/expr.mxy"
+#line 471 "src/sema/expr.mxy"
         if (n->tref) {
-#line 461 "src/sema/expr.mxy"
+#line 471 "src/sema/expr.mxy"
             resolve_type(n->tref);
         } else {
-#line 462 "src/sema/expr.mxy"
+#line 472 "src/sema/expr.mxy"
             check_expr((&n->a), NULL);
         }
-#line 463 "src/sema/expr.mxy"
-        return ty_ulong;
-#line 464 "src/sema/expr.mxy"
-    case N_ALIGNOF:;
-#line 465 "src/sema/expr.mxy"
-        resolve_type(n->tref);
-#line 466 "src/sema/expr.mxy"
-        return ty_ulong;
-#line 467 "src/sema/expr.mxy"
-    case N_COMPOUND:;
-        {
-#line 468 "src/sema/expr.mxy"
-            Type *t = resolve_type(n->tref);
-#line 469 "src/sema/expr.mxy"
-            check_init((&n->b), t);
-#line 470 "src/sema/expr.mxy"
-            if ((type_unqual(t)->kind == TY_ARRAY) && (type_unqual(t)->len < 0)) {
-#line 471 "src/sema/expr.mxy"
-                Type *fixed = type_array(type_unqual(t)->base, n->b->list.len);
-#line 472 "src/sema/expr.mxy"
-                (n->b->type = fixed);
 #line 473 "src/sema/expr.mxy"
-                return fixed;
-            }
+        return ty_ulong;
+#line 474 "src/sema/expr.mxy"
+    case N_ALIGNOF:;
 #line 475 "src/sema/expr.mxy"
-            return t;
-        }
+        resolve_type(n->tref);
+#line 476 "src/sema/expr.mxy"
+        return ty_ulong;
 #line 477 "src/sema/expr.mxy"
-    case N_STRUCTLIT:;
+    case N_COMPOUND:;
         {
 #line 478 "src/sema/expr.mxy"
             Type *t = resolve_type(n->tref);
 #line 479 "src/sema/expr.mxy"
-            Type *u = type_unqual(t);
-#line 480 "src/sema/expr.mxy"
-            if ((u->kind != TY_STRUCT) || (!u->decl)) {
-#line 481 "src/sema/expr.mxy"
-                diag_error(n->loc, "'%s' is not a struct defined in Moxy", n->tref->name);
-#line 482 "src/sema/expr.mxy"
-                return ty_unknown;
-            }
-#line 484 "src/sema/expr.mxy"
             check_init((&n->b), t);
+#line 480 "src/sema/expr.mxy"
+            if ((type_unqual(t)->kind == TY_ARRAY) && (type_unqual(t)->len < 0)) {
+#line 481 "src/sema/expr.mxy"
+                Type *fixed = type_array(type_unqual(t)->base, n->b->list.len);
+#line 482 "src/sema/expr.mxy"
+                (n->b->type = fixed);
+#line 483 "src/sema/expr.mxy"
+                return fixed;
+            }
 #line 485 "src/sema/expr.mxy"
             return t;
         }
 #line 487 "src/sema/expr.mxy"
-    case N_INITLIST:;
-#line 488 "src/sema/expr.mxy"
-        if (!expected) {
-#line 489 "src/sema/expr.mxy"
-            diag_error(n->loc, "cannot infer the type of this initializer");
-#line 490 "src/sema/expr.mxy"
-            diag_hint("use a typed declaration or a literal like Point{ .x = 1 }");
-#line 491 "src/sema/expr.mxy"
-            return ty_unknown;
-        }
-#line 493 "src/sema/expr.mxy"
-        return check_init(slot, expected);
-#line 494 "src/sema/expr.mxy"
-    case N_LIST:;
-#line 494 "src/sema/expr.mxy"
-        return check_list_lit(n, expected);
-#line 495 "src/sema/expr.mxy"
-    case N_OK:;
-#line 495 "src/sema/expr.mxy"
-    case N_ERR:;
-#line 495 "src/sema/expr.mxy"
-        return check_result_ctor(n, expected);
-#line 496 "src/sema/expr.mxy"
-    case N_AWAIT:;
+    case N_STRUCTLIT:;
         {
-#line 497 "src/sema/expr.mxy"
-            Type *t = check_expr((&n->a), NULL);
-#line 498 "src/sema/expr.mxy"
+#line 488 "src/sema/expr.mxy"
+            Type *t = resolve_type(n->tref);
+#line 489 "src/sema/expr.mxy"
             Type *u = type_unqual(t);
-#line 499 "src/sema/expr.mxy"
-            if (u->kind != TY_FUTURE) {
-#line 500 "src/sema/expr.mxy"
-                if (!type_is_unknownish(u)) {
-#line 501 "src/sema/expr.mxy"
-                    char *s = type_str(t);
-#line 502 "src/sema/expr.mxy"
-                    diag_error(n->loc, "await needs a Future, found %s", s);
-#line 503 "src/sema/expr.mxy"
-                    free(s);
-                }
-#line 505 "src/sema/expr.mxy"
+#line 490 "src/sema/expr.mxy"
+            if ((u->kind != TY_STRUCT) || (!u->decl)) {
+#line 491 "src/sema/expr.mxy"
+                diag_error(n->loc, "'%s' is not a struct defined in Moxy", n->tref->name);
+#line 492 "src/sema/expr.mxy"
                 return ty_unknown;
             }
+#line 494 "src/sema/expr.mxy"
+            check_init((&n->b), t);
+#line 495 "src/sema/expr.mxy"
+            return t;
+        }
+#line 497 "src/sema/expr.mxy"
+    case N_INITLIST:;
+#line 498 "src/sema/expr.mxy"
+        if (!expected) {
+#line 499 "src/sema/expr.mxy"
+            diag_error(n->loc, "cannot infer the type of this initializer");
+#line 500 "src/sema/expr.mxy"
+            diag_hint("use a typed declaration or a literal like Point{ .x = 1 }");
+#line 501 "src/sema/expr.mxy"
+            return ty_unknown;
+        }
+#line 503 "src/sema/expr.mxy"
+        return check_init(slot, expected);
+#line 504 "src/sema/expr.mxy"
+    case N_LIST:;
+#line 504 "src/sema/expr.mxy"
+        return check_list_lit(n, expected);
+#line 505 "src/sema/expr.mxy"
+    case N_OK:;
+#line 505 "src/sema/expr.mxy"
+    case N_ERR:;
+#line 505 "src/sema/expr.mxy"
+        return check_result_ctor(n, expected);
+#line 506 "src/sema/expr.mxy"
+    case N_AWAIT:;
+        {
 #line 507 "src/sema/expr.mxy"
-            (prog.threads = 1);
+            Type *t = check_expr((&n->a), NULL);
 #line 508 "src/sema/expr.mxy"
+            Type *u = type_unqual(t);
+#line 509 "src/sema/expr.mxy"
+            if (u->kind != TY_FUTURE) {
+#line 510 "src/sema/expr.mxy"
+                if (!type_is_unknownish(u)) {
+#line 511 "src/sema/expr.mxy"
+                    char *s = type_str(t);
+#line 512 "src/sema/expr.mxy"
+                    diag_error(n->loc, "await needs a Future, found %s", s);
+#line 513 "src/sema/expr.mxy"
+                    free(s);
+                }
+#line 515 "src/sema/expr.mxy"
+                return ty_unknown;
+            }
+#line 517 "src/sema/expr.mxy"
+            (prog.threads = 1);
+#line 518 "src/sema/expr.mxy"
             return u->base;
         }
-#line 510 "src/sema/expr.mxy"
-    case N_LAMBDA:;
-#line 510 "src/sema/expr.mxy"
-        return check_lambda(n, expected);
-#line 511 "src/sema/expr.mxy"
-    case N_RANGE:;
-#line 512 "src/sema/expr.mxy"
-        diag_error(n->loc, "ranges are only valid in for-in loops");
-#line 513 "src/sema/expr.mxy"
-        return ty_unknown;
-#line 514 "src/sema/expr.mxy"
-    case N_CONV:;
-#line 514 "src/sema/expr.mxy"
-        return n->type;
-#line 515 "src/sema/expr.mxy"
-    case N_TYPEARG:;
-#line 516 "src/sema/expr.mxy"
-        resolve_type(n->tref);
-#line 517 "src/sema/expr.mxy"
-        return ty_unknown;
-#line 518 "src/sema/expr.mxy"
-    default:;
-#line 519 "src/sema/expr.mxy"
-        diag_error(n->loc, "unexpected expression");
 #line 520 "src/sema/expr.mxy"
+    case N_LAMBDA:;
+#line 520 "src/sema/expr.mxy"
+        return check_lambda(n, expected);
+#line 521 "src/sema/expr.mxy"
+    case N_RANGE:;
+#line 522 "src/sema/expr.mxy"
+        diag_error(n->loc, "ranges are only valid in for-in loops");
+#line 523 "src/sema/expr.mxy"
+        return ty_unknown;
+#line 524 "src/sema/expr.mxy"
+    case N_CONV:;
+#line 524 "src/sema/expr.mxy"
+        return n->type;
+#line 525 "src/sema/expr.mxy"
+    case N_TYPEARG:;
+#line 526 "src/sema/expr.mxy"
+        resolve_type(n->tref);
+#line 527 "src/sema/expr.mxy"
+        return ty_unknown;
+#line 528 "src/sema/expr.mxy"
+    default:;
+#line 529 "src/sema/expr.mxy"
+        diag_error(n->loc, "unexpected expression");
+#line 530 "src/sema/expr.mxy"
         return ty_unknown;
     }
 }
 
-#line 524 "src/sema/expr.mxy"
+#line 534 "src/sema/expr.mxy"
 Type *check_expr(Node **slot, Type *expected) {
-#line 525 "src/sema/expr.mxy"
+#line 535 "src/sema/expr.mxy"
     Type *t = check_inner(slot, expected);
-#line 526 "src/sema/expr.mxy"
+#line 536 "src/sema/expr.mxy"
     if (!t) {
-#line 526 "src/sema/expr.mxy"
+#line 536 "src/sema/expr.mxy"
         (t = ty_unknown);
     }
-#line 527 "src/sema/expr.mxy"
+#line 537 "src/sema/expr.mxy"
     if (((*slot)->kind != N_CONV) || (!(*slot)->type)) {
-#line 527 "src/sema/expr.mxy"
+#line 537 "src/sema/expr.mxy"
         ((*slot)->type = t);
     }
-#line 528 "src/sema/expr.mxy"
+#line 538 "src/sema/expr.mxy"
     return (*slot)->type;
 }
 
@@ -11202,378 +11297,436 @@ char *const_text(Node *e) {
     }
 }
 
-#line 150 "src/sema/resolve.mxy"
+#line 151 "src/sema/resolve.mxy"
+void struct_cede_name(Type *t) {
+#line 152 "src/sema/resolve.mxy"
+    if ((!t) || t->ctag) {
+#line 152 "src/sema/resolve.mxy"
+        return;
+    }
+#line 153 "src/sema/resolve.mxy"
+    (t->ctag = t->cname);
+#line 154 "src/sema/resolve.mxy"
+    (t->cname = xfmt("__mxy_tag_%s", t->ctag));
+#line 155 "src/sema/resolve.mxy"
+    Sym *tag = (t->name ? lookup_tag(t->name) : NULL);
+#line 156 "src/sema/resolve.mxy"
+    if (tag && (tag->type == t)) {
+#line 156 "src/sema/resolve.mxy"
+        (tag->cname = xstrdup(t->cname));
+    }
+}
+
+#line 159 "src/sema/resolve.mxy"
+int is_struct_alias(Sym *s) {
+#line 159 "src/sema/resolve.mxy"
+    return (((s && (s->kind == S_TYPE)) && s->decl) && (s->decl->kind == N_STRUCT));
+}
+
+#line 161 "src/sema/resolve.mxy"
 Type *define_struct(Node *decl, const char *typedef_name) {
-#line 151 "src/sema/resolve.mxy"
+#line 162 "src/sema/resolve.mxy"
     if (decl->type) {
-#line 151 "src/sema/resolve.mxy"
+#line 162 "src/sema/resolve.mxy"
         return decl->type;
     }
-#line 152 "src/sema/resolve.mxy"
+#line 163 "src/sema/resolve.mxy"
     Type *t = NULL;
-#line 153 "src/sema/resolve.mxy"
-    Sym *existing = (decl->name ? lookup_tag(decl->name) : NULL);
-#line 154 "src/sema/resolve.mxy"
+#line 165 "src/sema/resolve.mxy"
+    int local = (in_body() && (decl->flags & F_BODY));
+#line 166 "src/sema/resolve.mxy"
+    Sym *existing = ((!decl->name) ? NULL : (local ? strmap_get((&cur_scope->tags), decl->name) : lookup_tag(decl->name)));
+#line 167 "src/sema/resolve.mxy"
     if ((existing && existing->type) && (existing->type->kind == TY_STRUCT)) {
-#line 154 "src/sema/resolve.mxy"
+#line 167 "src/sema/resolve.mxy"
         (t = existing->type);
     }
-#line 155 "src/sema/resolve.mxy"
+#line 168 "src/sema/resolve.mxy"
     if (!t) {
-#line 155 "src/sema/resolve.mxy"
+#line 168 "src/sema/resolve.mxy"
         (t = type_new(TY_STRUCT));
     }
-#line 156 "src/sema/resolve.mxy"
+#line 169 "src/sema/resolve.mxy"
     (t->is_union = ((decl->flags & F_UNION) != 0));
-#line 157 "src/sema/resolve.mxy"
+#line 170 "src/sema/resolve.mxy"
     if (decl->flags & F_REF) {
-#line 157 "src/sema/resolve.mxy"
+#line 170 "src/sema/resolve.mxy"
         (t->is_ref = 1);
     }
-#line 158 "src/sema/resolve.mxy"
+#line 171 "src/sema/resolve.mxy"
     if (decl->name) {
-#line 159 "src/sema/resolve.mxy"
+#line 172 "src/sema/resolve.mxy"
         (t->name = xstrdup(decl->name));
-#line 160 "src/sema/resolve.mxy"
-        (t->cname = cname_for(decl->ns, decl->name));
+#line 173 "src/sema/resolve.mxy"
+        if (!t->ctag) {
+#line 173 "src/sema/resolve.mxy"
+            (t->cname = cname_for(decl->ns, decl->name));
+        }
     } else {
-#line 161 "src/sema/resolve.mxy"
+#line 174 "src/sema/resolve.mxy"
         if (typedef_name) {
-#line 162 "src/sema/resolve.mxy"
+#line 175 "src/sema/resolve.mxy"
             (t->name = xstrdup(typedef_name));
-#line 163 "src/sema/resolve.mxy"
+#line 176 "src/sema/resolve.mxy"
             (t->cname = cname_for(decl->ns, typedef_name));
-        } else {
-#line 165 "src/sema/resolve.mxy"
+        }
+    }
+#line 178 "src/sema/resolve.mxy"
+    if (local && (decl->name || typedef_name)) {
+#line 179 "src/sema/resolve.mxy"
+        char *base = t->cname;
+#line 180 "src/sema/resolve.mxy"
+        (t->cname = xfmt("%s__mxy%d", base, (++anon_counter)));
+#line 181 "src/sema/resolve.mxy"
+        free(base);
+    } else {
+#line 182 "src/sema/resolve.mxy"
+        if ((!decl->name) && (!typedef_name)) {
+#line 183 "src/sema/resolve.mxy"
             (t->name = xstrdup("anonymous struct"));
-#line 166 "src/sema/resolve.mxy"
+#line 184 "src/sema/resolve.mxy"
             (t->cname = xfmt("__mxy_anon%d", (++anon_counter)));
         }
     }
-#line 168 "src/sema/resolve.mxy"
+#line 186 "src/sema/resolve.mxy"
     if (decl->flags & F_BODY) {
-#line 169 "src/sema/resolve.mxy"
+#line 187 "src/sema/resolve.mxy"
         if (((t->decl && (t->decl != decl)) && (t->decl->flags & F_BODY)) && (!((t->decl->cond || decl->cond) && (!str_eq(t->decl->cond, decl->cond))))) {
-#line 171 "src/sema/resolve.mxy"
+#line 189 "src/sema/resolve.mxy"
             diag_error(decl->loc, "redefinition of %s '%s'", tag_word((t->is_union ? K_UNION : K_STRUCT)), t->name);
         }
-#line 172 "src/sema/resolve.mxy"
+#line 190 "src/sema/resolve.mxy"
         (t->decl = decl);
-#line 173 "src/sema/resolve.mxy"
+#line 191 "src/sema/resolve.mxy"
         (decl->type = t);
-#line 174 "src/sema/resolve.mxy"
+#line 192 "src/sema/resolve.mxy"
         vec_push(prog.structs, decl);
     } else {
-#line 176 "src/sema/resolve.mxy"
+#line 194 "src/sema/resolve.mxy"
         (decl->type = t);
+#line 195 "src/sema/resolve.mxy"
+        if (decl->name) {
+#line 195 "src/sema/resolve.mxy"
+            vec_push(prog.opaque, decl);
+        }
     }
-#line 178 "src/sema/resolve.mxy"
+#line 197 "src/sema/resolve.mxy"
     if (decl->name) {
-#line 179 "src/sema/resolve.mxy"
+#line 198 "src/sema/resolve.mxy"
         Sym *tag = (existing ? existing : sym_new(S_TYPE, decl->name, decl->loc));
-#line 180 "src/sema/resolve.mxy"
+#line 199 "src/sema/resolve.mxy"
         (tag->type = t);
-#line 181 "src/sema/resolve.mxy"
+#line 200 "src/sema/resolve.mxy"
         (tag->cname = xstrdup(t->cname));
-#line 182 "src/sema/resolve.mxy"
+#line 201 "src/sema/resolve.mxy"
         declare_tag(decl->name, tag);
-#line 183 "src/sema/resolve.mxy"
-        Scope *s = ns_scope(decl->ns);
-#line 184 "src/sema/resolve.mxy"
+#line 202 "src/sema/resolve.mxy"
+        Scope *s = (local ? cur_scope : ns_scope(decl->ns));
+#line 203 "src/sema/resolve.mxy"
         Sym *ord = scope_get(s, decl->name);
-#line 185 "src/sema/resolve.mxy"
+#line 204 "src/sema/resolve.mxy"
+        if (ord && ((ord->kind == S_VAR) || (ord->kind == S_FUNC))) {
+#line 204 "src/sema/resolve.mxy"
+            struct_cede_name(t);
+        }
+#line 205 "src/sema/resolve.mxy"
         if (!ord) {
-#line 186 "src/sema/resolve.mxy"
+#line 206 "src/sema/resolve.mxy"
             Sym *alias = sym_new(S_TYPE, decl->name, decl->loc);
-#line 187 "src/sema/resolve.mxy"
+#line 207 "src/sema/resolve.mxy"
             (alias->type = t);
-#line 188 "src/sema/resolve.mxy"
+#line 208 "src/sema/resolve.mxy"
             (alias->cname = xstrdup(t->cname));
-#line 189 "src/sema/resolve.mxy"
+#line 209 "src/sema/resolve.mxy"
             (alias->decl = decl);
-#line 190 "src/sema/resolve.mxy"
+#line 210 "src/sema/resolve.mxy"
             scope_declare(s, alias);
         }
     }
-#line 193 "src/sema/resolve.mxy"
+#line 214 "src/sema/resolve.mxy"
+    if (local) {
+#line 214 "src/sema/resolve.mxy"
+        complete_struct(decl);
+    }
+#line 215 "src/sema/resolve.mxy"
     return t;
 }
 
-#line 196 "src/sema/resolve.mxy"
+#line 218 "src/sema/resolve.mxy"
 Type *define_cenum(Node *decl) {
-#line 197 "src/sema/resolve.mxy"
+#line 219 "src/sema/resolve.mxy"
     if (decl->type) {
-#line 197 "src/sema/resolve.mxy"
+#line 219 "src/sema/resolve.mxy"
         return decl->type;
     }
-#line 198 "src/sema/resolve.mxy"
+#line 220 "src/sema/resolve.mxy"
     Type *t = NULL;
-#line 199 "src/sema/resolve.mxy"
+#line 221 "src/sema/resolve.mxy"
     Sym *existing = (decl->name ? lookup_tag(decl->name) : NULL);
-#line 200 "src/sema/resolve.mxy"
+#line 222 "src/sema/resolve.mxy"
     if (existing && existing->type) {
-#line 200 "src/sema/resolve.mxy"
+#line 222 "src/sema/resolve.mxy"
         (t = existing->type);
     }
-#line 201 "src/sema/resolve.mxy"
+#line 223 "src/sema/resolve.mxy"
     if (!t) {
-#line 201 "src/sema/resolve.mxy"
+#line 223 "src/sema/resolve.mxy"
         (t = type_new(TY_CENUM));
     }
-#line 202 "src/sema/resolve.mxy"
+#line 224 "src/sema/resolve.mxy"
     (t->kind = TY_CENUM);
-#line 203 "src/sema/resolve.mxy"
+#line 225 "src/sema/resolve.mxy"
     (t->name = xstrdup((decl->name ? decl->name : "enum")));
-#line 204 "src/sema/resolve.mxy"
+#line 226 "src/sema/resolve.mxy"
     (t->cname = (decl->name ? xfmt("enum %s", cname_for(decl->ns, decl->name)) : NULL));
-#line 205 "src/sema/resolve.mxy"
+#line 227 "src/sema/resolve.mxy"
     (decl->type = t);
-#line 206 "src/sema/resolve.mxy"
+#line 228 "src/sema/resolve.mxy"
     if (decl->flags & F_BODY) {
-#line 207 "src/sema/resolve.mxy"
+#line 229 "src/sema/resolve.mxy"
         (t->decl = decl);
-#line 208 "src/sema/resolve.mxy"
+#line 230 "src/sema/resolve.mxy"
         vec_push(prog.cenums, decl);
-#line 209 "src/sema/resolve.mxy"
+#line 231 "src/sema/resolve.mxy"
         Scope *s = ns_scope(decl->ns);
         {
-#line 210 "src/sema/resolve.mxy"
+#line 232 "src/sema/resolve.mxy"
             int i = 0;
-#line 210 "src/sema/resolve.mxy"
+#line 232 "src/sema/resolve.mxy"
             for (; i < decl->list.len; (i++)) {
-#line 211 "src/sema/resolve.mxy"
+#line 233 "src/sema/resolve.mxy"
                 Node *en = decl->list.items[i];
-#line 212 "src/sema/resolve.mxy"
+#line 234 "src/sema/resolve.mxy"
                 Sym *c = sym_new(S_CONST, en->name, en->loc);
-#line 213 "src/sema/resolve.mxy"
+#line 235 "src/sema/resolve.mxy"
                 (c->type = ty_int);
-#line 214 "src/sema/resolve.mxy"
+#line 236 "src/sema/resolve.mxy"
                 (c->cname = cname_for(decl->ns, en->name));
-#line 215 "src/sema/resolve.mxy"
+#line 237 "src/sema/resolve.mxy"
                 (c->decl = en);
-#line 216 "src/sema/resolve.mxy"
+#line 238 "src/sema/resolve.mxy"
                 (c->global = 1);
-#line 217 "src/sema/resolve.mxy"
+#line 239 "src/sema/resolve.mxy"
                 scope_declare(s, c);
             }
         }
     }
-#line 220 "src/sema/resolve.mxy"
+#line 242 "src/sema/resolve.mxy"
     if (decl->name) {
-#line 221 "src/sema/resolve.mxy"
+#line 243 "src/sema/resolve.mxy"
         Sym *tag = (existing ? existing : sym_new(S_TYPE, decl->name, decl->loc));
-#line 222 "src/sema/resolve.mxy"
+#line 244 "src/sema/resolve.mxy"
         (tag->type = t);
-#line 223 "src/sema/resolve.mxy"
+#line 245 "src/sema/resolve.mxy"
         declare_tag(decl->name, tag);
-#line 224 "src/sema/resolve.mxy"
+#line 246 "src/sema/resolve.mxy"
         Scope *s = ns_scope(decl->ns);
-#line 225 "src/sema/resolve.mxy"
+#line 247 "src/sema/resolve.mxy"
         if (!scope_get(s, decl->name)) {
-#line 226 "src/sema/resolve.mxy"
+#line 248 "src/sema/resolve.mxy"
             Sym *alias = sym_new(S_TYPE, decl->name, decl->loc);
-#line 227 "src/sema/resolve.mxy"
+#line 249 "src/sema/resolve.mxy"
             (alias->type = t);
-#line 228 "src/sema/resolve.mxy"
+#line 250 "src/sema/resolve.mxy"
             scope_declare(s, alias);
         }
     }
-#line 231 "src/sema/resolve.mxy"
+#line 253 "src/sema/resolve.mxy"
     return t;
 }
 
-#line 234 "src/sema/resolve.mxy"
+#line 256 "src/sema/resolve.mxy"
 static Type *resolve_tag(TypeRef *tr) {
-#line 235 "src/sema/resolve.mxy"
+#line 257 "src/sema/resolve.mxy"
     if (tr->def) {
-#line 236 "src/sema/resolve.mxy"
+#line 258 "src/sema/resolve.mxy"
         if (!tr->def->ns) {
-#line 236 "src/sema/resolve.mxy"
+#line 258 "src/sema/resolve.mxy"
             (tr->def->ns = xstrdup((cur_scope ? cur_scope->ns : "")));
         }
-#line 237 "src/sema/resolve.mxy"
+#line 259 "src/sema/resolve.mxy"
         if (tr->tag == K_ENUM) {
-#line 237 "src/sema/resolve.mxy"
+#line 259 "src/sema/resolve.mxy"
             return define_cenum(tr->def);
         }
-#line 238 "src/sema/resolve.mxy"
+#line 260 "src/sema/resolve.mxy"
         Type *t = define_struct(tr->def, NULL);
-#line 239 "src/sema/resolve.mxy"
+#line 261 "src/sema/resolve.mxy"
         return t;
     }
-#line 241 "src/sema/resolve.mxy"
+#line 263 "src/sema/resolve.mxy"
     Sym *s = lookup_tag(tr->name);
-#line 242 "src/sema/resolve.mxy"
+#line 264 "src/sema/resolve.mxy"
     if (s && s->type) {
-#line 242 "src/sema/resolve.mxy"
+#line 264 "src/sema/resolve.mxy"
         return s->type;
     }
-#line 243 "src/sema/resolve.mxy"
+#line 265 "src/sema/resolve.mxy"
     Type *t = type_new(((tr->tag == K_ENUM) ? TY_CENUM : TY_STRUCT));
-#line 244 "src/sema/resolve.mxy"
+#line 266 "src/sema/resolve.mxy"
     (t->is_union = (tr->tag == K_UNION));
-#line 245 "src/sema/resolve.mxy"
+#line 267 "src/sema/resolve.mxy"
     (t->name = xstrdup(tr->name));
-#line 246 "src/sema/resolve.mxy"
+#line 268 "src/sema/resolve.mxy"
     (t->cname = xfmt("%s %s", tag_word(tr->tag), tr->name));
-#line 247 "src/sema/resolve.mxy"
+#line 269 "src/sema/resolve.mxy"
     Sym *tag = sym_new(S_TYPE, tr->name, tr->loc);
-#line 248 "src/sema/resolve.mxy"
+#line 270 "src/sema/resolve.mxy"
     (tag->type = t);
-#line 249 "src/sema/resolve.mxy"
+#line 271 "src/sema/resolve.mxy"
     declare_tag(tr->name, tag);
-#line 250 "src/sema/resolve.mxy"
+#line 272 "src/sema/resolve.mxy"
     return t;
 }
 
-#line 253 "src/sema/resolve.mxy"
+#line 275 "src/sema/resolve.mxy"
 Type *resolve_type(TypeRef *tr) {
-#line 254 "src/sema/resolve.mxy"
+#line 276 "src/sema/resolve.mxy"
     if (tr->resolved) {
-#line 254 "src/sema/resolve.mxy"
+#line 276 "src/sema/resolve.mxy"
         return tr->resolved;
     }
-#line 255 "src/sema/resolve.mxy"
+#line 277 "src/sema/resolve.mxy"
     Type *t;
-#line 256 "src/sema/resolve.mxy"
+#line 278 "src/sema/resolve.mxy"
     switch (tr->kind) {
-#line 257 "src/sema/resolve.mxy"
+#line 279 "src/sema/resolve.mxy"
     case TR_NAME:;
-#line 258 "src/sema/resolve.mxy"
+#line 280 "src/sema/resolve.mxy"
         (t = resolve_name(tr));
-#line 259 "src/sema/resolve.mxy"
+#line 281 "src/sema/resolve.mxy"
         break;
-#line 260 "src/sema/resolve.mxy"
+#line 282 "src/sema/resolve.mxy"
     case TR_PTR:;
-#line 261 "src/sema/resolve.mxy"
+#line 283 "src/sema/resolve.mxy"
         (t = type_ptr(resolve_type(tr->inner)));
-#line 262 "src/sema/resolve.mxy"
+#line 284 "src/sema/resolve.mxy"
         break;
-#line 263 "src/sema/resolve.mxy"
+#line 285 "src/sema/resolve.mxy"
     case TR_ARRAY:;
         {
-#line 264 "src/sema/resolve.mxy"
+#line 286 "src/sema/resolve.mxy"
             Type *elem = resolve_type(tr->inner);
-#line 265 "src/sema/resolve.mxy"
+#line 287 "src/sema/resolve.mxy"
             long len = (-1);
-#line 266 "src/sema/resolve.mxy"
+#line 288 "src/sema/resolve.mxy"
             if (tr->size && (!const_eval(tr->size, (&len)))) {
-#line 266 "src/sema/resolve.mxy"
+#line 288 "src/sema/resolve.mxy"
                 (len = (-1));
             }
-#line 267 "src/sema/resolve.mxy"
+#line 289 "src/sema/resolve.mxy"
             (t = type_array(elem, len));
-#line 268 "src/sema/resolve.mxy"
+#line 290 "src/sema/resolve.mxy"
             if ((len < 0) && tr->size) {
-#line 269 "src/sema/resolve.mxy"
+#line 291 "src/sema/resolve.mxy"
                 char *txt = const_text(tr->size);
-#line 270 "src/sema/resolve.mxy"
+#line 292 "src/sema/resolve.mxy"
                 if (txt) {
-#line 272 "src/sema/resolve.mxy"
+#line 294 "src/sema/resolve.mxy"
                     (t->cname = txt);
                 } else {
-#line 274 "src/sema/resolve.mxy"
+#line 296 "src/sema/resolve.mxy"
                     diag_error(tr->size->loc, "array size must be a constant expression");
                 }
             }
-#line 277 "src/sema/resolve.mxy"
+#line 299 "src/sema/resolve.mxy"
             break;
         }
-#line 279 "src/sema/resolve.mxy"
+#line 301 "src/sema/resolve.mxy"
     case TR_FUNC:;
         {
-#line 280 "src/sema/resolve.mxy"
+#line 302 "src/sema/resolve.mxy"
             TypeList params = {0};
             {
-#line 281 "src/sema/resolve.mxy"
+#line 303 "src/sema/resolve.mxy"
                 int i = 0;
-#line 281 "src/sema/resolve.mxy"
+#line 303 "src/sema/resolve.mxy"
                 for (; i < tr->params.len; (i++)) {
-#line 282 "src/sema/resolve.mxy"
+#line 304 "src/sema/resolve.mxy"
                     Type *p = resolve_type(tr->params.items[i]);
-#line 283 "src/sema/resolve.mxy"
+#line 305 "src/sema/resolve.mxy"
                     Type *u = type_unqual(p);
-#line 284 "src/sema/resolve.mxy"
+#line 306 "src/sema/resolve.mxy"
                     if (u->kind == TY_ARRAY) {
-#line 284 "src/sema/resolve.mxy"
+#line 306 "src/sema/resolve.mxy"
                         (p = type_ptr(u->base));
                     } else {
-#line 285 "src/sema/resolve.mxy"
+#line 307 "src/sema/resolve.mxy"
                         if (u->kind == TY_FUNC) {
-#line 285 "src/sema/resolve.mxy"
+#line 307 "src/sema/resolve.mxy"
                             (p = type_ptr(u));
                         }
                     }
-#line 286 "src/sema/resolve.mxy"
+#line 308 "src/sema/resolve.mxy"
                     vec_push(params, p);
                 }
             }
-#line 288 "src/sema/resolve.mxy"
+#line 310 "src/sema/resolve.mxy"
             (t = type_func(resolve_type(tr->inner), params, tr->variadic));
-#line 289 "src/sema/resolve.mxy"
+#line 311 "src/sema/resolve.mxy"
             break;
         }
-#line 291 "src/sema/resolve.mxy"
+#line 313 "src/sema/resolve.mxy"
     case TR_LIST:;
-#line 292 "src/sema/resolve.mxy"
+#line 314 "src/sema/resolve.mxy"
         (t = type_list(resolve_type(tr->inner)));
-#line 293 "src/sema/resolve.mxy"
+#line 315 "src/sema/resolve.mxy"
         break;
-#line 294 "src/sema/resolve.mxy"
+#line 316 "src/sema/resolve.mxy"
     case TR_MAP:;
-#line 295 "src/sema/resolve.mxy"
+#line 317 "src/sema/resolve.mxy"
         (t = type_map(resolve_type(tr->key), resolve_type(tr->inner)));
-#line 296 "src/sema/resolve.mxy"
+#line 318 "src/sema/resolve.mxy"
         break;
-#line 297 "src/sema/resolve.mxy"
+#line 319 "src/sema/resolve.mxy"
     case TR_RESULT:;
-#line 298 "src/sema/resolve.mxy"
+#line 320 "src/sema/resolve.mxy"
         (t = type_result(resolve_type(tr->inner)));
-#line 299 "src/sema/resolve.mxy"
+#line 321 "src/sema/resolve.mxy"
         break;
-#line 300 "src/sema/resolve.mxy"
+#line 322 "src/sema/resolve.mxy"
     case TR_FUTURE:;
-#line 301 "src/sema/resolve.mxy"
+#line 323 "src/sema/resolve.mxy"
         (t = type_future(resolve_type(tr->inner)));
-#line 302 "src/sema/resolve.mxy"
+#line 324 "src/sema/resolve.mxy"
         (prog.threads = 1);
-#line 303 "src/sema/resolve.mxy"
+#line 325 "src/sema/resolve.mxy"
         break;
-#line 304 "src/sema/resolve.mxy"
+#line 326 "src/sema/resolve.mxy"
     case TR_CLOSURE:;
         {
-#line 305 "src/sema/resolve.mxy"
+#line 327 "src/sema/resolve.mxy"
             TypeList params = {0};
             {
-#line 306 "src/sema/resolve.mxy"
+#line 328 "src/sema/resolve.mxy"
                 int i = 0;
-#line 306 "src/sema/resolve.mxy"
+#line 328 "src/sema/resolve.mxy"
                 for (; i < tr->params.len; (i++)) {
-#line 306 "src/sema/resolve.mxy"
+#line 328 "src/sema/resolve.mxy"
                     vec_push(params, resolve_type(tr->params.items[i]));
                 }
             }
-#line 307 "src/sema/resolve.mxy"
+#line 329 "src/sema/resolve.mxy"
             (t = type_closure(resolve_type(tr->inner), params));
-#line 308 "src/sema/resolve.mxy"
+#line 330 "src/sema/resolve.mxy"
             break;
         }
-#line 310 "src/sema/resolve.mxy"
+#line 332 "src/sema/resolve.mxy"
     case TR_TAG:;
-#line 311 "src/sema/resolve.mxy"
+#line 333 "src/sema/resolve.mxy"
         (t = resolve_tag(tr));
-#line 312 "src/sema/resolve.mxy"
+#line 334 "src/sema/resolve.mxy"
         break;
-#line 313 "src/sema/resolve.mxy"
+#line 335 "src/sema/resolve.mxy"
     default:;
-#line 314 "src/sema/resolve.mxy"
+#line 336 "src/sema/resolve.mxy"
         (t = ty_unknown);
     }
-#line 316 "src/sema/resolve.mxy"
+#line 338 "src/sema/resolve.mxy"
     (t = type_qual(t, (tr->quals & (Q_CONST | Q_VOLATILE))));
-#line 317 "src/sema/resolve.mxy"
+#line 339 "src/sema/resolve.mxy"
     (tr->resolved = t);
-#line 318 "src/sema/resolve.mxy"
+#line 340 "src/sema/resolve.mxy"
     return t;
 }
 
@@ -11887,55 +12040,75 @@ Sym *lookup(const char *name, Loc loc) {
     return s;
 }
 
-#line 146 "src/sema/scope.mxy"
+#line 147 "src/sema/scope.mxy"
+int in_body(void) {
+#line 147 "src/sema/scope.mxy"
+    return ((cur_fn && cur_scope) && ((cur_scope->kind == SC_FUNC) || (cur_scope->kind == SC_BLOCK)));
+}
+
+#line 149 "src/sema/scope.mxy"
 Sym *lookup_tag(const char *name) {
-#line 146 "src/sema/scope.mxy"
+    {
+#line 150 "src/sema/scope.mxy"
+        Scope *s = (cur_fn ? cur_scope : NULL);
+#line 150 "src/sema/scope.mxy"
+        for (; s && ((s->kind == SC_FUNC) || (s->kind == SC_BLOCK)); (s = s->parent)) {
+#line 151 "src/sema/scope.mxy"
+            Sym *t = strmap_get((&s->tags), name);
+#line 152 "src/sema/scope.mxy"
+            if (t) {
+#line 152 "src/sema/scope.mxy"
+                return t;
+            }
+        }
+    }
+#line 154 "src/sema/scope.mxy"
     return strmap_get((&tags), name);
 }
 
-#line 148 "src/sema/scope.mxy"
+#line 157 "src/sema/scope.mxy"
 void declare_tag(const char *name, Sym *sym) {
-#line 148 "src/sema/scope.mxy"
-    strmap_put((&tags), name, sym);
+#line 157 "src/sema/scope.mxy"
+    strmap_put((in_body() ? (&cur_scope->tags) : (&tags)), name, sym);
 }
 
-#line 150 "src/sema/scope.mxy"
+#line 159 "src/sema/scope.mxy"
 void tags_reset(void) {
-#line 150 "src/sema/scope.mxy"
+#line 159 "src/sema/scope.mxy"
     strmap_free((&tags));
 }
 
-#line 152 "src/sema/scope.mxy"
+#line 161 "src/sema/scope.mxy"
 static void collect_names(Scope *s, const char *name, const char **best, int *best_d) {
     {
-#line 153 "src/sema/scope.mxy"
+#line 162 "src/sema/scope.mxy"
         for (; s; (s = s->parent)) {
             {
-#line 154 "src/sema/scope.mxy"
+#line 163 "src/sema/scope.mxy"
                 int i = 0;
-#line 154 "src/sema/scope.mxy"
+#line 163 "src/sema/scope.mxy"
                 for (; i < s->names.cap; (i++)) {
-#line 155 "src/sema/scope.mxy"
+#line 164 "src/sema/scope.mxy"
                     const char *k = s->names.keys[i];
-#line 156 "src/sema/scope.mxy"
+#line 165 "src/sema/scope.mxy"
                     if (!k) {
-#line 156 "src/sema/scope.mxy"
+#line 165 "src/sema/scope.mxy"
                         continue;
                     }
-#line 157 "src/sema/scope.mxy"
+#line 166 "src/sema/scope.mxy"
                     Sym *sym = s->names.vals[i];
-#line 158 "src/sema/scope.mxy"
+#line 167 "src/sema/scope.mxy"
                     if (sym->kind == S_NS) {
-#line 158 "src/sema/scope.mxy"
+#line 167 "src/sema/scope.mxy"
                         continue;
                     }
-#line 159 "src/sema/scope.mxy"
+#line 168 "src/sema/scope.mxy"
                     int d = str_distance(name, k);
-#line 160 "src/sema/scope.mxy"
+#line 169 "src/sema/scope.mxy"
                     if ((d > 0) && (d < (*best_d))) {
-#line 161 "src/sema/scope.mxy"
+#line 170 "src/sema/scope.mxy"
                         ((*best_d) = d);
-#line 162 "src/sema/scope.mxy"
+#line 171 "src/sema/scope.mxy"
                         ((*best) = k);
                     }
                 }
@@ -11944,24 +12117,24 @@ static void collect_names(Scope *s, const char *name, const char **best, int *be
     }
 }
 
-#line 169 "src/sema/scope.mxy"
+#line 178 "src/sema/scope.mxy"
 void suggest_name(const char *name, Loc loc) {
-#line 170 "src/sema/scope.mxy"
+#line 179 "src/sema/scope.mxy"
     if (strlen(name) < 3) {
-#line 170 "src/sema/scope.mxy"
+#line 179 "src/sema/scope.mxy"
         return;
     }
-#line 171 "src/sema/scope.mxy"
+#line 180 "src/sema/scope.mxy"
     const char *best = NULL;
-#line 172 "src/sema/scope.mxy"
+#line 181 "src/sema/scope.mxy"
     int best_d = ((strlen(name) > 5) ? 3 : 2);
-#line 173 "src/sema/scope.mxy"
+#line 182 "src/sema/scope.mxy"
     collect_names(cur_scope, name, (&best), (&best_d));
-#line 174 "src/sema/scope.mxy"
+#line 183 "src/sema/scope.mxy"
     if (best) {
-#line 175 "src/sema/scope.mxy"
+#line 184 "src/sema/scope.mxy"
         diag_warn(loc, "'%s' is not declared in Moxy code; assuming it comes from C", name);
-#line 176 "src/sema/scope.mxy"
+#line 185 "src/sema/scope.mxy"
         diag_hint("did you mean '%s'?", best);
     }
 }
@@ -12188,497 +12361,495 @@ static void local_decls(Node *n) {
 #line 101 "src/sema/stmt.mxy"
                     scope_declare(cur_scope, s);
 #line 102 "src/sema/stmt.mxy"
-                    vec_push(prog.typedefs, d);
-#line 103 "src/sema/stmt.mxy"
                     break;
                 }
-#line 105 "src/sema/stmt.mxy"
+#line 104 "src/sema/stmt.mxy"
             case N_FUNC:;
-#line 106 "src/sema/stmt.mxy"
+#line 105 "src/sema/stmt.mxy"
                 diag_error(d->loc, "function declarations inside functions are not supported");
-#line 107 "src/sema/stmt.mxy"
+#line 106 "src/sema/stmt.mxy"
                 break;
-#line 108 "src/sema/stmt.mxy"
+#line 107 "src/sema/stmt.mxy"
             default:;
-#line 109 "src/sema/stmt.mxy"
+#line 108 "src/sema/stmt.mxy"
                 break;
             }
         }
     }
 }
 
-#line 114 "src/sema/stmt.mxy"
+#line 113 "src/sema/stmt.mxy"
 static Type *range_type(Node *r) {
-#line 115 "src/sema/stmt.mxy"
+#line 114 "src/sema/stmt.mxy"
     Type *a = check_expr((&r->a), NULL);
-#line 116 "src/sema/stmt.mxy"
+#line 115 "src/sema/stmt.mxy"
     Type *b = check_expr((&r->b), NULL);
-#line 117 "src/sema/stmt.mxy"
+#line 116 "src/sema/stmt.mxy"
     if (((!type_is_integer(a)) && (!type_is_unknownish(a))) || ((!type_is_integer(b)) && (!type_is_unknownish(b)))) {
-#line 118 "src/sema/stmt.mxy"
+#line 117 "src/sema/stmt.mxy"
         diag_error(r->loc, "range bounds must be integers");
-#line 119 "src/sema/stmt.mxy"
+#line 118 "src/sema/stmt.mxy"
         return ty_int;
     }
-#line 121 "src/sema/stmt.mxy"
+#line 120 "src/sema/stmt.mxy"
     if (type_is_unknownish(a) && type_is_unknownish(b)) {
-#line 121 "src/sema/stmt.mxy"
+#line 120 "src/sema/stmt.mxy"
         return ty_long;
     }
-#line 122 "src/sema/stmt.mxy"
+#line 121 "src/sema/stmt.mxy"
     if (type_is_unknownish(a)) {
-#line 122 "src/sema/stmt.mxy"
+#line 121 "src/sema/stmt.mxy"
         return ((type_rank(b) < 4) ? ty_int : b);
     }
-#line 123 "src/sema/stmt.mxy"
+#line 122 "src/sema/stmt.mxy"
     if (type_is_unknownish(b)) {
-#line 123 "src/sema/stmt.mxy"
+#line 122 "src/sema/stmt.mxy"
         return ((type_rank(a) < 4) ? ty_int : a);
     }
-#line 124 "src/sema/stmt.mxy"
+#line 123 "src/sema/stmt.mxy"
     Type *c = type_common(a, b);
-#line 125 "src/sema/stmt.mxy"
+#line 124 "src/sema/stmt.mxy"
     return ((type_rank(c) < 4) ? ty_int : c);
 }
 
-#line 128 "src/sema/stmt.mxy"
+#line 127 "src/sema/stmt.mxy"
 static void loop_var(const char *name, Type *t, Node *n, int which) {
-#line 129 "src/sema/stmt.mxy"
+#line 128 "src/sema/stmt.mxy"
     if (!name) {
-#line 129 "src/sema/stmt.mxy"
+#line 128 "src/sema/stmt.mxy"
         return;
     }
-#line 130 "src/sema/stmt.mxy"
+#line 129 "src/sema/stmt.mxy"
     Sym *s = sym_new(S_VAR, name, n->loc);
-#line 131 "src/sema/stmt.mxy"
+#line 130 "src/sema/stmt.mxy"
     (s->type = t);
-#line 132 "src/sema/stmt.mxy"
+#line 131 "src/sema/stmt.mxy"
     (s->owner = cur_fn);
-#line 133 "src/sema/stmt.mxy"
+#line 132 "src/sema/stmt.mxy"
     (s->decl = NULL);
-#line 134 "src/sema/stmt.mxy"
+#line 133 "src/sema/stmt.mxy"
     scope_declare(cur_scope, s);
-#line 135 "src/sema/stmt.mxy"
+#line 134 "src/sema/stmt.mxy"
     if (which == 1) {
-#line 135 "src/sema/stmt.mxy"
+#line 134 "src/sema/stmt.mxy"
         (n->sym = s);
     } else {
-#line 136 "src/sema/stmt.mxy"
+#line 135 "src/sema/stmt.mxy"
         vec_push(n->captures, s);
     }
 }
 
-#line 139 "src/sema/stmt.mxy"
+#line 138 "src/sema/stmt.mxy"
 static void check_forin(Node *n) {
-#line 140 "src/sema/stmt.mxy"
+#line 139 "src/sema/stmt.mxy"
     scope_push(SC_BLOCK);
-#line 141 "src/sema/stmt.mxy"
+#line 140 "src/sema/stmt.mxy"
     Node *it = n->a;
-#line 142 "src/sema/stmt.mxy"
+#line 141 "src/sema/stmt.mxy"
     if (it->kind == N_RANGE) {
-#line 143 "src/sema/stmt.mxy"
+#line 142 "src/sema/stmt.mxy"
         Type *t = range_type(it);
-#line 144 "src/sema/stmt.mxy"
+#line 143 "src/sema/stmt.mxy"
         (it->type = t);
-#line 145 "src/sema/stmt.mxy"
+#line 144 "src/sema/stmt.mxy"
         if (n->name2) {
-#line 145 "src/sema/stmt.mxy"
+#line 144 "src/sema/stmt.mxy"
             diag_error(n->loc, "a range loop has one variable");
         }
-#line 146 "src/sema/stmt.mxy"
+#line 145 "src/sema/stmt.mxy"
         loop_var(n->name, t, n, 1);
     } else {
-#line 148 "src/sema/stmt.mxy"
+#line 147 "src/sema/stmt.mxy"
         Type *t = check_expr((&n->a), NULL);
-#line 149 "src/sema/stmt.mxy"
+#line 148 "src/sema/stmt.mxy"
         Type *u = type_unqual(t);
-#line 150 "src/sema/stmt.mxy"
+#line 149 "src/sema/stmt.mxy"
         switch (u->kind) {
-#line 151 "src/sema/stmt.mxy"
+#line 150 "src/sema/stmt.mxy"
         case TY_LIST:;
-#line 152 "src/sema/stmt.mxy"
+#line 151 "src/sema/stmt.mxy"
             if (n->name2) {
-#line 153 "src/sema/stmt.mxy"
+#line 152 "src/sema/stmt.mxy"
                 loop_var(n->name, ty_long, n, 1);
-#line 154 "src/sema/stmt.mxy"
+#line 153 "src/sema/stmt.mxy"
                 loop_var(n->name2, u->base, n, 2);
             } else {
-#line 156 "src/sema/stmt.mxy"
+#line 155 "src/sema/stmt.mxy"
                 loop_var(n->name, u->base, n, 1);
             }
-#line 158 "src/sema/stmt.mxy"
+#line 157 "src/sema/stmt.mxy"
             break;
-#line 159 "src/sema/stmt.mxy"
+#line 158 "src/sema/stmt.mxy"
         case TY_STRING:;
-#line 160 "src/sema/stmt.mxy"
+#line 159 "src/sema/stmt.mxy"
             if (n->name2) {
-#line 161 "src/sema/stmt.mxy"
+#line 160 "src/sema/stmt.mxy"
                 loop_var(n->name, ty_long, n, 1);
-#line 162 "src/sema/stmt.mxy"
+#line 161 "src/sema/stmt.mxy"
                 loop_var(n->name2, ty_char, n, 2);
             } else {
-#line 164 "src/sema/stmt.mxy"
+#line 163 "src/sema/stmt.mxy"
                 loop_var(n->name, ty_char, n, 1);
             }
-#line 166 "src/sema/stmt.mxy"
+#line 165 "src/sema/stmt.mxy"
             break;
-#line 167 "src/sema/stmt.mxy"
+#line 166 "src/sema/stmt.mxy"
         case TY_MAP:;
-#line 168 "src/sema/stmt.mxy"
+#line 167 "src/sema/stmt.mxy"
             loop_var(n->name, u->key, n, 1);
-#line 169 "src/sema/stmt.mxy"
+#line 168 "src/sema/stmt.mxy"
             if (n->name2) {
-#line 169 "src/sema/stmt.mxy"
+#line 168 "src/sema/stmt.mxy"
                 loop_var(n->name2, u->base, n, 2);
             }
-#line 170 "src/sema/stmt.mxy"
+#line 169 "src/sema/stmt.mxy"
             break;
-#line 171 "src/sema/stmt.mxy"
+#line 170 "src/sema/stmt.mxy"
         case TY_ARRAY:;
-#line 172 "src/sema/stmt.mxy"
+#line 171 "src/sema/stmt.mxy"
             if ((u->len < 0) && (!u->cname)) {
-#line 172 "src/sema/stmt.mxy"
+#line 171 "src/sema/stmt.mxy"
                 diag_error(n->a->loc, "cannot iterate over an array of unknown length");
             }
-#line 173 "src/sema/stmt.mxy"
+#line 172 "src/sema/stmt.mxy"
             if (n->name2) {
-#line 174 "src/sema/stmt.mxy"
+#line 173 "src/sema/stmt.mxy"
                 loop_var(n->name, ty_long, n, 1);
-#line 175 "src/sema/stmt.mxy"
+#line 174 "src/sema/stmt.mxy"
                 loop_var(n->name2, u->base, n, 2);
             } else {
-#line 177 "src/sema/stmt.mxy"
+#line 176 "src/sema/stmt.mxy"
                 loop_var(n->name, u->base, n, 1);
             }
-#line 179 "src/sema/stmt.mxy"
+#line 178 "src/sema/stmt.mxy"
             break;
-#line 180 "src/sema/stmt.mxy"
+#line 179 "src/sema/stmt.mxy"
         default:;
             {
-#line 181 "src/sema/stmt.mxy"
+#line 180 "src/sema/stmt.mxy"
                 char *s = type_str(t);
-#line 182 "src/sema/stmt.mxy"
+#line 181 "src/sema/stmt.mxy"
                 diag_error(n->a->loc, "cannot iterate over a value of type %s", s);
-#line 183 "src/sema/stmt.mxy"
+#line 182 "src/sema/stmt.mxy"
                 if (type_is_unknownish(u)) {
-#line 183 "src/sema/stmt.mxy"
+#line 182 "src/sema/stmt.mxy"
                     diag_hint("Moxy can iterate over lists, maps, strings, arrays and ranges");
                 }
-#line 184 "src/sema/stmt.mxy"
+#line 183 "src/sema/stmt.mxy"
                 free(s);
-#line 185 "src/sema/stmt.mxy"
+#line 184 "src/sema/stmt.mxy"
                 loop_var(n->name, ty_unknown, n, 1);
-#line 186 "src/sema/stmt.mxy"
+#line 185 "src/sema/stmt.mxy"
                 if (n->name2) {
-#line 186 "src/sema/stmt.mxy"
+#line 185 "src/sema/stmt.mxy"
                     loop_var(n->name2, ty_unknown, n, 2);
                 }
             }
         }
-#line 189 "src/sema/stmt.mxy"
+#line 188 "src/sema/stmt.mxy"
         if (type_is_managed(t)) {
-#line 189 "src/sema/stmt.mxy"
+#line 188 "src/sema/stmt.mxy"
             (cur_fn->has_cleanup = 1);
         }
     }
-#line 191 "src/sema/stmt.mxy"
+#line 190 "src/sema/stmt.mxy"
     (cur_fn->loops++);
-#line 192 "src/sema/stmt.mxy"
+#line 191 "src/sema/stmt.mxy"
     check_stmt(n->d);
-#line 193 "src/sema/stmt.mxy"
+#line 192 "src/sema/stmt.mxy"
     (cur_fn->loops--);
-#line 194 "src/sema/stmt.mxy"
+#line 193 "src/sema/stmt.mxy"
     pop_checked();
 }
 
-#line 197 "src/sema/stmt.mxy"
+#line 196 "src/sema/stmt.mxy"
 static void check_return(Node *n) {
-#line 198 "src/sema/stmt.mxy"
+#line 197 "src/sema/stmt.mxy"
     if (cur_fn->in_defer) {
-#line 198 "src/sema/stmt.mxy"
+#line 197 "src/sema/stmt.mxy"
         diag_error(n->loc, "return is not allowed inside defer");
     }
-#line 199 "src/sema/stmt.mxy"
+#line 198 "src/sema/stmt.mxy"
     if ((cur_fn->is_lambda && cur_fn->infer_ret) && (!cur_fn->ret)) {
-#line 200 "src/sema/stmt.mxy"
+#line 199 "src/sema/stmt.mxy"
         if (!n->a) {
-#line 201 "src/sema/stmt.mxy"
+#line 200 "src/sema/stmt.mxy"
             (cur_fn->ret = ty_void);
-#line 202 "src/sema/stmt.mxy"
+#line 201 "src/sema/stmt.mxy"
             return;
         }
-#line 204 "src/sema/stmt.mxy"
+#line 203 "src/sema/stmt.mxy"
         Type *t = check_init((&n->a), NULL);
-#line 205 "src/sema/stmt.mxy"
+#line 204 "src/sema/stmt.mxy"
         (cur_fn->ret = ((type_unqual(t)->kind == TY_NULL) ? ty_unknown : t));
-#line 206 "src/sema/stmt.mxy"
+#line 205 "src/sema/stmt.mxy"
         return;
     }
-#line 208 "src/sema/stmt.mxy"
+#line 207 "src/sema/stmt.mxy"
     Type *ret = cur_fn->ret;
-#line 209 "src/sema/stmt.mxy"
+#line 208 "src/sema/stmt.mxy"
     Type *u = type_unqual(ret);
-#line 210 "src/sema/stmt.mxy"
+#line 209 "src/sema/stmt.mxy"
     if (!n->a) {
-#line 211 "src/sema/stmt.mxy"
+#line 210 "src/sema/stmt.mxy"
         int is_main = (((!cur_fn->is_lambda) && cur_fn->node->name) && (strcmp(cur_fn->node->name, "main") == 0));
-#line 212 "src/sema/stmt.mxy"
+#line 211 "src/sema/stmt.mxy"
         if ((u->kind != TY_VOID) && (!is_main)) {
-#line 212 "src/sema/stmt.mxy"
+#line 211 "src/sema/stmt.mxy"
             diag_error(n->loc, "this function must return a value");
         }
-#line 213 "src/sema/stmt.mxy"
+#line 212 "src/sema/stmt.mxy"
         return;
     }
-#line 215 "src/sema/stmt.mxy"
+#line 214 "src/sema/stmt.mxy"
     if (u->kind == TY_VOID) {
-#line 216 "src/sema/stmt.mxy"
+#line 215 "src/sema/stmt.mxy"
         check_expr((&n->a), NULL);
-#line 217 "src/sema/stmt.mxy"
+#line 216 "src/sema/stmt.mxy"
         diag_error(n->a->loc, "a void function cannot return a value");
-#line 218 "src/sema/stmt.mxy"
+#line 217 "src/sema/stmt.mxy"
         return;
     }
-#line 220 "src/sema/stmt.mxy"
+#line 219 "src/sema/stmt.mxy"
     check_init((&n->a), ret);
-#line 221 "src/sema/stmt.mxy"
+#line 220 "src/sema/stmt.mxy"
     coerce((&n->a), ret, "return value");
 }
 
-#line 224 "src/sema/stmt.mxy"
+#line 223 "src/sema/stmt.mxy"
 void check_block_list(NodeList *list) {
     {
-#line 225 "src/sema/stmt.mxy"
+#line 224 "src/sema/stmt.mxy"
         int i = 0;
-#line 225 "src/sema/stmt.mxy"
+#line 224 "src/sema/stmt.mxy"
         for (; i < list->len; (i++)) {
-#line 225 "src/sema/stmt.mxy"
+#line 224 "src/sema/stmt.mxy"
             check_stmt(list->items[i]);
         }
     }
 }
 
-#line 228 "src/sema/stmt.mxy"
+#line 227 "src/sema/stmt.mxy"
 void check_stmt(Node *n) {
-#line 229 "src/sema/stmt.mxy"
+#line 228 "src/sema/stmt.mxy"
     switch (n->kind) {
-#line 230 "src/sema/stmt.mxy"
+#line 229 "src/sema/stmt.mxy"
     case N_BLOCK:;
+#line 230 "src/sema/stmt.mxy"
+        scope_push(SC_BLOCK);
 #line 231 "src/sema/stmt.mxy"
-        scope_push(SC_BLOCK);
-#line 232 "src/sema/stmt.mxy"
         check_block_list((&n->list));
+#line 232 "src/sema/stmt.mxy"
+        pop_checked();
 #line 233 "src/sema/stmt.mxy"
-        pop_checked();
+        break;
 #line 234 "src/sema/stmt.mxy"
-        break;
-#line 235 "src/sema/stmt.mxy"
     case N_DECLS:;
-#line 236 "src/sema/stmt.mxy"
+#line 235 "src/sema/stmt.mxy"
         local_decls(n);
+#line 236 "src/sema/stmt.mxy"
+        break;
 #line 237 "src/sema/stmt.mxy"
-        break;
-#line 238 "src/sema/stmt.mxy"
     case N_EXPR:;
-#line 239 "src/sema/stmt.mxy"
+#line 238 "src/sema/stmt.mxy"
         check_expr((&n->a), NULL);
-#line 240 "src/sema/stmt.mxy"
+#line 239 "src/sema/stmt.mxy"
         break;
-#line 241 "src/sema/stmt.mxy"
+#line 240 "src/sema/stmt.mxy"
     case N_IF:;
-#line 242 "src/sema/stmt.mxy"
+#line 241 "src/sema/stmt.mxy"
         check_cond((&n->a));
-#line 243 "src/sema/stmt.mxy"
+#line 242 "src/sema/stmt.mxy"
         warn_empty(n->b, "if");
-#line 244 "src/sema/stmt.mxy"
+#line 243 "src/sema/stmt.mxy"
         scope_push(SC_BLOCK);
-#line 245 "src/sema/stmt.mxy"
+#line 244 "src/sema/stmt.mxy"
         check_stmt(n->b);
-#line 246 "src/sema/stmt.mxy"
+#line 245 "src/sema/stmt.mxy"
         pop_checked();
-#line 247 "src/sema/stmt.mxy"
+#line 246 "src/sema/stmt.mxy"
         if (n->c) {
-#line 248 "src/sema/stmt.mxy"
+#line 247 "src/sema/stmt.mxy"
             scope_push(SC_BLOCK);
-#line 249 "src/sema/stmt.mxy"
+#line 248 "src/sema/stmt.mxy"
             check_stmt(n->c);
-#line 250 "src/sema/stmt.mxy"
+#line 249 "src/sema/stmt.mxy"
             pop_checked();
         }
+#line 251 "src/sema/stmt.mxy"
+        break;
 #line 252 "src/sema/stmt.mxy"
-        break;
-#line 253 "src/sema/stmt.mxy"
     case N_WHILE:;
-#line 254 "src/sema/stmt.mxy"
+#line 253 "src/sema/stmt.mxy"
         check_cond((&n->a));
-#line 255 "src/sema/stmt.mxy"
+#line 254 "src/sema/stmt.mxy"
         warn_empty(n->b, "while");
+#line 255 "src/sema/stmt.mxy"
+        (cur_fn->loops++);
 #line 256 "src/sema/stmt.mxy"
-        (cur_fn->loops++);
+        scope_push(SC_BLOCK);
 #line 257 "src/sema/stmt.mxy"
-        scope_push(SC_BLOCK);
-#line 258 "src/sema/stmt.mxy"
         check_stmt(n->b);
+#line 258 "src/sema/stmt.mxy"
+        pop_checked();
 #line 259 "src/sema/stmt.mxy"
-        pop_checked();
+        (cur_fn->loops--);
 #line 260 "src/sema/stmt.mxy"
-        (cur_fn->loops--);
+        break;
 #line 261 "src/sema/stmt.mxy"
-        break;
-#line 262 "src/sema/stmt.mxy"
     case N_DO:;
-#line 263 "src/sema/stmt.mxy"
+#line 262 "src/sema/stmt.mxy"
         (cur_fn->loops++);
+#line 263 "src/sema/stmt.mxy"
+        scope_push(SC_BLOCK);
 #line 264 "src/sema/stmt.mxy"
-        scope_push(SC_BLOCK);
-#line 265 "src/sema/stmt.mxy"
         check_stmt(n->a);
-#line 266 "src/sema/stmt.mxy"
+#line 265 "src/sema/stmt.mxy"
         pop_checked();
-#line 267 "src/sema/stmt.mxy"
+#line 266 "src/sema/stmt.mxy"
         (cur_fn->loops--);
-#line 268 "src/sema/stmt.mxy"
+#line 267 "src/sema/stmt.mxy"
         check_cond((&n->b));
-#line 269 "src/sema/stmt.mxy"
+#line 268 "src/sema/stmt.mxy"
         break;
-#line 270 "src/sema/stmt.mxy"
+#line 269 "src/sema/stmt.mxy"
     case N_FOR:;
-#line 271 "src/sema/stmt.mxy"
+#line 270 "src/sema/stmt.mxy"
         warn_empty(n->d, "for");
-#line 272 "src/sema/stmt.mxy"
+#line 271 "src/sema/stmt.mxy"
         scope_push(SC_BLOCK);
-#line 273 "src/sema/stmt.mxy"
+#line 272 "src/sema/stmt.mxy"
         if (n->a) {
-#line 273 "src/sema/stmt.mxy"
+#line 272 "src/sema/stmt.mxy"
             check_stmt(n->a);
         }
-#line 274 "src/sema/stmt.mxy"
+#line 273 "src/sema/stmt.mxy"
         if (n->b) {
-#line 274 "src/sema/stmt.mxy"
+#line 273 "src/sema/stmt.mxy"
             check_cond((&n->b));
         }
-#line 275 "src/sema/stmt.mxy"
+#line 274 "src/sema/stmt.mxy"
         if (n->c) {
-#line 275 "src/sema/stmt.mxy"
+#line 274 "src/sema/stmt.mxy"
             check_expr((&n->c), NULL);
         }
-#line 276 "src/sema/stmt.mxy"
+#line 275 "src/sema/stmt.mxy"
         (cur_fn->loops++);
-#line 277 "src/sema/stmt.mxy"
+#line 276 "src/sema/stmt.mxy"
         check_stmt(n->d);
-#line 278 "src/sema/stmt.mxy"
+#line 277 "src/sema/stmt.mxy"
         (cur_fn->loops--);
-#line 279 "src/sema/stmt.mxy"
+#line 278 "src/sema/stmt.mxy"
         pop_checked();
+#line 279 "src/sema/stmt.mxy"
+        break;
 #line 280 "src/sema/stmt.mxy"
-        break;
-#line 281 "src/sema/stmt.mxy"
     case N_FORIN:;
-#line 282 "src/sema/stmt.mxy"
+#line 281 "src/sema/stmt.mxy"
         check_forin(n);
+#line 282 "src/sema/stmt.mxy"
+        break;
 #line 283 "src/sema/stmt.mxy"
-        break;
-#line 284 "src/sema/stmt.mxy"
     case N_RETURN:;
-#line 285 "src/sema/stmt.mxy"
+#line 284 "src/sema/stmt.mxy"
         check_return(n);
-#line 286 "src/sema/stmt.mxy"
+#line 285 "src/sema/stmt.mxy"
         break;
-#line 287 "src/sema/stmt.mxy"
+#line 286 "src/sema/stmt.mxy"
     case N_BREAK:;
-#line 288 "src/sema/stmt.mxy"
+#line 287 "src/sema/stmt.mxy"
         if (cur_fn->in_defer) {
-#line 288 "src/sema/stmt.mxy"
+#line 287 "src/sema/stmt.mxy"
             diag_error(n->loc, "break is not allowed inside defer");
         } else {
-#line 289 "src/sema/stmt.mxy"
+#line 288 "src/sema/stmt.mxy"
             if ((!cur_fn->loops) && (!cur_fn->switches)) {
-#line 289 "src/sema/stmt.mxy"
+#line 288 "src/sema/stmt.mxy"
                 diag_error(n->loc, "break outside of a loop or switch");
             }
         }
-#line 290 "src/sema/stmt.mxy"
+#line 289 "src/sema/stmt.mxy"
         break;
-#line 291 "src/sema/stmt.mxy"
+#line 290 "src/sema/stmt.mxy"
     case N_CONTINUE:;
-#line 292 "src/sema/stmt.mxy"
+#line 291 "src/sema/stmt.mxy"
         if (cur_fn->in_defer) {
-#line 292 "src/sema/stmt.mxy"
+#line 291 "src/sema/stmt.mxy"
             diag_error(n->loc, "continue is not allowed inside defer");
         } else {
-#line 293 "src/sema/stmt.mxy"
+#line 292 "src/sema/stmt.mxy"
             if (!cur_fn->loops) {
-#line 293 "src/sema/stmt.mxy"
+#line 292 "src/sema/stmt.mxy"
                 diag_error(n->loc, "continue outside of a loop");
             }
         }
+#line 293 "src/sema/stmt.mxy"
+        break;
 #line 294 "src/sema/stmt.mxy"
-        break;
-#line 295 "src/sema/stmt.mxy"
     case N_GOTO:;
+#line 295 "src/sema/stmt.mxy"
+        (cur_fn->has_goto = 1);
 #line 296 "src/sema/stmt.mxy"
-        (cur_fn->has_goto = 1);
+        break;
 #line 297 "src/sema/stmt.mxy"
-        break;
-#line 298 "src/sema/stmt.mxy"
     case N_LABEL:;
-#line 299 "src/sema/stmt.mxy"
+#line 298 "src/sema/stmt.mxy"
         (cur_fn->has_goto = 1);
-#line 300 "src/sema/stmt.mxy"
+#line 299 "src/sema/stmt.mxy"
         check_stmt(n->a);
-#line 301 "src/sema/stmt.mxy"
+#line 300 "src/sema/stmt.mxy"
         break;
-#line 302 "src/sema/stmt.mxy"
+#line 301 "src/sema/stmt.mxy"
     case N_SWITCH:;
         {
-#line 303 "src/sema/stmt.mxy"
+#line 302 "src/sema/stmt.mxy"
             Type *t = check_expr((&n->a), NULL);
-#line 304 "src/sema/stmt.mxy"
+#line 303 "src/sema/stmt.mxy"
             if ((!type_is_integer(t)) && (!type_is_unknownish(t))) {
-#line 305 "src/sema/stmt.mxy"
+#line 304 "src/sema/stmt.mxy"
                 char *s = type_str(t);
-#line 306 "src/sema/stmt.mxy"
+#line 305 "src/sema/stmt.mxy"
                 diag_error(n->a->loc, "switch needs an integer, found %s", s);
-#line 307 "src/sema/stmt.mxy"
+#line 306 "src/sema/stmt.mxy"
                 if (type_unqual(t)->kind == TY_STRING) {
-#line 307 "src/sema/stmt.mxy"
+#line 306 "src/sema/stmt.mxy"
                     diag_hint("use match to branch on strings");
                 }
-#line 308 "src/sema/stmt.mxy"
+#line 307 "src/sema/stmt.mxy"
                 free(s);
             }
-#line 310 "src/sema/stmt.mxy"
+#line 309 "src/sema/stmt.mxy"
             (cur_fn->switches++);
-#line 311 "src/sema/stmt.mxy"
+#line 310 "src/sema/stmt.mxy"
             check_stmt(n->b);
-#line 312 "src/sema/stmt.mxy"
+#line 311 "src/sema/stmt.mxy"
             (cur_fn->switches--);
-#line 313 "src/sema/stmt.mxy"
+#line 312 "src/sema/stmt.mxy"
             if (n->b->kind == N_BLOCK) {
                 {
-#line 315 "src/sema/stmt.mxy"
+#line 314 "src/sema/stmt.mxy"
                     int i = 0;
-#line 315 "src/sema/stmt.mxy"
+#line 314 "src/sema/stmt.mxy"
                     for (; i < n->b->list.len; (i++)) {
-#line 316 "src/sema/stmt.mxy"
+#line 315 "src/sema/stmt.mxy"
                         Node *d = n->b->list.items[i];
-#line 317 "src/sema/stmt.mxy"
+#line 316 "src/sema/stmt.mxy"
                         if (d->kind != N_DECLS) {
-#line 317 "src/sema/stmt.mxy"
+#line 316 "src/sema/stmt.mxy"
                             continue;
                         }
                         {
-#line 318 "src/sema/stmt.mxy"
+#line 317 "src/sema/stmt.mxy"
                             int j = 0;
-#line 318 "src/sema/stmt.mxy"
+#line 317 "src/sema/stmt.mxy"
                             for (; j < d->list.len; (j++)) {
-#line 319 "src/sema/stmt.mxy"
+#line 318 "src/sema/stmt.mxy"
                                 Node *v = d->list.items[j];
-#line 320 "src/sema/stmt.mxy"
+#line 319 "src/sema/stmt.mxy"
                                 if (((v->kind == N_VAR) && v->sym) && type_is_managed(v->sym->type)) {
-#line 321 "src/sema/stmt.mxy"
+#line 320 "src/sema/stmt.mxy"
                                     diag_error(v->loc, "'%s' needs its own block inside a switch", v->name);
-#line 322 "src/sema/stmt.mxy"
+#line 321 "src/sema/stmt.mxy"
                                     diag_hint("wrap the case body in braces: case 1: { ... break; }");
                                 }
                             }
@@ -12686,47 +12857,47 @@ void check_stmt(Node *n) {
                     }
                 }
             }
-#line 327 "src/sema/stmt.mxy"
+#line 326 "src/sema/stmt.mxy"
             break;
         }
-#line 329 "src/sema/stmt.mxy"
+#line 328 "src/sema/stmt.mxy"
     case N_CASE:;
-#line 330 "src/sema/stmt.mxy"
+#line 329 "src/sema/stmt.mxy"
         check_expr((&n->a), NULL);
-#line 331 "src/sema/stmt.mxy"
+#line 330 "src/sema/stmt.mxy"
         if (n->b) {
-#line 331 "src/sema/stmt.mxy"
+#line 330 "src/sema/stmt.mxy"
             check_expr((&n->b), NULL);
         }
+#line 331 "src/sema/stmt.mxy"
+        break;
 #line 332 "src/sema/stmt.mxy"
-        break;
-#line 333 "src/sema/stmt.mxy"
     case N_MATCH:;
-#line 334 "src/sema/stmt.mxy"
+#line 333 "src/sema/stmt.mxy"
         check_match(n);
+#line 334 "src/sema/stmt.mxy"
+        break;
 #line 335 "src/sema/stmt.mxy"
-        break;
-#line 336 "src/sema/stmt.mxy"
     case N_DEFER:;
-#line 337 "src/sema/stmt.mxy"
+#line 336 "src/sema/stmt.mxy"
         (cur_fn->in_defer++);
-#line 338 "src/sema/stmt.mxy"
+#line 337 "src/sema/stmt.mxy"
         (cur_fn->has_cleanup = 1);
-#line 339 "src/sema/stmt.mxy"
+#line 338 "src/sema/stmt.mxy"
         check_stmt(n->a);
-#line 340 "src/sema/stmt.mxy"
+#line 339 "src/sema/stmt.mxy"
         (cur_fn->in_defer--);
+#line 340 "src/sema/stmt.mxy"
+        break;
 #line 341 "src/sema/stmt.mxy"
-        break;
-#line 342 "src/sema/stmt.mxy"
     case N_STATIC_ASSERT:;
-#line 343 "src/sema/stmt.mxy"
+#line 342 "src/sema/stmt.mxy"
         check_expr((&n->a), NULL);
-#line 344 "src/sema/stmt.mxy"
+#line 343 "src/sema/stmt.mxy"
         break;
-#line 345 "src/sema/stmt.mxy"
+#line 344 "src/sema/stmt.mxy"
     default:;
-#line 346 "src/sema/stmt.mxy"
+#line 345 "src/sema/stmt.mxy"
         break;
     }
 }
@@ -13670,170 +13841,195 @@ const char *embed_std(const char *path) {
     return NULL;
 }
 
-#line 13 "src/gen/codegen.mxy"
-static void emit_directives(Buf *b) {
+#line 14 "src/gen/codegen.mxy"
+static void emit_directives(Buf *b, int features) {
     {
-#line 14 "src/gen/codegen.mxy"
-        int i = 0;
-#line 14 "src/gen/codegen.mxy"
-        for (; i < prog.directives.len; (i++)) {
 #line 15 "src/gen/codegen.mxy"
+        int i = 0;
+#line 15 "src/gen/codegen.mxy"
+        for (; i < prog.directives.len; (i++)) {
+#line 16 "src/gen/codegen.mxy"
             Node *d = prog.directives.items[i];
-#line 16 "src/gen/codegen.mxy"
+#line 17 "src/gen/codegen.mxy"
+            if (macro_is_feature(d->text) != features) {
+#line 17 "src/gen/codegen.mxy"
+                continue;
+            }
+#line 18 "src/gen/codegen.mxy"
             if (d->cond) {
-#line 16 "src/gen/codegen.mxy"
+#line 18 "src/gen/codegen.mxy"
                 buf_fmt(b, "#if %s\n", d->cond);
             }
-#line 17 "src/gen/codegen.mxy"
+#line 19 "src/gen/codegen.mxy"
             buf_fmt(b, "%s\n", d->text);
-#line 18 "src/gen/codegen.mxy"
+#line 20 "src/gen/codegen.mxy"
             if (d->cond) {
-#line 18 "src/gen/codegen.mxy"
+#line 20 "src/gen/codegen.mxy"
                 buf_put(b, "#endif\n");
             }
         }
     }
 }
 
-#line 22 "src/gen/codegen.mxy"
-static void emit_static_asserts(Buf *b) {
-    {
-#line 23 "src/gen/codegen.mxy"
-        int i = 0;
-#line 23 "src/gen/codegen.mxy"
-        for (; i < prog.asserts.len; (i++)) {
 #line 24 "src/gen/codegen.mxy"
-            Node *a = prog.asserts.items[i];
+static void emit_static_asserts(Buf *b) {
 #line 25 "src/gen/codegen.mxy"
-            Ctx c;
+    MacroCursor mc = macros_begin();
+    {
 #line 26 "src/gen/codegen.mxy"
-            ctx_init((&c), 0);
+        int i = 0;
+#line 26 "src/gen/codegen.mxy"
+        for (; i < prog.asserts.len; (i++)) {
 #line 27 "src/gen/codegen.mxy"
-            char *v = gen_value(a->a, (&c));
+            Node *a = prog.asserts.items[i];
 #line 28 "src/gen/codegen.mxy"
-            char *m = (a->b ? c_string_lit(a->b->text) : xstrdup("\"static assertion\""));
+            macros_at((&mc), b, a);
 #line 29 "src/gen/codegen.mxy"
-            buf_fmt(b, "_Static_assert(%s, %s);\n", v, m);
+            Ctx c;
 #line 30 "src/gen/codegen.mxy"
+            ctx_init((&c), 0);
+#line 31 "src/gen/codegen.mxy"
+            char *v = gen_value(a->a, (&c));
+#line 32 "src/gen/codegen.mxy"
+            char *m = (a->b ? c_string_lit(a->b->text) : xstrdup("\"static assertion\""));
+#line 33 "src/gen/codegen.mxy"
+            buf_fmt(b, "_Static_assert(%s, %s);\n", v, m);
+#line 34 "src/gen/codegen.mxy"
             ctx_free((&c));
         }
     }
+#line 36 "src/gen/codegen.mxy"
+    macros_end((&mc), b);
 }
 
-#line 34 "src/gen/codegen.mxy"
-char *codegen(const GenOptions *opts) {
-#line 35 "src/gen/codegen.mxy"
-    (gopts = opts);
-#line 36 "src/gen/codegen.mxy"
-    out_reset();
-#line 37 "src/gen/codegen.mxy"
-    helpers_reset();
-#line 38 "src/gen/codegen.mxy"
-    types_reset_gen();
 #line 39 "src/gen/codegen.mxy"
-    func_reset();
+char *codegen(const GenOptions *opts) {
 #line 40 "src/gen/codegen.mxy"
-    (gscopes.len = 0);
+    (gopts = opts);
 #line 41 "src/gen/codegen.mxy"
-    (cur_func = NULL);
-    {
+    out_reset();
+#line 42 "src/gen/codegen.mxy"
+    helpers_reset();
 #line 43 "src/gen/codegen.mxy"
-        int i = 0;
-#line 43 "src/gen/codegen.mxy"
-        for (; i < prog.funcs.len; (i++)) {
+    types_reset_gen();
 #line 44 "src/gen/codegen.mxy"
+    func_reset();
+#line 45 "src/gen/codegen.mxy"
+    (gscopes.len = 0);
+#line 46 "src/gen/codegen.mxy"
+    (cur_func = NULL);
+#line 47 "src/gen/codegen.mxy"
+    macros_init();
+#line 49 "src/gen/codegen.mxy"
+    MacroCursor mc = macros_begin();
+    {
+#line 50 "src/gen/codegen.mxy"
+        int i = 0;
+#line 50 "src/gen/codegen.mxy"
+        for (; i < prog.funcs.len; (i++)) {
+#line 51 "src/gen/codegen.mxy"
             Node *fn = prog.funcs.items[i];
-#line 45 "src/gen/codegen.mxy"
+#line 52 "src/gen/codegen.mxy"
             if ((!fn->a) || (!fn->sym)) {
-#line 45 "src/gen/codegen.mxy"
+#line 52 "src/gen/codegen.mxy"
                 continue;
             }
-#line 46 "src/gen/codegen.mxy"
+#line 53 "src/gen/codegen.mxy"
             if ((fn->sym->decl != fn) && ((!fn->cond) || str_eq(fn->cond, fn->sym->decl->cond))) {
-#line 46 "src/gen/codegen.mxy"
+#line 53 "src/gen/codegen.mxy"
                 continue;
             }
-#line 47 "src/gen/codegen.mxy"
+#line 54 "src/gen/codegen.mxy"
+            macros_at((&mc), (&out.funcs), fn);
+#line 55 "src/gen/codegen.mxy"
             if (fn->cond) {
-#line 47 "src/gen/codegen.mxy"
+#line 55 "src/gen/codegen.mxy"
                 buf_fmt((&out.funcs), "#if %s\n", fn->cond);
             }
-#line 48 "src/gen/codegen.mxy"
+#line 56 "src/gen/codegen.mxy"
             gen_function(fn);
-#line 49 "src/gen/codegen.mxy"
+#line 57 "src/gen/codegen.mxy"
             if (fn->cond) {
-#line 49 "src/gen/codegen.mxy"
+#line 57 "src/gen/codegen.mxy"
                 buf_put((&out.funcs), "#endif\n");
             }
+#line 58 "src/gen/codegen.mxy"
+            macros_after((&mc), fn);
         }
     }
-#line 51 "src/gen/codegen.mxy"
-    gen_lambdas();
-#line 52 "src/gen/codegen.mxy"
+#line 60 "src/gen/codegen.mxy"
+    gen_lambdas((&mc));
+#line 61 "src/gen/codegen.mxy"
+    macros_end((&mc), (&out.funcs));
+#line 62 "src/gen/codegen.mxy"
     gen_globals();
-#line 53 "src/gen/codegen.mxy"
+#line 63 "src/gen/codegen.mxy"
     gen_prototypes();
-#line 54 "src/gen/codegen.mxy"
+#line 64 "src/gen/codegen.mxy"
     gen_main_wrapper();
-#line 55 "src/gen/codegen.mxy"
+#line 65 "src/gen/codegen.mxy"
     emit_types();
-#line 57 "src/gen/codegen.mxy"
+#line 67 "src/gen/codegen.mxy"
     Buf all = {0};
-#line 58 "src/gen/codegen.mxy"
+#line 68 "src/gen/codegen.mxy"
     buf_put((&all), "/* generated by moxy — edits will be overwritten */\n");
-#line 59 "src/gen/codegen.mxy"
+#line 69 "src/gen/codegen.mxy"
+    emit_directives((&all), 1);
+#line 70 "src/gen/codegen.mxy"
     buf_put((&all), "#ifndef _GNU_SOURCE\n#define _GNU_SOURCE 1\n#endif\n");
-#line 60 "src/gen/codegen.mxy"
+#line 71 "src/gen/codegen.mxy"
     if (prog.threads) {
-#line 60 "src/gen/codegen.mxy"
+#line 71 "src/gen/codegen.mxy"
         buf_put((&all), "#define MXY_THREADS 1\n");
     }
-#line 61 "src/gen/codegen.mxy"
-    emit_directives((&all));
-#line 62 "src/gen/codegen.mxy"
-    buf_put((&all), embed_runtime());
-#line 63 "src/gen/codegen.mxy"
-    buf_put((&all), "\n/* string literals */\n");
-#line 64 "src/gen/codegen.mxy"
-    buf_put((&all), buf_str((&out.lits)));
-#line 65 "src/gen/codegen.mxy"
-    buf_put((&all), "\n/* types */\n");
-#line 66 "src/gen/codegen.mxy"
-    buf_put((&all), buf_str((&out.fwd)));
-#line 67 "src/gen/codegen.mxy"
-    buf_put((&all), buf_str((&out.types)));
-#line 68 "src/gen/codegen.mxy"
-    emit_static_asserts((&all));
-#line 69 "src/gen/codegen.mxy"
-    buf_put((&all), "\n/* helpers */\n");
-#line 70 "src/gen/codegen.mxy"
-    buf_put((&all), buf_str((&out.hproto)));
-#line 71 "src/gen/codegen.mxy"
-    buf_put((&all), buf_str((&out.helpers)));
 #line 72 "src/gen/codegen.mxy"
-    buf_put((&all), "\n/* declarations */\n");
+    buf_put((&all), embed_runtime());
 #line 73 "src/gen/codegen.mxy"
-    buf_put((&all), buf_str((&out.protos)));
+    buf_put((&all), "\n/* directives */\n");
 #line 74 "src/gen/codegen.mxy"
-    buf_put((&all), buf_str((&out.globals)));
+    emit_directives((&all), 0);
 #line 75 "src/gen/codegen.mxy"
-    buf_put((&all), "\n");
+    buf_put((&all), "\n/* string literals */\n");
 #line 76 "src/gen/codegen.mxy"
-    buf_put((&all), buf_str((&glue)));
+    buf_put((&all), buf_str((&out.lits)));
 #line 77 "src/gen/codegen.mxy"
-    if (out.init.len) {
+    buf_put((&all), "\n/* types */\n");
 #line 78 "src/gen/codegen.mxy"
-        buf_put((&all), "__attribute__((constructor)) static void __mxy_init_globals(void) {\n");
+    buf_put((&all), buf_str((&out.fwd)));
 #line 79 "src/gen/codegen.mxy"
-        buf_put((&all), buf_str((&out.init)));
+    buf_put((&all), buf_str((&out.types)));
 #line 80 "src/gen/codegen.mxy"
+    emit_static_asserts((&all));
+#line 81 "src/gen/codegen.mxy"
+    buf_put((&all), "\n/* helpers */\n");
+#line 82 "src/gen/codegen.mxy"
+    buf_put((&all), buf_str((&out.hproto)));
+#line 83 "src/gen/codegen.mxy"
+    buf_put((&all), buf_str((&out.helpers)));
+#line 84 "src/gen/codegen.mxy"
+    buf_put((&all), "\n/* declarations */\n");
+#line 85 "src/gen/codegen.mxy"
+    buf_put((&all), buf_str((&out.protos)));
+#line 86 "src/gen/codegen.mxy"
+    buf_put((&all), buf_str((&out.globals)));
+#line 87 "src/gen/codegen.mxy"
+    buf_put((&all), "\n");
+#line 88 "src/gen/codegen.mxy"
+    buf_put((&all), buf_str((&glue)));
+#line 89 "src/gen/codegen.mxy"
+    if (out.init.len) {
+#line 90 "src/gen/codegen.mxy"
+        buf_put((&all), "__attribute__((constructor)) static void __mxy_init_globals(void) {\n");
+#line 91 "src/gen/codegen.mxy"
+        buf_put((&all), buf_str((&out.init)));
+#line 92 "src/gen/codegen.mxy"
         buf_put((&all), "}\n");
     }
-#line 82 "src/gen/codegen.mxy"
+#line 94 "src/gen/codegen.mxy"
     buf_put((&all), "\n/* program */\n");
-#line 83 "src/gen/codegen.mxy"
+#line 95 "src/gen/codegen.mxy"
     buf_put((&all), buf_str((&out.funcs)));
-#line 84 "src/gen/codegen.mxy"
+#line 96 "src/gen/codegen.mxy"
     return buf_take((&all));
 }
 
@@ -15606,348 +15802,370 @@ static void gen_lambda(Node *lam) {
 }
 
 #line 221 "src/gen/func.mxy"
-void gen_lambdas(void) {
+void gen_lambdas(MacroCursor *mc) {
     {
 #line 222 "src/gen/func.mxy"
         int i = 0;
 #line 222 "src/gen/func.mxy"
         for (; i < prog.lambdas.len; (i++)) {
-#line 222 "src/gen/func.mxy"
+#line 223 "src/gen/func.mxy"
+            macros_at(mc, (&out.funcs), prog.lambdas.items[i]);
+#line 224 "src/gen/func.mxy"
             gen_lambda(prog.lambdas.items[i]);
         }
     }
 }
 
-#line 225 "src/gen/func.mxy"
+#line 228 "src/gen/func.mxy"
 static int const_init(Node *n) {
-#line 226 "src/gen/func.mxy"
+#line 229 "src/gen/func.mxy"
     if (!n) {
-#line 226 "src/gen/func.mxy"
-        return 1;
-    }
-#line 227 "src/gen/func.mxy"
-    switch (n->kind) {
-#line 228 "src/gen/func.mxy"
-    case N_INT:;
-#line 228 "src/gen/func.mxy"
-    case N_FLOAT:;
-#line 228 "src/gen/func.mxy"
-    case N_CHAR:;
-#line 228 "src/gen/func.mxy"
-    case N_BOOL:;
-#line 228 "src/gen/func.mxy"
-    case N_NULL:;
-#line 228 "src/gen/func.mxy"
-    case N_SIZEOF:;
-#line 228 "src/gen/func.mxy"
-    case N_ALIGNOF:;
 #line 229 "src/gen/func.mxy"
         return 1;
+    }
 #line 230 "src/gen/func.mxy"
-    case N_STR:;
+    switch (n->kind) {
 #line 231 "src/gen/func.mxy"
-        return 1;
+    case N_INT:;
+#line 231 "src/gen/func.mxy"
+    case N_FLOAT:;
+#line 231 "src/gen/func.mxy"
+    case N_CHAR:;
+#line 231 "src/gen/func.mxy"
+    case N_BOOL:;
+#line 231 "src/gen/func.mxy"
+    case N_NULL:;
+#line 231 "src/gen/func.mxy"
+    case N_SIZEOF:;
+#line 231 "src/gen/func.mxy"
+    case N_ALIGNOF:;
 #line 232 "src/gen/func.mxy"
-    case N_IDENT:;
+        return 1;
 #line 233 "src/gen/func.mxy"
-        return ((((!n->sym) || (n->sym->kind == S_CONST)) || (n->sym->kind == S_FUNC)) || ((n->builtin == B_ENUM_CTOR) && type_unqual(n->type)->simple));
+    case N_STR:;
+#line 234 "src/gen/func.mxy"
+        return 1;
 #line 235 "src/gen/func.mxy"
+    case N_IDENT:;
+#line 236 "src/gen/func.mxy"
+        return ((((!n->sym) || (n->sym->kind == S_CONST)) || (n->sym->kind == S_FUNC)) || ((n->builtin == B_ENUM_CTOR) && type_unqual(n->type)->simple));
+#line 238 "src/gen/func.mxy"
     case N_UNARY:;
-#line 236 "src/gen/func.mxy"
+#line 239 "src/gen/func.mxy"
         if (n->op == P_AMP) {
-#line 236 "src/gen/func.mxy"
+#line 239 "src/gen/func.mxy"
             return (n->a->kind == N_IDENT);
         }
-#line 237 "src/gen/func.mxy"
-        return const_init(n->a);
-#line 238 "src/gen/func.mxy"
-    case N_BINARY:;
-#line 239 "src/gen/func.mxy"
-        return (((!n->builtin) && const_init(n->a)) && const_init(n->b));
 #line 240 "src/gen/func.mxy"
-    case N_TERNARY:;
+        return const_init(n->a);
 #line 241 "src/gen/func.mxy"
-        return ((const_init(n->a) && const_init(n->b)) && const_init(n->c));
+    case N_BINARY:;
 #line 242 "src/gen/func.mxy"
-    case N_CAST:;
+        return (((!n->builtin) && const_init(n->a)) && const_init(n->b));
 #line 243 "src/gen/func.mxy"
-        return ((n->op != 1) && const_init(n->a));
+    case N_TERNARY:;
 #line 244 "src/gen/func.mxy"
-    case N_CONV:;
+        return ((const_init(n->a) && const_init(n->b)) && const_init(n->c));
 #line 245 "src/gen/func.mxy"
+    case N_CAST:;
+#line 246 "src/gen/func.mxy"
+        return ((n->op != 1) && const_init(n->a));
+#line 247 "src/gen/func.mxy"
+    case N_CONV:;
+#line 248 "src/gen/func.mxy"
         return ((n->op == CV_FN_TO_CLOSURE) || (n->op == CV_LAMBDA_FNPTR));
-#line 246 "src/gen/func.mxy"
+#line 249 "src/gen/func.mxy"
     case N_INITLIST:;
-#line 246 "src/gen/func.mxy"
+#line 249 "src/gen/func.mxy"
     case N_COMPOUND:;
         {
-#line 247 "src/gen/func.mxy"
+#line 250 "src/gen/func.mxy"
             Node *list = ((n->kind == N_COMPOUND) ? n->b : n);
-#line 248 "src/gen/func.mxy"
+#line 251 "src/gen/func.mxy"
             Type *u = type_unqual(n->type);
-#line 249 "src/gen/func.mxy"
+#line 252 "src/gen/func.mxy"
             if (u && (((u->kind == TY_LIST) || (u->kind == TY_MAP)) || ((u->kind == TY_STRUCT) && u->is_ref))) {
-#line 249 "src/gen/func.mxy"
+#line 252 "src/gen/func.mxy"
                 return 0;
             }
             {
-#line 250 "src/gen/func.mxy"
+#line 253 "src/gen/func.mxy"
                 int i = 0;
-#line 250 "src/gen/func.mxy"
+#line 253 "src/gen/func.mxy"
                 for (; i < list->list.len; (i++)) {
-#line 251 "src/gen/func.mxy"
+#line 254 "src/gen/func.mxy"
                     Node *item = list->list.items[i];
-#line 252 "src/gen/func.mxy"
+#line 255 "src/gen/func.mxy"
                     if (item->kind == N_DESIG) {
-#line 253 "src/gen/func.mxy"
+#line 256 "src/gen/func.mxy"
                         if (!const_init(item->b)) {
-#line 253 "src/gen/func.mxy"
+#line 256 "src/gen/func.mxy"
                             return 0;
                         }
                     } else {
-#line 254 "src/gen/func.mxy"
+#line 257 "src/gen/func.mxy"
                         if (!const_init(item)) {
-#line 255 "src/gen/func.mxy"
+#line 258 "src/gen/func.mxy"
                             return 0;
                         }
                     }
                 }
             }
-#line 258 "src/gen/func.mxy"
+#line 261 "src/gen/func.mxy"
             return 1;
         }
-#line 260 "src/gen/func.mxy"
-    case N_LAMBDA:;
-#line 261 "src/gen/func.mxy"
-        return (n->captures.len == 0);
-#line 262 "src/gen/func.mxy"
-    default:;
 #line 263 "src/gen/func.mxy"
+    case N_LAMBDA:;
+#line 264 "src/gen/func.mxy"
+        return (n->captures.len == 0);
+#line 265 "src/gen/func.mxy"
+    default:;
+#line 266 "src/gen/func.mxy"
         return 0;
     }
 }
 
-#line 267 "src/gen/func.mxy"
-void gen_globals(void) {
-#line 268 "src/gen/func.mxy"
-    Buf *g = (&out.globals);
-    {
-#line 269 "src/gen/func.mxy"
-        int i = 0;
-#line 269 "src/gen/func.mxy"
-        for (; i < prog.globals.len; (i++)) {
 #line 270 "src/gen/func.mxy"
-            Node *v = prog.globals.items[i];
+void gen_globals(void) {
 #line 271 "src/gen/func.mxy"
-            Sym *s = v->sym;
+    Buf *g = (&out.globals);
 #line 272 "src/gen/func.mxy"
-            if ((!s) || str_starts(s->cname, "mxy_")) {
-#line 272 "src/gen/func.mxy"
-                continue;
-            }
+    MacroCursor gm = macros_begin();
 #line 273 "src/gen/func.mxy"
-            if ((s->decl != v) && (v->flags & F_EXTERN)) {
-#line 273 "src/gen/func.mxy"
-                continue;
-            }
+    MacroCursor im = macros_begin();
+    {
 #line 274 "src/gen/func.mxy"
-            if (((s->decl != v) && (!v->cond)) && (!v->a)) {
+        int i = 0;
 #line 274 "src/gen/func.mxy"
-                continue;
-            }
+        for (; i < prog.globals.len; (i++)) {
 #line 275 "src/gen/func.mxy"
-            Type *t = s->type;
+            Node *v = prog.globals.items[i];
 #line 276 "src/gen/func.mxy"
-            const char *st = (((v->flags & F_EXTERN) && (!v->a)) ? "extern " : ((v->flags & F_STATIC) ? "static " : ""));
+            Sym *s = v->sym;
 #line 277 "src/gen/func.mxy"
-            const char *tl = ((v->flags & F_THREADLOCAL) ? "_Thread_local " : "");
+            if ((!s) || str_starts(s->cname, "mxy_")) {
+#line 277 "src/gen/func.mxy"
+                continue;
+            }
 #line 278 "src/gen/func.mxy"
-            if (v->cond) {
+            if ((s->decl != v) && (v->flags & F_EXTERN)) {
 #line 278 "src/gen/func.mxy"
-                buf_fmt(g, "#if %s\n", v->cond);
+                continue;
             }
 #line 279 "src/gen/func.mxy"
-            char *d = cdecl(t, s->cname);
+            if (((s->decl != v) && (!v->cond)) && (!v->a)) {
+#line 279 "src/gen/func.mxy"
+                continue;
+            }
 #line 280 "src/gen/func.mxy"
-            if (!v->a) {
+            Type *t = s->type;
 #line 281 "src/gen/func.mxy"
+            const char *st = (((v->flags & F_EXTERN) && (!v->a)) ? "extern " : ((v->flags & F_STATIC) ? "static " : ""));
+#line 282 "src/gen/func.mxy"
+            const char *tl = ((v->flags & F_THREADLOCAL) ? "_Thread_local " : "");
+#line 283 "src/gen/func.mxy"
+            macros_at((&gm), g, v);
+#line 284 "src/gen/func.mxy"
+            if (v->cond) {
+#line 284 "src/gen/func.mxy"
+                buf_fmt(g, "#if %s\n", v->cond);
+            }
+#line 285 "src/gen/func.mxy"
+            char *d = cdecl(t, s->cname);
+#line 286 "src/gen/func.mxy"
+            if (!v->a) {
+#line 287 "src/gen/func.mxy"
                 buf_fmt(g, "%s%s%s;\n", st, tl, d);
             } else {
-#line 282 "src/gen/func.mxy"
-                if (const_init(v->a)) {
-#line 283 "src/gen/func.mxy"
-                    Ctx c;
-#line 284 "src/gen/func.mxy"
-                    ctx_init((&c), 0);
-#line 285 "src/gen/func.mxy"
-                    CExpr e = gen_init(v->a, t, (&c));
-#line 286 "src/gen/func.mxy"
-                    char *val = e.s;
-#line 287 "src/gen/func.mxy"
-                    Type *u = type_unqual(t);
 #line 288 "src/gen/func.mxy"
-                    if ((((val[0] == '{') && (u->kind != TY_ARRAY)) && (u->kind != TY_STRUCT)) && (!type_is_unknownish(u))) {
+                if (const_init(v->a)) {
 #line 289 "src/gen/func.mxy"
+                    Ctx c;
+#line 290 "src/gen/func.mxy"
+                    ctx_init((&c), 0);
+#line 291 "src/gen/func.mxy"
+                    CExpr e = gen_init(v->a, t, (&c));
+#line 292 "src/gen/func.mxy"
+                    char *val = e.s;
+#line 293 "src/gen/func.mxy"
+                    Type *u = type_unqual(t);
+#line 294 "src/gen/func.mxy"
+                    if ((((val[0] == '{') && (u->kind != TY_ARRAY)) && (u->kind != TY_STRUCT)) && (!type_is_unknownish(u))) {
+#line 295 "src/gen/func.mxy"
                         (val = xfmt("(%s)%s", ctype(t), val));
                     }
-#line 290 "src/gen/func.mxy"
+#line 296 "src/gen/func.mxy"
                     buf_fmt(g, "%s%s%s = %s;\n", st, tl, d, val);
-#line 291 "src/gen/func.mxy"
+#line 297 "src/gen/func.mxy"
                     ctx_free((&c));
                 } else {
-#line 293 "src/gen/func.mxy"
+#line 299 "src/gen/func.mxy"
                     buf_fmt(g, "%s%s%s = {0};\n", st, tl, d);
-#line 294 "src/gen/func.mxy"
+#line 300 "src/gen/func.mxy"
                     Ctx c;
-#line 295 "src/gen/func.mxy"
+#line 301 "src/gen/func.mxy"
                     ctx_init((&c), 1);
-#line 296 "src/gen/func.mxy"
+#line 302 "src/gen/func.mxy"
                     CExpr e = gen_init(v->a, t, (&c));
-#line 297 "src/gen/func.mxy"
+#line 303 "src/gen/func.mxy"
                     char *val = (managed(t) ? consume((&c), e, t) : borrow((&c), e, t));
-#line 298 "src/gen/func.mxy"
+#line 304 "src/gen/func.mxy"
                     if (val[0] == '{') {
-#line 298 "src/gen/func.mxy"
+#line 304 "src/gen/func.mxy"
                         (val = xfmt("(%s)%s", ctype(t), val));
                     }
-#line 299 "src/gen/func.mxy"
+#line 305 "src/gen/func.mxy"
+                    macros_at((&im), (&out.init), v);
+#line 306 "src/gen/func.mxy"
                     if (v->cond) {
-#line 299 "src/gen/func.mxy"
+#line 306 "src/gen/func.mxy"
                         buf_fmt((&out.init), "#if %s\n", v->cond);
                     }
-#line 300 "src/gen/func.mxy"
+#line 307 "src/gen/func.mxy"
                     buf_put((&out.init), buf_str((&c.pre)));
-#line 301 "src/gen/func.mxy"
+#line 308 "src/gen/func.mxy"
                     buf_fmt((&out.init), "    %s = %s;\n", s->cname, val);
-#line 302 "src/gen/func.mxy"
+#line 309 "src/gen/func.mxy"
                     ctx_release((&c), (&out.init));
-#line 303 "src/gen/func.mxy"
+#line 310 "src/gen/func.mxy"
                     if (v->cond) {
-#line 303 "src/gen/func.mxy"
+#line 310 "src/gen/func.mxy"
                         buf_put((&out.init), "#endif\n");
                     }
-#line 304 "src/gen/func.mxy"
+#line 311 "src/gen/func.mxy"
                     ctx_free((&c));
                 }
             }
-#line 306 "src/gen/func.mxy"
+#line 313 "src/gen/func.mxy"
             if (v->cond) {
-#line 306 "src/gen/func.mxy"
+#line 313 "src/gen/func.mxy"
                 buf_put(g, "#endif\n");
             }
         }
     }
+#line 315 "src/gen/func.mxy"
+    macros_end((&gm), g);
+#line 316 "src/gen/func.mxy"
+    macros_end((&im), (&out.init));
 }
 
-#line 310 "src/gen/func.mxy"
+#line 319 "src/gen/func.mxy"
 void gen_prototypes(void) {
-#line 311 "src/gen/func.mxy"
+#line 320 "src/gen/func.mxy"
     StrMap done = {0};
+#line 321 "src/gen/func.mxy"
+    MacroCursor mc = macros_begin();
     {
-#line 312 "src/gen/func.mxy"
+#line 322 "src/gen/func.mxy"
         int i = 0;
-#line 312 "src/gen/func.mxy"
+#line 322 "src/gen/func.mxy"
         for (; i < prog.funcs.len; (i++)) {
-#line 313 "src/gen/func.mxy"
+#line 323 "src/gen/func.mxy"
             Node *fn = prog.funcs.items[i];
-#line 314 "src/gen/func.mxy"
+#line 324 "src/gen/func.mxy"
             if (!fn->sym) {
-#line 314 "src/gen/func.mxy"
+#line 324 "src/gen/func.mxy"
                 continue;
             }
-#line 315 "src/gen/func.mxy"
+#line 325 "src/gen/func.mxy"
             mxy_str __v4;
-#line 315 "src/gen/func.mxy"
+#line 325 "src/gen/func.mxy"
             if (fn->cond) {
-#line 315 "src/gen/func.mxy"
+#line 325 "src/gen/func.mxy"
                 __v4 = mxy_str_from(fn->cond);
-#line 315 "src/gen/func.mxy"
+#line 325 "src/gen/func.mxy"
             } else {
-#line 315 "src/gen/func.mxy"
+#line 325 "src/gen/func.mxy"
                 __v4 = mxy_str_retain(((mxy_str)__mxy_s1.s));
-#line 315 "src/gen/func.mxy"
+#line 325 "src/gen/func.mxy"
             }
-#line 315 "src/gen/func.mxy"
+#line 325 "src/gen/func.mxy"
             char *key = xfmt("%s|%s", fn->sym->cname, __v4);
             mxy_str_release(__v4);
-#line 316 "src/gen/func.mxy"
+#line 326 "src/gen/func.mxy"
             if (strmap_get((&done), key)) {
-#line 316 "src/gen/func.mxy"
+#line 326 "src/gen/func.mxy"
                 continue;
             }
-#line 317 "src/gen/func.mxy"
+#line 327 "src/gen/func.mxy"
             strmap_put((&done), key, ((void *)1));
-#line 318 "src/gen/func.mxy"
+#line 328 "src/gen/func.mxy"
+            Node *decl = (fn->a ? fn : (fn->sym->decl ? fn->sym->decl : fn));
+#line 329 "src/gen/func.mxy"
+            macros_at((&mc), (&out.protos), decl);
+#line 330 "src/gen/func.mxy"
             if (fn->cond) {
-#line 318 "src/gen/func.mxy"
+#line 330 "src/gen/func.mxy"
                 buf_fmt((&out.protos), "#if %s\n", fn->cond);
             }
-#line 319 "src/gen/func.mxy"
-            prototype((fn->a ? fn : (fn->sym->decl ? fn->sym->decl : fn)));
-#line 320 "src/gen/func.mxy"
+#line 331 "src/gen/func.mxy"
+            prototype(decl);
+#line 332 "src/gen/func.mxy"
             if (fn->cond) {
-#line 320 "src/gen/func.mxy"
+#line 332 "src/gen/func.mxy"
                 buf_put((&out.protos), "#endif\n");
             }
         }
     }
-#line 322 "src/gen/func.mxy"
+#line 334 "src/gen/func.mxy"
+    macros_end((&mc), (&out.protos));
+#line 335 "src/gen/func.mxy"
     strmap_free((&done));
 }
 
-#line 325 "src/gen/func.mxy"
+#line 338 "src/gen/func.mxy"
 void gen_main_wrapper(void) {
-#line 326 "src/gen/func.mxy"
+#line 339 "src/gen/func.mxy"
     Node *m = prog.main;
-#line 327 "src/gen/func.mxy"
+#line 340 "src/gen/func.mxy"
     if (!m) {
-#line 327 "src/gen/func.mxy"
+#line 340 "src/gen/func.mxy"
         return;
     }
-#line 328 "src/gen/func.mxy"
+#line 341 "src/gen/func.mxy"
     Type *ft = type_unqual(m->sym->type);
-#line 329 "src/gen/func.mxy"
+#line 342 "src/gen/func.mxy"
     int returns_int = (type_unqual(ft->base)->kind != TY_VOID);
-#line 330 "src/gen/func.mxy"
+#line 343 "src/gen/func.mxy"
     Buf *b = (&glue);
-#line 331 "src/gen/func.mxy"
+#line 344 "src/gen/func.mxy"
     buf_put(b, "int main(int argc, char **argv) {\n    mxy_argc = argc;\n    mxy_argv = argv;\n");
-#line 332 "src/gen/func.mxy"
+#line 345 "src/gen/func.mxy"
     if (ft->params.len == 2) {
-#line 333 "src/gen/func.mxy"
+#line 346 "src/gen/func.mxy"
         buf_fmt(b, "    %s__mxy_main(argc, argv);\n", (returns_int ? ((mxy_str)__mxy_s23.s) : ((mxy_str)__mxy_s1.s)));
     } else {
-#line 334 "src/gen/func.mxy"
+#line 347 "src/gen/func.mxy"
         if (ft->params.len == 1) {
-#line 335 "src/gen/func.mxy"
+#line 348 "src/gen/func.mxy"
             buf_put(b, "    mxy_list *args = mxy_args();\n");
-#line 336 "src/gen/func.mxy"
+#line 349 "src/gen/func.mxy"
             buf_fmt(b, "    int code = %s__mxy_main(args);\n", (returns_int ? ((mxy_str)__mxy_s1.s) : ((mxy_str)__mxy_s24.s)));
-#line 337 "src/gen/func.mxy"
+#line 350 "src/gen/func.mxy"
             buf_put(b, "    mxy_list_release(args);\n    return code;\n");
-#line 338 "src/gen/func.mxy"
+#line 351 "src/gen/func.mxy"
             buf_put(b, "}\n");
-#line 339 "src/gen/func.mxy"
+#line 352 "src/gen/func.mxy"
             return;
         } else {
-#line 341 "src/gen/func.mxy"
+#line 354 "src/gen/func.mxy"
             buf_fmt(b, "    %s__mxy_main();\n", (returns_int ? ((mxy_str)__mxy_s23.s) : ((mxy_str)__mxy_s1.s)));
         }
     }
-#line 343 "src/gen/func.mxy"
+#line 356 "src/gen/func.mxy"
     if (!returns_int) {
-#line 343 "src/gen/func.mxy"
+#line 356 "src/gen/func.mxy"
         buf_put(b, "    return 0;\n");
     }
-#line 344 "src/gen/func.mxy"
+#line 357 "src/gen/func.mxy"
     buf_put(b, "}\n");
 }
 
-#line 347 "src/gen/func.mxy"
+#line 360 "src/gen/func.mxy"
 void func_reset(void) {
-#line 348 "src/gen/func.mxy"
+#line 361 "src/gen/func.mxy"
     buf_free((&glue));
-#line 349 "src/gen/func.mxy"
+#line 362 "src/gen/func.mxy"
     strmap_free((&thunks));
 }
 
@@ -16025,7 +16243,7 @@ char *gen_header(const char *libname) {
                 continue;
             }
 #line 33 "src/gen/header.mxy"
-            buf_fmt((&b), "typedef %s %s %s;\n", (t->is_union ? ((mxy_str)__mxy_s25.s) : ((mxy_str)__mxy_s26.s)), t->cname, t->cname);
+            buf_fmt((&b), "typedef %s %s %s;\n", (t->is_union ? ((mxy_str)__mxy_s25.s) : ((mxy_str)__mxy_s26.s)), type_tag(t), t->cname);
         }
     }
 #line 35 "src/gen/header.mxy"
@@ -16045,7 +16263,7 @@ char *gen_header(const char *libname) {
                 continue;
             }
 #line 41 "src/gen/header.mxy"
-            buf_fmt((&b), "%s %s {\n", (t->is_union ? ((mxy_str)__mxy_s25.s) : ((mxy_str)__mxy_s26.s)), t->cname);
+            buf_fmt((&b), "%s %s {\n", (t->is_union ? ((mxy_str)__mxy_s25.s) : ((mxy_str)__mxy_s26.s)), type_tag(t));
             {
 #line 42 "src/gen/header.mxy"
                 int j = 0;
@@ -17590,6 +17808,347 @@ CExpr gen_assign(Node *n, Ctx *c) {
     char *v = gen_value(n->b, c);
 #line 150 "src/gen/lvalue.mxy"
     return bor(xfmt("(%s %s %s)", lv, tok_spell(((TokKind)n->op)), v));
+}
+
+#line 27 "src/gen/macros.mxy"
+char *macro_target(const char *text, int *is_undef) {
+#line 28 "src/gen/macros.mxy"
+    const char *p = text;
+#line 29 "src/gen/macros.mxy"
+    while (((*p) == ' ') || ((*p) == '\t')) {
+#line 29 "src/gen/macros.mxy"
+        (p++);
+    }
+#line 30 "src/gen/macros.mxy"
+    if ((*p) == '#') {
+#line 30 "src/gen/macros.mxy"
+        (p++);
+    }
+#line 31 "src/gen/macros.mxy"
+    while (((*p) == ' ') || ((*p) == '\t')) {
+#line 31 "src/gen/macros.mxy"
+        (p++);
+    }
+#line 32 "src/gen/macros.mxy"
+    int def = (str_starts(p, "define") && ((p[6] == ' ') || (p[6] == '\t')));
+#line 33 "src/gen/macros.mxy"
+    int undef = (str_starts(p, "undef") && ((p[5] == ' ') || (p[5] == '\t')));
+#line 34 "src/gen/macros.mxy"
+    if ((!def) && (!undef)) {
+#line 34 "src/gen/macros.mxy"
+        return NULL;
+    }
+#line 35 "src/gen/macros.mxy"
+    (p += (def ? 6 : 5));
+#line 36 "src/gen/macros.mxy"
+    while (((*p) == ' ') || ((*p) == '\t')) {
+#line 36 "src/gen/macros.mxy"
+        (p++);
+    }
+#line 37 "src/gen/macros.mxy"
+    const char *s = p;
+#line 38 "src/gen/macros.mxy"
+    while (((*p) == '_') || isalnum(((unsigned char)(*p)))) {
+#line 38 "src/gen/macros.mxy"
+        (p++);
+    }
+#line 39 "src/gen/macros.mxy"
+    if (p == s) {
+#line 39 "src/gen/macros.mxy"
+        return NULL;
+    }
+#line 40 "src/gen/macros.mxy"
+    if (is_undef) {
+#line 40 "src/gen/macros.mxy"
+        ((*is_undef) = undef);
+    }
+#line 41 "src/gen/macros.mxy"
+    return xstrndup(s, ((size_t)(p - s)));
+}
+
+#line 45 "src/gen/macros.mxy"
+int macro_is_feature(const char *text) {
+#line 46 "src/gen/macros.mxy"
+    char *name = macro_target(text, NULL);
+#line 47 "src/gen/macros.mxy"
+    if (!name) {
+#line 47 "src/gen/macros.mxy"
+        return 0;
+    }
+#line 48 "src/gen/macros.mxy"
+    int yes = ((name[0] == '_') && (((((str_ends(name, "_SOURCE") || str_eq(name, "_FILE_OFFSET_BITS")) || str_eq(name, "_TIME_BITS")) || str_eq(name, "_REENTRANT")) || str_eq(name, "_THREAD_SAFE")) || str_eq(name, "_XOPEN_SOURCE_EXTENDED")));
+#line 51 "src/gen/macros.mxy"
+    free(name);
+#line 52 "src/gen/macros.mxy"
+    return yes;
+}
+
+#line 55 "src/gen/macros.mxy"
+static int hist_find(const char *name) {
+#line 55 "src/gen/macros.mxy"
+    return (((int)((intptr_t)strmap_get((&hist_index), name))) - 1);
+}
+
+#line 57 "src/gen/macros.mxy"
+void macros_init(void) {
+    {
+#line 58 "src/gen/macros.mxy"
+        int i = 0;
+#line 58 "src/gen/macros.mxy"
+        for (; i < hist.len; (i++)) {
+#line 59 "src/gen/macros.mxy"
+            free(hist.items[i].name);
+#line 60 "src/gen/macros.mxy"
+            free(hist.items[i].dirs.items);
+        }
+    }
+#line 62 "src/gen/macros.mxy"
+    (hist.len = 0);
+#line 63 "src/gen/macros.mxy"
+    strmap_free((&hist_index));
+#line 65 "src/gen/macros.mxy"
+    MacroHistList all = {0};
+#line 66 "src/gen/macros.mxy"
+    StrMap index = {0};
+    {
+#line 67 "src/gen/macros.mxy"
+        int i = 0;
+#line 67 "src/gen/macros.mxy"
+        for (; i < prog.directives.len; (i++)) {
+#line 68 "src/gen/macros.mxy"
+            Node *d = prog.directives.items[i];
+#line 69 "src/gen/macros.mxy"
+            int undef = 0;
+#line 70 "src/gen/macros.mxy"
+            char *name = macro_target(d->text, (&undef));
+#line 71 "src/gen/macros.mxy"
+            if (((!name) || (d->pos < 0)) || macro_is_feature(d->text)) {
+#line 72 "src/gen/macros.mxy"
+                free(name);
+#line 73 "src/gen/macros.mxy"
+                continue;
+            }
+#line 75 "src/gen/macros.mxy"
+            int at = (((int)((intptr_t)strmap_get((&index), name))) - 1);
+#line 76 "src/gen/macros.mxy"
+            if (at < 0) {
+#line 77 "src/gen/macros.mxy"
+                MacroHist h = {name, {0}, 0};
+#line 78 "src/gen/macros.mxy"
+                vec_push(all, h);
+#line 79 "src/gen/macros.mxy"
+                (at = (all.len - 1));
+#line 80 "src/gen/macros.mxy"
+                strmap_put((&index), name, ((void *)((intptr_t)(at + 1))));
+            } else {
+#line 82 "src/gen/macros.mxy"
+                free(name);
+            }
+#line 84 "src/gen/macros.mxy"
+            vec_push(all.items[at].dirs, d);
+#line 85 "src/gen/macros.mxy"
+            (all.items[at].undefs += undef);
+        }
+    }
+#line 87 "src/gen/macros.mxy"
+    strmap_free((&index));
+    {
+#line 90 "src/gen/macros.mxy"
+        int i = 0;
+#line 90 "src/gen/macros.mxy"
+        for (; i < all.len; (i++)) {
+#line 91 "src/gen/macros.mxy"
+            MacroHist *h = (&all.items[i]);
+#line 92 "src/gen/macros.mxy"
+            if ((h->dirs.len == 1) && (!h->undefs)) {
+#line 93 "src/gen/macros.mxy"
+                free(h->name);
+#line 94 "src/gen/macros.mxy"
+                free(h->dirs.items);
+#line 95 "src/gen/macros.mxy"
+                continue;
+            }
+#line 97 "src/gen/macros.mxy"
+            vec_push(hist, (*h));
+#line 98 "src/gen/macros.mxy"
+            strmap_put((&hist_index), h->name, ((void *)((intptr_t)hist.len)));
+        }
+    }
+#line 100 "src/gen/macros.mxy"
+    free(all.items);
+}
+
+#line 103 "src/gen/macros.mxy"
+MacroCursor macros_begin(void) {
+#line 104 "src/gen/macros.mxy"
+    MacroCursor c = {NULL};
+#line 105 "src/gen/macros.mxy"
+    if (!hist.len) {
+#line 105 "src/gen/macros.mxy"
+        return c;
+    }
+#line 106 "src/gen/macros.mxy"
+    (c.have = xcalloc(((size_t)hist.len), sizeof(int)));
+    {
+#line 107 "src/gen/macros.mxy"
+        int i = 0;
+#line 107 "src/gen/macros.mxy"
+        for (; i < hist.len; (i++)) {
+#line 107 "src/gen/macros.mxy"
+            (c.have[i] = hist.items[i].dirs.len);
+        }
+    }
+#line 108 "src/gen/macros.mxy"
+    return c;
+}
+
+#line 111 "src/gen/macros.mxy"
+static void replay(Buf *b, MacroHist *h, int from, int to) {
+    {
+#line 112 "src/gen/macros.mxy"
+        int i = from;
+#line 112 "src/gen/macros.mxy"
+        for (; i < to; (i++)) {
+#line 113 "src/gen/macros.mxy"
+            Node *d = h->dirs.items[i];
+#line 114 "src/gen/macros.mxy"
+            if (d->cond) {
+#line 114 "src/gen/macros.mxy"
+                buf_fmt(b, "#if %s\n", d->cond);
+            }
+#line 115 "src/gen/macros.mxy"
+            buf_fmt(b, "%s\n", d->text);
+#line 116 "src/gen/macros.mxy"
+            if (d->cond) {
+#line 116 "src/gen/macros.mxy"
+                buf_put(b, "#endif\n");
+            }
+        }
+    }
+}
+
+#line 120 "src/gen/macros.mxy"
+static void move_to(MacroCursor *cur, Buf *b, int i, int need) {
+#line 121 "src/gen/macros.mxy"
+    MacroHist *h = (&hist.items[i]);
+#line 122 "src/gen/macros.mxy"
+    int have = cur->have[i];
+#line 123 "src/gen/macros.mxy"
+    if (have == need) {
+#line 123 "src/gen/macros.mxy"
+        return;
+    }
+#line 124 "src/gen/macros.mxy"
+    if ((have < 0) || (have > need)) {
+#line 125 "src/gen/macros.mxy"
+        buf_fmt(b, "#undef %s\n", h->name);
+#line 126 "src/gen/macros.mxy"
+        (have = 0);
+    }
+#line 128 "src/gen/macros.mxy"
+    replay(b, h, have, need);
+#line 129 "src/gen/macros.mxy"
+    (cur->have[i] = need);
+}
+
+#line 133 "src/gen/macros.mxy"
+void macros_at(MacroCursor *cur, Buf *b, Node *item) {
+#line 134 "src/gen/macros.mxy"
+    if (((!cur->have) || (!item)) || (item->pos < 0)) {
+#line 134 "src/gen/macros.mxy"
+        return;
+    }
+    {
+#line 135 "src/gen/macros.mxy"
+        int i = 0;
+#line 135 "src/gen/macros.mxy"
+        for (; i < hist.len; (i++)) {
+#line 136 "src/gen/macros.mxy"
+            NodeList *ds = (&hist.items[i].dirs);
+#line 137 "src/gen/macros.mxy"
+            int need = 0;
+#line 138 "src/gen/macros.mxy"
+            while ((need < ds->len) && (ds->items[need]->pos < item->pos)) {
+#line 138 "src/gen/macros.mxy"
+                (need++);
+            }
+#line 139 "src/gen/macros.mxy"
+            move_to(cur, b, i, need);
+        }
+    }
+}
+
+#line 143 "src/gen/macros.mxy"
+static void forget_nested(MacroCursor *cur, Node *n) {
+#line 144 "src/gen/macros.mxy"
+    if (!n) {
+#line 144 "src/gen/macros.mxy"
+        return;
+    }
+#line 145 "src/gen/macros.mxy"
+    if (n->kind == N_DIRECTIVE) {
+#line 146 "src/gen/macros.mxy"
+        char *name = macro_target(n->text, NULL);
+#line 147 "src/gen/macros.mxy"
+        int i = (name ? hist_find(name) : (-1));
+#line 148 "src/gen/macros.mxy"
+        if (i >= 0) {
+#line 148 "src/gen/macros.mxy"
+            (cur->have[i] = (-1));
+        }
+#line 149 "src/gen/macros.mxy"
+        free(name);
+#line 150 "src/gen/macros.mxy"
+        return;
+    }
+#line 152 "src/gen/macros.mxy"
+    forget_nested(cur, n->a);
+#line 153 "src/gen/macros.mxy"
+    forget_nested(cur, n->b);
+#line 154 "src/gen/macros.mxy"
+    forget_nested(cur, n->c);
+#line 155 "src/gen/macros.mxy"
+    forget_nested(cur, n->d);
+    {
+#line 156 "src/gen/macros.mxy"
+        int i = 0;
+#line 156 "src/gen/macros.mxy"
+        for (; i < n->list.len; (i++)) {
+#line 156 "src/gen/macros.mxy"
+            forget_nested(cur, n->list.items[i]);
+        }
+    }
+}
+
+#line 160 "src/gen/macros.mxy"
+void macros_after(MacroCursor *cur, Node *item) {
+#line 161 "src/gen/macros.mxy"
+    if (cur->have) {
+#line 161 "src/gen/macros.mxy"
+        forget_nested(cur, item);
+    }
+}
+
+#line 165 "src/gen/macros.mxy"
+void macros_end(MacroCursor *cur, Buf *b) {
+#line 166 "src/gen/macros.mxy"
+    if (!cur->have) {
+#line 166 "src/gen/macros.mxy"
+        return;
+    }
+    {
+#line 167 "src/gen/macros.mxy"
+        int i = 0;
+#line 167 "src/gen/macros.mxy"
+        for (; i < hist.len; (i++)) {
+#line 167 "src/gen/macros.mxy"
+            move_to(cur, b, i, hist.items[i].dirs.len);
+        }
+    }
+#line 168 "src/gen/macros.mxy"
+    free(cur->have);
+#line 169 "src/gen/macros.mxy"
+    (cur->have = NULL);
 }
 
 #line 5 "src/gen/match.mxy"
@@ -19354,550 +19913,619 @@ static void emit_fields(Buf *b, Node *decl, int indent) {
     }
 }
 
-#line 100 "src/gen/types.mxy"
-static void emit_struct(Type *u) {
-#line 101 "src/gen/types.mxy"
-    Node *decl = u->decl;
 #line 102 "src/gen/types.mxy"
+static void emit_struct(Type *u) {
+#line 103 "src/gen/types.mxy"
+    Node *decl = u->decl;
+#line 104 "src/gen/types.mxy"
     Buf b = {0};
     {
-#line 103 "src/gen/types.mxy"
+#line 105 "src/gen/types.mxy"
         int i = 0;
-#line 103 "src/gen/types.mxy"
+#line 105 "src/gen/types.mxy"
         for (; i < decl->list.len; (i++)) {
-#line 104 "src/gen/types.mxy"
+#line 106 "src/gen/types.mxy"
             Node *f = decl->list.items[i];
-#line 105 "src/gen/types.mxy"
+#line 107 "src/gen/types.mxy"
             if (f->kind == N_FIELD) {
-#line 105 "src/gen/types.mxy"
+#line 107 "src/gen/types.mxy"
                 value_deps(f->type);
             }
         }
     }
-#line 107 "src/gen/types.mxy"
+#line 109 "src/gen/types.mxy"
     open_cond((&b), decl->cond);
-#line 108 "src/gen/types.mxy"
-    buf_fmt((&b), "%s %s {\n", (u->is_union ? ((mxy_str)__mxy_s25.s) : ((mxy_str)__mxy_s26.s)), u->cname);
-#line 109 "src/gen/types.mxy"
+#line 110 "src/gen/types.mxy"
+    buf_fmt((&b), "%s %s {\n", (u->is_union ? ((mxy_str)__mxy_s25.s) : ((mxy_str)__mxy_s26.s)), type_tag(u));
+#line 111 "src/gen/types.mxy"
     if (u->is_ref) {
-#line 109 "src/gen/types.mxy"
+#line 111 "src/gen/types.mxy"
         buf_put((&b), "    mxy_obj __hdr;\n");
     }
-#line 110 "src/gen/types.mxy"
+#line 112 "src/gen/types.mxy"
     emit_fields((&b), decl, 1);
-#line 111 "src/gen/types.mxy"
+#line 113 "src/gen/types.mxy"
     if ((!decl->list.len) && (!u->is_ref)) {
-#line 111 "src/gen/types.mxy"
+#line 113 "src/gen/types.mxy"
         buf_put((&b), "    char __empty;\n");
     }
-#line 112 "src/gen/types.mxy"
-    buf_put((&b), "};\n");
-#line 113 "src/gen/types.mxy"
-    close_cond((&b), decl->cond);
 #line 114 "src/gen/types.mxy"
-    buf_put((&out.types), buf_str((&b)));
+    buf_put((&b), "};\n");
 #line 115 "src/gen/types.mxy"
+    close_cond((&b), decl->cond);
+#line 116 "src/gen/types.mxy"
+    macros_at((&type_macros), (&out.types), decl);
+#line 117 "src/gen/types.mxy"
+    buf_put((&out.types), buf_str((&b)));
+#line 118 "src/gen/types.mxy"
+    macros_after((&type_macros), decl);
+#line 119 "src/gen/types.mxy"
     buf_free((&b));
 }
 
-#line 118 "src/gen/types.mxy"
+#line 122 "src/gen/types.mxy"
 static void emit_tagged_enum(Type *u) {
-#line 119 "src/gen/types.mxy"
+#line 123 "src/gen/types.mxy"
     Node *decl = u->decl;
     {
-#line 120 "src/gen/types.mxy"
+#line 124 "src/gen/types.mxy"
         int i = 0;
-#line 120 "src/gen/types.mxy"
+#line 124 "src/gen/types.mxy"
         for (; i < decl->list.len; (i++)) {
-#line 121 "src/gen/types.mxy"
+#line 125 "src/gen/types.mxy"
             Node *v = decl->list.items[i];
             {
-#line 122 "src/gen/types.mxy"
+#line 126 "src/gen/types.mxy"
                 int j = 0;
-#line 122 "src/gen/types.mxy"
+#line 126 "src/gen/types.mxy"
                 for (; j < v->params.len; (j++)) {
-#line 122 "src/gen/types.mxy"
+#line 126 "src/gen/types.mxy"
                     value_deps(v->params.items[j].type->resolved);
                 }
             }
         }
     }
-#line 124 "src/gen/types.mxy"
+#line 128 "src/gen/types.mxy"
     Buf *b = (&out.types);
-#line 125 "src/gen/types.mxy"
+#line 129 "src/gen/types.mxy"
+    macros_at((&type_macros), b, decl);
+#line 130 "src/gen/types.mxy"
     open_cond(b, decl->cond);
-#line 126 "src/gen/types.mxy"
+#line 131 "src/gen/types.mxy"
     buf_fmt(b, "struct %s {\n    %s_Tag tag;\n    union {\n", u->cname, u->cname);
     {
-#line 127 "src/gen/types.mxy"
+#line 132 "src/gen/types.mxy"
         int i = 0;
-#line 127 "src/gen/types.mxy"
+#line 132 "src/gen/types.mxy"
         for (; i < decl->list.len; (i++)) {
-#line 128 "src/gen/types.mxy"
+#line 133 "src/gen/types.mxy"
             Node *v = decl->list.items[i];
-#line 129 "src/gen/types.mxy"
+#line 134 "src/gen/types.mxy"
             if (!v->params.len) {
-#line 129 "src/gen/types.mxy"
+#line 134 "src/gen/types.mxy"
                 continue;
             }
-#line 130 "src/gen/types.mxy"
+#line 135 "src/gen/types.mxy"
             buf_put(b, "        struct {");
             {
-#line 131 "src/gen/types.mxy"
+#line 136 "src/gen/types.mxy"
                 int j = 0;
-#line 131 "src/gen/types.mxy"
+#line 136 "src/gen/types.mxy"
                 for (; j < v->params.len; (j++)) {
-#line 132 "src/gen/types.mxy"
+#line 137 "src/gen/types.mxy"
                     char *d = cdecl(v->params.items[j].type->resolved, v->params.items[j].name);
-#line 133 "src/gen/types.mxy"
+#line 138 "src/gen/types.mxy"
                     buf_fmt(b, " %s;", d);
-#line 134 "src/gen/types.mxy"
+#line 139 "src/gen/types.mxy"
                     free(d);
                 }
             }
-#line 136 "src/gen/types.mxy"
+#line 141 "src/gen/types.mxy"
             buf_fmt(b, " } %s;\n", v->name);
         }
     }
-#line 138 "src/gen/types.mxy"
+#line 143 "src/gen/types.mxy"
     buf_put(b, "    };\n};\n");
-#line 139 "src/gen/types.mxy"
+#line 144 "src/gen/types.mxy"
     close_cond(b, decl->cond);
 }
 
-#line 142 "src/gen/types.mxy"
-static void emit_result(Type *u) {
-#line 143 "src/gen/types.mxy"
-    value_deps(u->base);
-#line 144 "src/gen/types.mxy"
-    char *name = result_name(u);
-#line 145 "src/gen/types.mxy"
-    Type *inner = type_unqual(u->base);
-#line 146 "src/gen/types.mxy"
-    buf_fmt((&out.types), "struct %s {\n    bool ok;\n", name);
 #line 147 "src/gen/types.mxy"
-    if (inner->kind != TY_VOID) {
+static void emit_result(Type *u) {
 #line 148 "src/gen/types.mxy"
-        char *d = cdecl(u->base, "val");
+    value_deps(u->base);
 #line 149 "src/gen/types.mxy"
-        buf_fmt((&out.types), "    %s;\n", d);
+    char *name = result_name(u);
 #line 150 "src/gen/types.mxy"
+    Type *inner = type_unqual(u->base);
+#line 151 "src/gen/types.mxy"
+    buf_fmt((&out.types), "struct %s {\n    bool ok;\n", name);
+#line 152 "src/gen/types.mxy"
+    if (inner->kind != TY_VOID) {
+#line 153 "src/gen/types.mxy"
+        char *d = cdecl(u->base, "val");
+#line 154 "src/gen/types.mxy"
+        buf_fmt((&out.types), "    %s;\n", d);
+#line 155 "src/gen/types.mxy"
         free(d);
     }
-#line 152 "src/gen/types.mxy"
+#line 157 "src/gen/types.mxy"
     buf_put((&out.types), "    mxy_str err;\n};\n");
-#line 153 "src/gen/types.mxy"
+#line 158 "src/gen/types.mxy"
     free(name);
 }
 
-#line 156 "src/gen/types.mxy"
+#line 161 "src/gen/types.mxy"
 static char *def_key(Type *u) {
-#line 157 "src/gen/types.mxy"
+#line 162 "src/gen/types.mxy"
     if (u->kind == TY_RESULT) {
-#line 157 "src/gen/types.mxy"
+#line 162 "src/gen/types.mxy"
         return result_name(u);
     }
-#line 158 "src/gen/types.mxy"
+#line 163 "src/gen/types.mxy"
     return xstrdup(u->cname);
 }
 
-#line 161 "src/gen/types.mxy"
-static void emit_def(Type *t) {
-#line 162 "src/gen/types.mxy"
-    Type *u = type_unqual(t);
-#line 163 "src/gen/types.mxy"
-    char *key = def_key(u);
-#line 164 "src/gen/types.mxy"
-    if (strmap_get((&emitted), key)) {
-#line 165 "src/gen/types.mxy"
-        free(key);
 #line 166 "src/gen/types.mxy"
-        return;
-    }
+static void emit_def(Type *t) {
+#line 167 "src/gen/types.mxy"
+    Type *u = type_unqual(t);
 #line 168 "src/gen/types.mxy"
-    if (strmap_get((&visiting), key)) {
+    char *key = def_key(u);
 #line 169 "src/gen/types.mxy"
-        free(key);
+    if (strmap_get((&emitted), key)) {
 #line 170 "src/gen/types.mxy"
+        free(key);
+#line 171 "src/gen/types.mxy"
         return;
     }
-#line 172 "src/gen/types.mxy"
+#line 173 "src/gen/types.mxy"
+    if (strmap_get((&visiting), key)) {
+#line 174 "src/gen/types.mxy"
+        free(key);
+#line 175 "src/gen/types.mxy"
+        return;
+    }
+#line 177 "src/gen/types.mxy"
     strmap_put((&visiting), key, ((void *)1));
-#line 173 "src/gen/types.mxy"
+#line 178 "src/gen/types.mxy"
     if (u->kind == TY_STRUCT) {
-#line 173 "src/gen/types.mxy"
+#line 178 "src/gen/types.mxy"
         emit_struct(u);
     } else {
-#line 174 "src/gen/types.mxy"
+#line 179 "src/gen/types.mxy"
         if (u->kind == TY_ENUM) {
-#line 174 "src/gen/types.mxy"
+#line 179 "src/gen/types.mxy"
             emit_tagged_enum(u);
         } else {
-#line 175 "src/gen/types.mxy"
+#line 180 "src/gen/types.mxy"
             if (u->kind == TY_RESULT) {
-#line 175 "src/gen/types.mxy"
+#line 180 "src/gen/types.mxy"
                 emit_result(u);
             }
         }
     }
-#line 176 "src/gen/types.mxy"
+#line 181 "src/gen/types.mxy"
     strmap_put((&emitted), key, ((void *)1));
-#line 177 "src/gen/types.mxy"
+#line 182 "src/gen/types.mxy"
     free(key);
 }
 
-#line 180 "src/gen/types.mxy"
+#line 185 "src/gen/types.mxy"
 static void emit_cenum(Node *decl) {
-#line 181 "src/gen/types.mxy"
+#line 186 "src/gen/types.mxy"
     Type *t = decl->type;
-#line 182 "src/gen/types.mxy"
+#line 187 "src/gen/types.mxy"
     Buf *b = (&out.fwd);
-#line 183 "src/gen/types.mxy"
+#line 188 "src/gen/types.mxy"
+    macros_at((&fwd_macros), b, decl);
+#line 189 "src/gen/types.mxy"
     open_cond(b, decl->cond);
-#line 184 "src/gen/types.mxy"
+#line 190 "src/gen/types.mxy"
     if (t->cname && str_starts(t->cname, "enum ")) {
-#line 184 "src/gen/types.mxy"
+#line 190 "src/gen/types.mxy"
         buf_fmt(b, "%s {\n", t->cname);
     } else {
-#line 185 "src/gen/types.mxy"
+#line 191 "src/gen/types.mxy"
         if (t->cname) {
-#line 185 "src/gen/types.mxy"
+#line 191 "src/gen/types.mxy"
             buf_put(b, "typedef enum {\n");
         } else {
-#line 186 "src/gen/types.mxy"
+#line 192 "src/gen/types.mxy"
             buf_put(b, "enum {\n");
         }
     }
     {
-#line 187 "src/gen/types.mxy"
+#line 193 "src/gen/types.mxy"
         int i = 0;
-#line 187 "src/gen/types.mxy"
+#line 193 "src/gen/types.mxy"
         for (; i < decl->list.len; (i++)) {
-#line 188 "src/gen/types.mxy"
+#line 194 "src/gen/types.mxy"
             Node *en = decl->list.items[i];
-#line 189 "src/gen/types.mxy"
+#line 195 "src/gen/types.mxy"
             char *cn = cname_for(decl->ns, en->name);
-#line 190 "src/gen/types.mxy"
+#line 196 "src/gen/types.mxy"
             if (en->a) {
-#line 191 "src/gen/types.mxy"
+#line 197 "src/gen/types.mxy"
                 char *v = const_text(en->a);
-#line 192 "src/gen/types.mxy"
+#line 198 "src/gen/types.mxy"
                 mxy_str __v9;
-#line 192 "src/gen/types.mxy"
+#line 198 "src/gen/types.mxy"
                 if (v) {
-#line 192 "src/gen/types.mxy"
+#line 198 "src/gen/types.mxy"
                     __v9 = mxy_str_from(v);
-#line 192 "src/gen/types.mxy"
+#line 198 "src/gen/types.mxy"
                 } else {
-#line 192 "src/gen/types.mxy"
+#line 198 "src/gen/types.mxy"
                     __v9 = mxy_str_retain(((mxy_str)__mxy_s35.s));
-#line 192 "src/gen/types.mxy"
+#line 198 "src/gen/types.mxy"
                 }
-#line 192 "src/gen/types.mxy"
+#line 198 "src/gen/types.mxy"
                 buf_fmt(b, "    %s = %s,\n", cn, __v9);
                 mxy_str_release(__v9);
-#line 193 "src/gen/types.mxy"
+#line 199 "src/gen/types.mxy"
                 free(v);
             } else {
-#line 195 "src/gen/types.mxy"
+#line 201 "src/gen/types.mxy"
                 buf_fmt(b, "    %s,\n", cn);
             }
-#line 197 "src/gen/types.mxy"
+#line 203 "src/gen/types.mxy"
             free(cn);
         }
     }
-#line 199 "src/gen/types.mxy"
+#line 205 "src/gen/types.mxy"
     if (t->cname && (!str_starts(t->cname, "enum "))) {
-#line 199 "src/gen/types.mxy"
+#line 205 "src/gen/types.mxy"
         buf_fmt(b, "} %s;\n", t->cname);
     } else {
-#line 200 "src/gen/types.mxy"
+#line 206 "src/gen/types.mxy"
         buf_put(b, "};\n");
     }
-#line 201 "src/gen/types.mxy"
+#line 207 "src/gen/types.mxy"
     close_cond(b, decl->cond);
 }
 
-#line 204 "src/gen/types.mxy"
+#line 210 "src/gen/types.mxy"
 static void emit_moxy_enum_head(Node *decl) {
-#line 205 "src/gen/types.mxy"
+#line 211 "src/gen/types.mxy"
     Type *t = decl->type;
-#line 206 "src/gen/types.mxy"
+#line 212 "src/gen/types.mxy"
     Buf *b = (&out.fwd);
-#line 207 "src/gen/types.mxy"
+#line 213 "src/gen/types.mxy"
+    macros_at((&fwd_macros), b, decl);
+#line 214 "src/gen/types.mxy"
     open_cond(b, decl->cond);
-#line 208 "src/gen/types.mxy"
+#line 215 "src/gen/types.mxy"
     buf_put(b, "typedef enum {\n");
     {
-#line 209 "src/gen/types.mxy"
+#line 216 "src/gen/types.mxy"
         int i = 0;
-#line 209 "src/gen/types.mxy"
+#line 216 "src/gen/types.mxy"
         for (; i < decl->list.len; (i++)) {
-#line 209 "src/gen/types.mxy"
+#line 216 "src/gen/types.mxy"
             buf_fmt(b, "    %s_%s,\n", t->cname, decl->list.items[i]->name);
         }
     }
-#line 210 "src/gen/types.mxy"
+#line 217 "src/gen/types.mxy"
     buf_fmt(b, "} %s%s;\n", t->cname, (t->simple ? ((mxy_str)__mxy_s1.s) : ((mxy_str)__mxy_s36.s)));
-#line 211 "src/gen/types.mxy"
+#line 218 "src/gen/types.mxy"
     if (!t->simple) {
-#line 211 "src/gen/types.mxy"
+#line 218 "src/gen/types.mxy"
         buf_fmt(b, "typedef struct %s %s;\n", t->cname, t->cname);
     }
-#line 212 "src/gen/types.mxy"
+#line 219 "src/gen/types.mxy"
     close_cond(b, decl->cond);
 }
 
-#line 215 "src/gen/types.mxy"
+#line 222 "src/gen/types.mxy"
 static void emit_ref_helpers(Type *u) {
-#line 216 "src/gen/types.mxy"
+#line 223 "src/gen/types.mxy"
     Node *decl = u->decl;
-#line 217 "src/gen/types.mxy"
+#line 224 "src/gen/types.mxy"
     const char *T = u->cname;
-#line 218 "src/gen/types.mxy"
+#line 225 "src/gen/types.mxy"
     Buf *b = (&out.helpers);
-#line 219 "src/gen/types.mxy"
+#line 226 "src/gen/types.mxy"
     buf_fmt((&out.hproto), "static void __mxy_dropf_%s(void *p);\nstatic void __mxy_fmtf_%s(mxy_buf *b, const void *p);\n", T, T);
-#line 220 "src/gen/types.mxy"
+#line 227 "src/gen/types.mxy"
     buf_fmt(b, "static void __mxy_dropf_%s(void *p) {\n    %s *o = (%s *)p;\n    (void)o;\n", T, T, T);
     {
-#line 221 "src/gen/types.mxy"
+#line 228 "src/gen/types.mxy"
         int i = 0;
-#line 221 "src/gen/types.mxy"
+#line 228 "src/gen/types.mxy"
         for (; i < decl->list.len; (i++)) {
-#line 222 "src/gen/types.mxy"
+#line 229 "src/gen/types.mxy"
             Node *f = decl->list.items[i];
-#line 223 "src/gen/types.mxy"
+#line 230 "src/gen/types.mxy"
             if (((f->kind != N_FIELD) || (!f->name)) || (!managed(f->type))) {
-#line 223 "src/gen/types.mxy"
+#line 230 "src/gen/types.mxy"
                 continue;
             }
-#line 224 "src/gen/types.mxy"
+#line 231 "src/gen/types.mxy"
             char *e = xfmt("o->%s", f->name);
-#line 225 "src/gen/types.mxy"
+#line 232 "src/gen/types.mxy"
             if (f->flags & F_WEAK) {
-#line 225 "src/gen/types.mxy"
+#line 232 "src/gen/types.mxy"
                 raw_line(b, 1, "mxy_obj_weak_release(%s);", e);
             } else {
-#line 226 "src/gen/types.mxy"
+#line 233 "src/gen/types.mxy"
                 release_into(b, 1, f->type, e);
             }
-#line 227 "src/gen/types.mxy"
+#line 234 "src/gen/types.mxy"
             free(e);
         }
     }
-#line 229 "src/gen/types.mxy"
+#line 236 "src/gen/types.mxy"
     buf_put(b, "}\n");
-#line 230 "src/gen/types.mxy"
+#line 237 "src/gen/types.mxy"
     buf_fmt(b, "static void __mxy_fmtf_%s(mxy_buf *b, const void *p) {\n    const %s *x = (const %s *)p;\n    (void)x;\n", T, T, T);
-#line 232 "src/gen/types.mxy"
+#line 239 "src/gen/types.mxy"
     buf_fmt(b, "    mxy_buf_puts(b, \"%s {\");\n", u->name);
-#line 233 "src/gen/types.mxy"
+#line 240 "src/gen/types.mxy"
     int first = 1;
     {
-#line 234 "src/gen/types.mxy"
+#line 241 "src/gen/types.mxy"
         int i = 0;
-#line 234 "src/gen/types.mxy"
+#line 241 "src/gen/types.mxy"
         for (; i < decl->list.len; (i++)) {
-#line 235 "src/gen/types.mxy"
+#line 242 "src/gen/types.mxy"
             Node *f = decl->list.items[i];
-#line 236 "src/gen/types.mxy"
+#line 243 "src/gen/types.mxy"
             if ((f->kind != N_FIELD) || (!f->name)) {
-#line 236 "src/gen/types.mxy"
+#line 243 "src/gen/types.mxy"
                 continue;
             }
-#line 237 "src/gen/types.mxy"
+#line 244 "src/gen/types.mxy"
             buf_fmt(b, "    mxy_buf_puts(b, \"%s%s: \");\n", (first ? ((mxy_str)__mxy_s27.s) : ((mxy_str)__mxy_s3.s)), f->name);
-#line 238 "src/gen/types.mxy"
+#line 245 "src/gen/types.mxy"
             (first = 0);
-#line 239 "src/gen/types.mxy"
+#line 246 "src/gen/types.mxy"
             Type *fu = type_unqual(f->type);
-#line 240 "src/gen/types.mxy"
+#line 247 "src/gen/types.mxy"
             if (f->a) {
-#line 241 "src/gen/types.mxy"
+#line 248 "src/gen/types.mxy"
                 buf_fmt(b, "    MXY_FMT_ANY(b, x->%s);\n", f->name);
             } else {
-#line 242 "src/gen/types.mxy"
+#line 249 "src/gen/types.mxy"
                 if ((fu->kind == TY_STRUCT) && fu->is_ref) {
-#line 243 "src/gen/types.mxy"
+#line 250 "src/gen/types.mxy"
                     buf_fmt(b, "    if (x->%s) mxy_buf_printf(b, \"%s@%%p\", (const void *)x->%s); else mxy_buf_puts(b, \"null\");\n", f->name, fu->name, f->name);
                 } else {
-#line 245 "src/gen/types.mxy"
+#line 252 "src/gen/types.mxy"
                     if (fu->kind == TY_ARRAY) {
-#line 246 "src/gen/types.mxy"
+#line 253 "src/gen/types.mxy"
                         buf_put(b, "    mxy_buf_puts(b, \"[...]\");\n");
                     } else {
-#line 248 "src/gen/types.mxy"
+#line 255 "src/gen/types.mxy"
                         char *vw = vw_of(f->type);
-#line 249 "src/gen/types.mxy"
+#line 256 "src/gen/types.mxy"
                         buf_fmt(b, "    mxy_vw_fmt(%s, b, &x->%s, 1);\n", vw, f->name);
-#line 250 "src/gen/types.mxy"
+#line 257 "src/gen/types.mxy"
                         free(vw);
                     }
                 }
             }
         }
     }
-#line 253 "src/gen/types.mxy"
+#line 260 "src/gen/types.mxy"
     buf_fmt(b, "    mxy_buf_puts(b, \"%s}\");\n}\n", (first ? ((mxy_str)__mxy_s1.s) : ((mxy_str)__mxy_s27.s)));
 }
 
-#line 256 "src/gen/types.mxy"
-static void emit_typedef(Node *td) {
-#line 257 "src/gen/types.mxy"
-    Type *rt = td->tref->resolved;
-#line 258 "src/gen/types.mxy"
-    if (!rt) {
-#line 258 "src/gen/types.mxy"
-        return;
-    }
-#line 259 "src/gen/types.mxy"
-    Type *u = type_unqual(rt);
-#line 260 "src/gen/types.mxy"
-    char *cn = cname_for(td->ns, td->name);
-#line 261 "src/gen/types.mxy"
-    if ((td->op == 1) || ((((u->kind == TY_STRUCT) || (u->kind == TY_ENUM)) && u->cname) && (strcmp(u->cname, cn) == 0))) {
-#line 262 "src/gen/types.mxy"
-        free(cn);
 #line 263 "src/gen/types.mxy"
-        return;
-    }
+static void emit_typedef(Node *td) {
+#line 264 "src/gen/types.mxy"
+    Type *rt = td->tref->resolved;
 #line 265 "src/gen/types.mxy"
-    if (((u->kind == TY_CENUM) && u->cname) && (strcmp(u->cname, cn) == 0)) {
-#line 266 "src/gen/types.mxy"
-        free(cn);
-#line 267 "src/gen/types.mxy"
+    if (!rt) {
+#line 265 "src/gen/types.mxy"
         return;
     }
+#line 266 "src/gen/types.mxy"
+    Type *u = type_unqual(rt);
+#line 267 "src/gen/types.mxy"
+    char *cn = cname_for(td->ns, td->name);
+#line 268 "src/gen/types.mxy"
+    if ((td->op == 1) || ((((u->kind == TY_STRUCT) || (u->kind == TY_ENUM)) && u->cname) && (strcmp(u->cname, cn) == 0))) {
 #line 269 "src/gen/types.mxy"
-    open_cond((&out.types), td->cond);
+        free(cn);
 #line 270 "src/gen/types.mxy"
-    char *d = cdecl(rt, cn);
-#line 271 "src/gen/types.mxy"
-    buf_fmt((&out.types), "typedef %s;\n", d);
+        return;
+    }
 #line 272 "src/gen/types.mxy"
-    close_cond((&out.types), td->cond);
+    if (((u->kind == TY_CENUM) && u->cname) && (strcmp(u->cname, cn) == 0)) {
 #line 273 "src/gen/types.mxy"
-    free(d);
+        free(cn);
 #line 274 "src/gen/types.mxy"
+        return;
+    }
+#line 276 "src/gen/types.mxy"
+    macros_at((&type_macros), (&out.types), td);
+#line 277 "src/gen/types.mxy"
+    open_cond((&out.types), td->cond);
+#line 278 "src/gen/types.mxy"
+    char *d = cdecl(rt, cn);
+#line 279 "src/gen/types.mxy"
+    buf_fmt((&out.types), "typedef %s;\n", d);
+#line 280 "src/gen/types.mxy"
+    close_cond((&out.types), td->cond);
+#line 281 "src/gen/types.mxy"
+    free(d);
+#line 282 "src/gen/types.mxy"
     free(cn);
 }
 
-#line 277 "src/gen/types.mxy"
+#line 285 "src/gen/types.mxy"
+static void fwd_typedef(Node *d, StrMap *named) {
+#line 286 "src/gen/types.mxy"
+    Type *t = d->type;
+#line 287 "src/gen/types.mxy"
+    if (((!t) || (!t->cname)) || str_starts(t->cname, "struct ")) {
+#line 287 "src/gen/types.mxy"
+        return;
+    }
+#line 288 "src/gen/types.mxy"
+    mxy_str __v10;
+#line 288 "src/gen/types.mxy"
+    if (d->cond) {
+#line 288 "src/gen/types.mxy"
+        __v10 = mxy_str_from(d->cond);
+#line 288 "src/gen/types.mxy"
+    } else {
+#line 288 "src/gen/types.mxy"
+        __v10 = mxy_str_retain(((mxy_str)__mxy_s1.s));
+#line 288 "src/gen/types.mxy"
+    }
+#line 288 "src/gen/types.mxy"
+    char *key = xfmt("%s|%s", t->cname, __v10);
+    mxy_str_release(__v10);
+#line 289 "src/gen/types.mxy"
+    if (strmap_get(named, key)) {
+#line 290 "src/gen/types.mxy"
+        free(key);
+#line 291 "src/gen/types.mxy"
+        return;
+    }
+#line 293 "src/gen/types.mxy"
+    strmap_put(named, key, ((void *)1));
+#line 294 "src/gen/types.mxy"
+    free(key);
+#line 295 "src/gen/types.mxy"
+    open_cond((&out.fwd), d->cond);
+#line 296 "src/gen/types.mxy"
+    buf_fmt((&out.fwd), "typedef %s %s %s;\n", (t->is_union ? ((mxy_str)__mxy_s25.s) : ((mxy_str)__mxy_s26.s)), type_tag(t), t->cname);
+#line 297 "src/gen/types.mxy"
+    close_cond((&out.fwd), d->cond);
+}
+
+#line 300 "src/gen/types.mxy"
 void emit_types(void) {
+#line 301 "src/gen/types.mxy"
+    (fwd_macros = macros_begin());
+#line 302 "src/gen/types.mxy"
+    (type_macros = macros_begin());
     {
-#line 278 "src/gen/types.mxy"
+#line 303 "src/gen/types.mxy"
         int i = 0;
-#line 278 "src/gen/types.mxy"
+#line 303 "src/gen/types.mxy"
         for (; i < prog.cenums.len; (i++)) {
-#line 278 "src/gen/types.mxy"
+#line 303 "src/gen/types.mxy"
             emit_cenum(prog.cenums.items[i]);
         }
     }
     {
-#line 279 "src/gen/types.mxy"
+#line 304 "src/gen/types.mxy"
         int i = 0;
-#line 279 "src/gen/types.mxy"
+#line 304 "src/gen/types.mxy"
         for (; i < prog.enums.len; (i++)) {
-#line 279 "src/gen/types.mxy"
+#line 304 "src/gen/types.mxy"
             emit_moxy_enum_head(prog.enums.items[i]);
         }
     }
+#line 305 "src/gen/types.mxy"
+    StrMap named = {0};
     {
-#line 280 "src/gen/types.mxy"
+#line 306 "src/gen/types.mxy"
         int i = 0;
-#line 280 "src/gen/types.mxy"
+#line 306 "src/gen/types.mxy"
         for (; i < prog.structs.len; (i++)) {
-#line 281 "src/gen/types.mxy"
-            Node *d = prog.structs.items[i];
-#line 282 "src/gen/types.mxy"
-            Type *t = d->type;
-#line 283 "src/gen/types.mxy"
-            if ((((!t) || (d->flags & F_INLINE)) || (!t->cname)) || str_starts(t->cname, "struct ")) {
-#line 283 "src/gen/types.mxy"
-                continue;
+#line 307 "src/gen/types.mxy"
+            if (!(prog.structs.items[i]->flags & F_INLINE)) {
+#line 307 "src/gen/types.mxy"
+                fwd_typedef(prog.structs.items[i], (&named));
             }
-#line 284 "src/gen/types.mxy"
-            open_cond((&out.fwd), d->cond);
-#line 285 "src/gen/types.mxy"
-            buf_fmt((&out.fwd), "typedef %s %s %s;\n", (t->is_union ? ((mxy_str)__mxy_s25.s) : ((mxy_str)__mxy_s26.s)), t->cname, t->cname);
-#line 286 "src/gen/types.mxy"
-            close_cond((&out.fwd), d->cond);
         }
     }
     {
-#line 288 "src/gen/types.mxy"
+#line 309 "src/gen/types.mxy"
         int i = 0;
-#line 288 "src/gen/types.mxy"
+#line 309 "src/gen/types.mxy"
+        for (; i < prog.opaque.len; (i++)) {
+#line 310 "src/gen/types.mxy"
+            if ((!prog.opaque.items[i]->type) || (!prog.opaque.items[i]->type->decl)) {
+#line 310 "src/gen/types.mxy"
+                fwd_typedef(prog.opaque.items[i], (&named));
+            }
+        }
+    }
+#line 311 "src/gen/types.mxy"
+    strmap_free((&named));
+    {
+#line 312 "src/gen/types.mxy"
+        int i = 0;
+#line 312 "src/gen/types.mxy"
         for (; i < prog.structs.len; (i++)) {
-#line 289 "src/gen/types.mxy"
+#line 313 "src/gen/types.mxy"
             Node *d = prog.structs.items[i];
-#line 290 "src/gen/types.mxy"
+#line 314 "src/gen/types.mxy"
             if (((!d->type) || (d->flags & F_INLINE)) || (!(d->flags & F_BODY))) {
-#line 290 "src/gen/types.mxy"
+#line 314 "src/gen/types.mxy"
                 continue;
             }
-#line 291 "src/gen/types.mxy"
+#line 315 "src/gen/types.mxy"
             emit_def(d->type);
         }
     }
     {
-#line 293 "src/gen/types.mxy"
+#line 317 "src/gen/types.mxy"
         int i = 0;
-#line 293 "src/gen/types.mxy"
+#line 317 "src/gen/types.mxy"
         for (; i < prog.enums.len; (i++)) {
-#line 294 "src/gen/types.mxy"
+#line 318 "src/gen/types.mxy"
             Type *t = prog.enums.items[i]->type;
-#line 295 "src/gen/types.mxy"
+#line 319 "src/gen/types.mxy"
             if (!t->simple) {
-#line 295 "src/gen/types.mxy"
+#line 319 "src/gen/types.mxy"
                 emit_def(t);
             }
         }
     }
     {
-#line 297 "src/gen/types.mxy"
+#line 321 "src/gen/types.mxy"
         int i = 0;
-#line 297 "src/gen/types.mxy"
+#line 321 "src/gen/types.mxy"
         for (; i < prog.typedefs.len; (i++)) {
-#line 297 "src/gen/types.mxy"
+#line 321 "src/gen/types.mxy"
             emit_typedef(prog.typedefs.items[i]);
         }
     }
     {
-#line 298 "src/gen/types.mxy"
+#line 322 "src/gen/types.mxy"
         int i = 0;
-#line 298 "src/gen/types.mxy"
+#line 322 "src/gen/types.mxy"
         for (; i < prog.structs.len; (i++)) {
-#line 299 "src/gen/types.mxy"
+#line 323 "src/gen/types.mxy"
             Type *t = prog.structs.items[i]->type;
-#line 300 "src/gen/types.mxy"
+#line 324 "src/gen/types.mxy"
             if ((t && t->is_ref) && (prog.structs.items[i]->flags & F_BODY)) {
-#line 300 "src/gen/types.mxy"
+#line 324 "src/gen/types.mxy"
                 emit_ref_helpers(t);
             }
         }
     }
     {
-#line 303 "src/gen/types.mxy"
+#line 327 "src/gen/types.mxy"
         int i = 0;
-#line 303 "src/gen/types.mxy"
+#line 327 "src/gen/types.mxy"
         for (; i < results.len; (i++)) {
-#line 303 "src/gen/types.mxy"
+#line 327 "src/gen/types.mxy"
             emit_def(results.items[i]);
         }
     }
+#line 328 "src/gen/types.mxy"
+    macros_end((&fwd_macros), (&out.fwd));
+#line 329 "src/gen/types.mxy"
+    macros_end((&type_macros), (&out.types));
 }
 
-#line 306 "src/gen/types.mxy"
+#line 332 "src/gen/types.mxy"
 void types_reset_gen(void) {
-#line 307 "src/gen/types.mxy"
+#line 333 "src/gen/types.mxy"
     (results.len = 0);
-#line 308 "src/gen/types.mxy"
+#line 334 "src/gen/types.mxy"
     strmap_free((&seen_results));
-#line 309 "src/gen/types.mxy"
+#line 335 "src/gen/types.mxy"
     strmap_free((&emitted));
-#line 310 "src/gen/types.mxy"
+#line 336 "src/gen/types.mxy"
     strmap_free((&visiting));
 }
 
@@ -20266,1169 +20894,1168 @@ TokenVec load_source(const char *display, const char *src) {
 
 #line 8 "src/parse/expr.mxy"
 static Node *mk(NodeKind kind, Loc loc) {
-#line 8 "src/parse/expr.mxy"
-    return node_new(kind, loc);
-}
-
+#line 9 "src/parse/expr.mxy"
+    Node *n = node_new(kind, loc);
 #line 10 "src/parse/expr.mxy"
-static int binary_prec(TokKind k) {
+    (n->pos = P.pos);
 #line 11 "src/parse/expr.mxy"
+    return n;
+}
+
+#line 14 "src/parse/expr.mxy"
+static int binary_prec(TokKind k) {
+#line 15 "src/parse/expr.mxy"
     switch (k) {
-#line 12 "src/parse/expr.mxy"
+#line 16 "src/parse/expr.mxy"
     case P_PIPEGT:;
-#line 12 "src/parse/expr.mxy"
+#line 16 "src/parse/expr.mxy"
         return 1;
-#line 13 "src/parse/expr.mxy"
+#line 17 "src/parse/expr.mxy"
     case P_OROR:;
-#line 13 "src/parse/expr.mxy"
+#line 17 "src/parse/expr.mxy"
         return 2;
-#line 14 "src/parse/expr.mxy"
+#line 18 "src/parse/expr.mxy"
     case P_ANDAND:;
-#line 14 "src/parse/expr.mxy"
+#line 18 "src/parse/expr.mxy"
         return 3;
-#line 15 "src/parse/expr.mxy"
+#line 19 "src/parse/expr.mxy"
     case P_PIPE:;
-#line 15 "src/parse/expr.mxy"
+#line 19 "src/parse/expr.mxy"
         return 4;
-#line 16 "src/parse/expr.mxy"
+#line 20 "src/parse/expr.mxy"
     case P_CARET:;
-#line 16 "src/parse/expr.mxy"
+#line 20 "src/parse/expr.mxy"
         return 5;
-#line 17 "src/parse/expr.mxy"
+#line 21 "src/parse/expr.mxy"
     case P_AMP:;
-#line 17 "src/parse/expr.mxy"
+#line 21 "src/parse/expr.mxy"
         return 6;
-#line 18 "src/parse/expr.mxy"
+#line 22 "src/parse/expr.mxy"
     case P_EQ:;
-#line 18 "src/parse/expr.mxy"
+#line 22 "src/parse/expr.mxy"
     case P_NE:;
-#line 18 "src/parse/expr.mxy"
+#line 22 "src/parse/expr.mxy"
         return 7;
-#line 19 "src/parse/expr.mxy"
+#line 23 "src/parse/expr.mxy"
     case P_LT:;
-#line 19 "src/parse/expr.mxy"
+#line 23 "src/parse/expr.mxy"
     case P_GT:;
-#line 19 "src/parse/expr.mxy"
+#line 23 "src/parse/expr.mxy"
     case P_LE:;
-#line 19 "src/parse/expr.mxy"
+#line 23 "src/parse/expr.mxy"
     case P_GE:;
-#line 19 "src/parse/expr.mxy"
+#line 23 "src/parse/expr.mxy"
         return 8;
-#line 20 "src/parse/expr.mxy"
+#line 24 "src/parse/expr.mxy"
     case P_SHL:;
-#line 20 "src/parse/expr.mxy"
+#line 24 "src/parse/expr.mxy"
     case P_SHR:;
-#line 20 "src/parse/expr.mxy"
+#line 24 "src/parse/expr.mxy"
         return 9;
-#line 21 "src/parse/expr.mxy"
+#line 25 "src/parse/expr.mxy"
     case P_PLUS:;
-#line 21 "src/parse/expr.mxy"
+#line 25 "src/parse/expr.mxy"
     case P_MINUS:;
-#line 21 "src/parse/expr.mxy"
+#line 25 "src/parse/expr.mxy"
         return 10;
-#line 22 "src/parse/expr.mxy"
+#line 26 "src/parse/expr.mxy"
     case P_STAR:;
-#line 22 "src/parse/expr.mxy"
+#line 26 "src/parse/expr.mxy"
     case P_SLASH:;
-#line 22 "src/parse/expr.mxy"
+#line 26 "src/parse/expr.mxy"
     case P_PERCENT:;
-#line 22 "src/parse/expr.mxy"
+#line 26 "src/parse/expr.mxy"
         return 11;
-#line 23 "src/parse/expr.mxy"
-    default:;
-#line 23 "src/parse/expr.mxy"
-        return 0;
-    }
-}
-
 #line 27 "src/parse/expr.mxy"
-static int is_assign_op(TokKind k) {
-#line 28 "src/parse/expr.mxy"
-    switch (k) {
-#line 29 "src/parse/expr.mxy"
-    case P_ASSIGN:;
-#line 29 "src/parse/expr.mxy"
-    case P_PLUSEQ:;
-#line 29 "src/parse/expr.mxy"
-    case P_MINUSEQ:;
-#line 29 "src/parse/expr.mxy"
-    case P_STAREQ:;
-#line 29 "src/parse/expr.mxy"
-    case P_SLASHEQ:;
-#line 30 "src/parse/expr.mxy"
-    case P_PERCENTEQ:;
-#line 30 "src/parse/expr.mxy"
-    case P_AMPEQ:;
-#line 30 "src/parse/expr.mxy"
-    case P_PIPEEQ:;
-#line 30 "src/parse/expr.mxy"
-    case P_CARETEQ:;
-#line 30 "src/parse/expr.mxy"
-    case P_SHLEQ:;
-#line 30 "src/parse/expr.mxy"
-    case P_SHREQ:;
-#line 31 "src/parse/expr.mxy"
-        return 1;
-#line 32 "src/parse/expr.mxy"
     default:;
-#line 33 "src/parse/expr.mxy"
+#line 27 "src/parse/expr.mxy"
         return 0;
     }
 }
 
+#line 31 "src/parse/expr.mxy"
+static int is_assign_op(TokKind k) {
+#line 32 "src/parse/expr.mxy"
+    switch (k) {
+#line 33 "src/parse/expr.mxy"
+    case P_ASSIGN:;
+#line 33 "src/parse/expr.mxy"
+    case P_PLUSEQ:;
+#line 33 "src/parse/expr.mxy"
+    case P_MINUSEQ:;
+#line 33 "src/parse/expr.mxy"
+    case P_STAREQ:;
+#line 33 "src/parse/expr.mxy"
+    case P_SLASHEQ:;
+#line 34 "src/parse/expr.mxy"
+    case P_PERCENTEQ:;
+#line 34 "src/parse/expr.mxy"
+    case P_AMPEQ:;
+#line 34 "src/parse/expr.mxy"
+    case P_PIPEEQ:;
+#line 34 "src/parse/expr.mxy"
+    case P_CARETEQ:;
+#line 34 "src/parse/expr.mxy"
+    case P_SHLEQ:;
+#line 34 "src/parse/expr.mxy"
+    case P_SHREQ:;
+#line 35 "src/parse/expr.mxy"
+        return 1;
+#line 36 "src/parse/expr.mxy"
+    default:;
 #line 37 "src/parse/expr.mxy"
+        return 0;
+    }
+}
+
+#line 41 "src/parse/expr.mxy"
 static Node *pipe_into(Node *left, Node *right, Loc loc) {
-#line 38 "src/parse/expr.mxy"
+#line 42 "src/parse/expr.mxy"
     if (right->kind == N_CALL) {
-#line 39 "src/parse/expr.mxy"
+#line 43 "src/parse/expr.mxy"
         vec_push(right->list, NULL);
         {
-#line 40 "src/parse/expr.mxy"
+#line 44 "src/parse/expr.mxy"
             int i = (right->list.len - 1);
-#line 40 "src/parse/expr.mxy"
+#line 44 "src/parse/expr.mxy"
             for (; i > 0; (i--)) {
-#line 40 "src/parse/expr.mxy"
+#line 44 "src/parse/expr.mxy"
                 (right->list.items[i] = right->list.items[(i - 1)]);
             }
         }
-#line 41 "src/parse/expr.mxy"
+#line 45 "src/parse/expr.mxy"
         (right->list.items[0] = left);
-#line 42 "src/parse/expr.mxy"
+#line 46 "src/parse/expr.mxy"
         return right;
     }
-#line 44 "src/parse/expr.mxy"
-    if ((right->kind == N_IDENT) || (right->kind == N_MEMBER)) {
-#line 45 "src/parse/expr.mxy"
-        Node *call = mk(N_CALL, right->loc);
-#line 46 "src/parse/expr.mxy"
-        (call->a = right);
-#line 47 "src/parse/expr.mxy"
-        vec_push(call->list, left);
 #line 48 "src/parse/expr.mxy"
+    if ((right->kind == N_IDENT) || (right->kind == N_MEMBER)) {
+#line 49 "src/parse/expr.mxy"
+        Node *call = mk(N_CALL, right->loc);
+#line 50 "src/parse/expr.mxy"
+        (call->a = right);
+#line 51 "src/parse/expr.mxy"
+        vec_push(call->list, left);
+#line 52 "src/parse/expr.mxy"
         return call;
     }
-#line 50 "src/parse/expr.mxy"
+#line 54 "src/parse/expr.mxy"
     fail(loc, "expected a function call after '|>'");
 }
 
-#line 53 "src/parse/expr.mxy"
+#line 57 "src/parse/expr.mxy"
 static Node *parse_binary(int min) {
-#line 54 "src/parse/expr.mxy"
+#line 58 "src/parse/expr.mxy"
     Node *left = parse_unary();
     {
-#line 55 "src/parse/expr.mxy"
+#line 59 "src/parse/expr.mxy"
         for (; ; ) {
-#line 56 "src/parse/expr.mxy"
+#line 60 "src/parse/expr.mxy"
             TokKind k = peek()->kind;
-#line 57 "src/parse/expr.mxy"
+#line 61 "src/parse/expr.mxy"
             int prec = binary_prec(k);
-#line 58 "src/parse/expr.mxy"
+#line 62 "src/parse/expr.mxy"
             if ((!prec) || (prec < min)) {
-#line 58 "src/parse/expr.mxy"
+#line 62 "src/parse/expr.mxy"
                 break;
             }
-#line 59 "src/parse/expr.mxy"
-            Token *op = next();
-#line 60 "src/parse/expr.mxy"
-            if (k == P_PIPEGT) {
-#line 61 "src/parse/expr.mxy"
-                Node *right = parse_postfix();
-#line 62 "src/parse/expr.mxy"
-                (left = pipe_into(left, right, op->loc));
 #line 63 "src/parse/expr.mxy"
+            Token *op = next();
+#line 64 "src/parse/expr.mxy"
+            if (k == P_PIPEGT) {
+#line 65 "src/parse/expr.mxy"
+                Node *right = parse_postfix();
+#line 66 "src/parse/expr.mxy"
+                (left = pipe_into(left, right, op->loc));
+#line 67 "src/parse/expr.mxy"
                 continue;
             }
-#line 65 "src/parse/expr.mxy"
-            Node *right = parse_binary((prec + 1));
-#line 66 "src/parse/expr.mxy"
-            Node *n = mk(N_BINARY, op->loc);
-#line 67 "src/parse/expr.mxy"
-            (n->op = k);
-#line 68 "src/parse/expr.mxy"
-            (n->a = left);
 #line 69 "src/parse/expr.mxy"
-            (n->b = right);
+            Node *right = parse_binary((prec + 1));
 #line 70 "src/parse/expr.mxy"
+            Node *n = mk(N_BINARY, op->loc);
+#line 71 "src/parse/expr.mxy"
+            (n->op = k);
+#line 72 "src/parse/expr.mxy"
+            (n->a = left);
+#line 73 "src/parse/expr.mxy"
+            (n->b = right);
+#line 74 "src/parse/expr.mxy"
             (left = n);
         }
     }
-#line 72 "src/parse/expr.mxy"
+#line 76 "src/parse/expr.mxy"
     return left;
 }
 
-#line 75 "src/parse/expr.mxy"
+#line 79 "src/parse/expr.mxy"
 Node *parse_ternary(void) {
-#line 76 "src/parse/expr.mxy"
+#line 80 "src/parse/expr.mxy"
     Node *cond = parse_binary(1);
-#line 77 "src/parse/expr.mxy"
+#line 81 "src/parse/expr.mxy"
     if (!at(P_QUESTION)) {
-#line 77 "src/parse/expr.mxy"
+#line 81 "src/parse/expr.mxy"
         return cond;
     }
-#line 78 "src/parse/expr.mxy"
-    Token *q = next();
-#line 79 "src/parse/expr.mxy"
-    Node *n = mk(N_TERNARY, q->loc);
-#line 80 "src/parse/expr.mxy"
-    (n->a = cond);
-#line 81 "src/parse/expr.mxy"
-    (n->b = parse_expr());
 #line 82 "src/parse/expr.mxy"
-    expect(P_COLON, "':' in conditional expression");
+    Token *q = next();
 #line 83 "src/parse/expr.mxy"
-    (n->c = parse_ternary());
+    Node *n = mk(N_TERNARY, q->loc);
 #line 84 "src/parse/expr.mxy"
+    (n->a = cond);
+#line 85 "src/parse/expr.mxy"
+    (n->b = parse_expr());
+#line 86 "src/parse/expr.mxy"
+    expect(P_COLON, "':' in conditional expression");
+#line 87 "src/parse/expr.mxy"
+    (n->c = parse_ternary());
+#line 88 "src/parse/expr.mxy"
     return n;
 }
 
-#line 87 "src/parse/expr.mxy"
+#line 91 "src/parse/expr.mxy"
 Node *parse_assign(void) {
-#line 88 "src/parse/expr.mxy"
+#line 92 "src/parse/expr.mxy"
     Node *left = parse_ternary();
-#line 89 "src/parse/expr.mxy"
+#line 93 "src/parse/expr.mxy"
     if (!is_assign_op(peek()->kind)) {
-#line 89 "src/parse/expr.mxy"
+#line 93 "src/parse/expr.mxy"
         return left;
     }
-#line 90 "src/parse/expr.mxy"
-    Token *op = next();
-#line 91 "src/parse/expr.mxy"
-    Node *n = mk(N_ASSIGN, op->loc);
-#line 92 "src/parse/expr.mxy"
-    (n->op = op->kind);
-#line 93 "src/parse/expr.mxy"
-    (n->a = left);
 #line 94 "src/parse/expr.mxy"
-    (n->b = (at(P_LBRACE) ? parse_initializer() : parse_assign()));
+    Token *op = next();
 #line 95 "src/parse/expr.mxy"
+    Node *n = mk(N_ASSIGN, op->loc);
+#line 96 "src/parse/expr.mxy"
+    (n->op = op->kind);
+#line 97 "src/parse/expr.mxy"
+    (n->a = left);
+#line 98 "src/parse/expr.mxy"
+    (n->b = (at(P_LBRACE) ? parse_initializer() : parse_assign()));
+#line 99 "src/parse/expr.mxy"
     return n;
 }
 
-#line 98 "src/parse/expr.mxy"
-Node *parse_expr(void) {
-#line 99 "src/parse/expr.mxy"
-    Node *left = parse_assign();
-#line 100 "src/parse/expr.mxy"
-    while (at(P_COMMA)) {
-#line 101 "src/parse/expr.mxy"
-        Token *c = next();
 #line 102 "src/parse/expr.mxy"
-        Node *n = mk(N_COMMA, c->loc);
+Node *parse_expr(void) {
 #line 103 "src/parse/expr.mxy"
-        (n->a = left);
+    Node *left = parse_assign();
 #line 104 "src/parse/expr.mxy"
-        (n->b = parse_assign());
+    while (at(P_COMMA)) {
 #line 105 "src/parse/expr.mxy"
+        Token *c = next();
+#line 106 "src/parse/expr.mxy"
+        Node *n = mk(N_COMMA, c->loc);
+#line 107 "src/parse/expr.mxy"
+        (n->a = left);
+#line 108 "src/parse/expr.mxy"
+        (n->b = parse_assign());
+#line 109 "src/parse/expr.mxy"
         (left = n);
     }
-#line 107 "src/parse/expr.mxy"
+#line 111 "src/parse/expr.mxy"
     return left;
 }
 
-#line 111 "src/parse/expr.mxy"
+#line 115 "src/parse/expr.mxy"
 Node *parse_initializer(void) {
-#line 112 "src/parse/expr.mxy"
+#line 116 "src/parse/expr.mxy"
     if (!at(P_LBRACE)) {
-#line 112 "src/parse/expr.mxy"
+#line 116 "src/parse/expr.mxy"
         return parse_assign();
     }
-#line 113 "src/parse/expr.mxy"
-    Token *open = next();
-#line 114 "src/parse/expr.mxy"
-    Node *list = mk(N_INITLIST, open->loc);
-#line 115 "src/parse/expr.mxy"
-    while (!at(P_RBRACE)) {
-#line 116 "src/parse/expr.mxy"
-        Loc loc = peek()->loc;
 #line 117 "src/parse/expr.mxy"
-        if (at(P_DOT) && (peek_at(1)->kind == T_IDENT)) {
+    Token *open = next();
 #line 118 "src/parse/expr.mxy"
-            next();
+    Node *list = mk(N_INITLIST, open->loc);
 #line 119 "src/parse/expr.mxy"
-            Node *d = mk(N_DESIG, loc);
+    while (!at(P_RBRACE)) {
 #line 120 "src/parse/expr.mxy"
-            (d->name = xstrdup(next()->text));
+        Loc loc = peek()->loc;
 #line 121 "src/parse/expr.mxy"
-            while (at(P_DOT) && (peek_at(1)->kind == T_IDENT)) {
+        if (at(P_DOT) && name_at(1)) {
 #line 122 "src/parse/expr.mxy"
-                next();
+            next();
 #line 123 "src/parse/expr.mxy"
-                char *joined = xfmt("%s.%s", d->name, next()->text);
+            Node *d = mk(N_DESIG, loc);
 #line 124 "src/parse/expr.mxy"
-                free(d->name);
+            (d->name = xstrdup(next()->text));
 #line 125 "src/parse/expr.mxy"
+            while (at(P_DOT) && name_at(1)) {
+#line 126 "src/parse/expr.mxy"
+                next();
+#line 127 "src/parse/expr.mxy"
+                char *joined = xfmt("%s.%s", d->name, next()->text);
+#line 128 "src/parse/expr.mxy"
+                free(d->name);
+#line 129 "src/parse/expr.mxy"
                 (d->name = joined);
             }
-#line 127 "src/parse/expr.mxy"
+#line 131 "src/parse/expr.mxy"
             expect(P_ASSIGN, "'=' after designator");
-#line 128 "src/parse/expr.mxy"
+#line 132 "src/parse/expr.mxy"
             (d->b = parse_initializer());
-#line 129 "src/parse/expr.mxy"
+#line 133 "src/parse/expr.mxy"
             vec_push(list->list, d);
         } else {
-#line 130 "src/parse/expr.mxy"
-            if (at(P_LBRACKET)) {
-#line 131 "src/parse/expr.mxy"
-                next();
-#line 132 "src/parse/expr.mxy"
-                Node *d = mk(N_DESIG, loc);
-#line 133 "src/parse/expr.mxy"
-                (d->a = parse_ternary());
 #line 134 "src/parse/expr.mxy"
-                expect(P_RBRACKET, "']'");
+            if (at(P_LBRACKET)) {
 #line 135 "src/parse/expr.mxy"
-                expect(P_ASSIGN, "'=' after designator");
+                next();
 #line 136 "src/parse/expr.mxy"
-                (d->b = parse_initializer());
+                Node *d = mk(N_DESIG, loc);
 #line 137 "src/parse/expr.mxy"
+                (d->a = parse_ternary());
+#line 138 "src/parse/expr.mxy"
+                expect(P_RBRACKET, "']'");
+#line 139 "src/parse/expr.mxy"
+                expect(P_ASSIGN, "'=' after designator");
+#line 140 "src/parse/expr.mxy"
+                (d->b = parse_initializer());
+#line 141 "src/parse/expr.mxy"
                 vec_push(list->list, d);
             } else {
-#line 139 "src/parse/expr.mxy"
-                Node *v = parse_initializer();
-#line 140 "src/parse/expr.mxy"
-                if (accept(P_COLON)) {
-#line 141 "src/parse/expr.mxy"
-                    Node *kv = mk(N_KV, loc);
-#line 142 "src/parse/expr.mxy"
-                    (kv->a = v);
 #line 143 "src/parse/expr.mxy"
-                    (kv->b = parse_initializer());
+                Node *v = parse_initializer();
 #line 144 "src/parse/expr.mxy"
+                if (accept(P_COLON)) {
+#line 145 "src/parse/expr.mxy"
+                    Node *kv = mk(N_KV, loc);
+#line 146 "src/parse/expr.mxy"
+                    (kv->a = v);
+#line 147 "src/parse/expr.mxy"
+                    (kv->b = parse_initializer());
+#line 148 "src/parse/expr.mxy"
                     (v = kv);
                 }
-#line 146 "src/parse/expr.mxy"
+#line 150 "src/parse/expr.mxy"
                 vec_push(list->list, v);
             }
         }
-#line 148 "src/parse/expr.mxy"
+#line 152 "src/parse/expr.mxy"
         if (!accept(P_COMMA)) {
-#line 148 "src/parse/expr.mxy"
+#line 152 "src/parse/expr.mxy"
             break;
         }
     }
-#line 150 "src/parse/expr.mxy"
+#line 154 "src/parse/expr.mxy"
     expect(P_RBRACE, "'}'");
-#line 151 "src/parse/expr.mxy"
+#line 155 "src/parse/expr.mxy"
     return list;
 }
 
-#line 154 "src/parse/expr.mxy"
+#line 158 "src/parse/expr.mxy"
 static int lambda_ahead(void) {
-#line 155 "src/parse/expr.mxy"
+#line 159 "src/parse/expr.mxy"
     if (!at(P_LPAREN)) {
-#line 155 "src/parse/expr.mxy"
+#line 159 "src/parse/expr.mxy"
         return 0;
     }
-#line 156 "src/parse/expr.mxy"
+#line 160 "src/parse/expr.mxy"
     int close = match_paren(P.pos);
-#line 157 "src/parse/expr.mxy"
+#line 161 "src/parse/expr.mxy"
     return ((close > 0) && (P.toks[(close + 1)].kind == P_FATARROW));
 }
 
-#line 160 "src/parse/expr.mxy"
-static Node *parse_lambda(void) {
-#line 161 "src/parse/expr.mxy"
-    Token *open = next();
-#line 162 "src/parse/expr.mxy"
-    Node *n = mk(N_LAMBDA, open->loc);
-#line 163 "src/parse/expr.mxy"
-    TypeRefList types = {0};
 #line 164 "src/parse/expr.mxy"
-    int variadic = 0;
+static Node *parse_lambda(void) {
 #line 165 "src/parse/expr.mxy"
-    parse_params((&n->params), (&types), (&variadic));
+    Token *open = next();
 #line 166 "src/parse/expr.mxy"
+    Node *n = mk(N_LAMBDA, open->loc);
+#line 167 "src/parse/expr.mxy"
+    TypeRefList types = {0};
+#line 168 "src/parse/expr.mxy"
+    int variadic = 0;
+#line 169 "src/parse/expr.mxy"
+    parse_params((&n->params), (&types), (&variadic));
+#line 170 "src/parse/expr.mxy"
     free(types.items);
     {
-#line 167 "src/parse/expr.mxy"
+#line 171 "src/parse/expr.mxy"
         int i = 0;
-#line 167 "src/parse/expr.mxy"
+#line 171 "src/parse/expr.mxy"
         for (; i < n->params.len; (i++)) {
-#line 168 "src/parse/expr.mxy"
+#line 172 "src/parse/expr.mxy"
             if (!n->params.items[i].name) {
-#line 168 "src/parse/expr.mxy"
+#line 172 "src/parse/expr.mxy"
                 fail(n->params.items[i].loc, "lambda parameters need names");
             }
         }
     }
-#line 169 "src/parse/expr.mxy"
+#line 173 "src/parse/expr.mxy"
     expect(P_FATARROW, "'=>'");
-#line 170 "src/parse/expr.mxy"
+#line 174 "src/parse/expr.mxy"
     if (at(P_LBRACE)) {
-#line 171 "src/parse/expr.mxy"
+#line 175 "src/parse/expr.mxy"
         (n->a = parse_block());
     } else {
-#line 173 "src/parse/expr.mxy"
+#line 177 "src/parse/expr.mxy"
         (n->a = parse_assign());
-#line 174 "src/parse/expr.mxy"
+#line 178 "src/parse/expr.mxy"
         (n->flags |= F_EXPRBODY);
     }
-#line 176 "src/parse/expr.mxy"
+#line 180 "src/parse/expr.mxy"
     return n;
 }
 
-#line 180 "src/parse/expr.mxy"
+#line 184 "src/parse/expr.mxy"
 static Node *parse_interp(Node *str) {
-#line 181 "src/parse/expr.mxy"
+#line 185 "src/parse/expr.mxy"
     const char *s = str->text;
-#line 182 "src/parse/expr.mxy"
+#line 186 "src/parse/expr.mxy"
     Node *n = mk(N_INTERP, str->loc);
-#line 183 "src/parse/expr.mxy"
+#line 187 "src/parse/expr.mxy"
     Buf piece = {0};
     {
-#line 184 "src/parse/expr.mxy"
-        int i = 0;
-#line 184 "src/parse/expr.mxy"
-        for (; s[i]; ) {
-#line 185 "src/parse/expr.mxy"
-            if ((s[i] == '\\') && (s[(i + 1)] == '(')) {
-#line 186 "src/parse/expr.mxy"
-                int start = (i + 2);
-#line 186 "src/parse/expr.mxy"
-                int depth = 1;
-#line 186 "src/parse/expr.mxy"
-                int j = start;
-#line 187 "src/parse/expr.mxy"
-                while (s[j] && (depth > 0)) {
 #line 188 "src/parse/expr.mxy"
-                    if ((s[j] == '"') || (s[j] == '\'')) {
+        int i = 0;
+#line 188 "src/parse/expr.mxy"
+        for (; s[i]; ) {
 #line 189 "src/parse/expr.mxy"
-                        char q = s[(j++)];
+            if ((s[i] == '\\') && (s[(i + 1)] == '(')) {
 #line 190 "src/parse/expr.mxy"
+                int start = (i + 2);
+#line 190 "src/parse/expr.mxy"
+                int depth = 1;
+#line 190 "src/parse/expr.mxy"
+                int j = start;
+#line 191 "src/parse/expr.mxy"
+                while (s[j] && (depth > 0)) {
+#line 192 "src/parse/expr.mxy"
+                    if ((s[j] == '"') || (s[j] == '\'')) {
+#line 193 "src/parse/expr.mxy"
+                        char q = s[(j++)];
+#line 194 "src/parse/expr.mxy"
                         while (s[j] && (s[j] != q)) {
-#line 191 "src/parse/expr.mxy"
+#line 195 "src/parse/expr.mxy"
                             if ((s[j] == '\\') && s[(j + 1)]) {
-#line 191 "src/parse/expr.mxy"
+#line 195 "src/parse/expr.mxy"
                                 (j++);
                             }
-#line 192 "src/parse/expr.mxy"
+#line 196 "src/parse/expr.mxy"
                             (j++);
                         }
-#line 194 "src/parse/expr.mxy"
+#line 198 "src/parse/expr.mxy"
                         if (s[j]) {
-#line 194 "src/parse/expr.mxy"
+#line 198 "src/parse/expr.mxy"
                             (j++);
                         }
-#line 195 "src/parse/expr.mxy"
+#line 199 "src/parse/expr.mxy"
                         continue;
                     }
-#line 197 "src/parse/expr.mxy"
+#line 201 "src/parse/expr.mxy"
                     if (s[j] == '(') {
-#line 197 "src/parse/expr.mxy"
+#line 201 "src/parse/expr.mxy"
                         (depth++);
                     }
-#line 198 "src/parse/expr.mxy"
+#line 202 "src/parse/expr.mxy"
                     if (s[j] == ')') {
-#line 198 "src/parse/expr.mxy"
+#line 202 "src/parse/expr.mxy"
                         (depth--);
                     }
-#line 199 "src/parse/expr.mxy"
+#line 203 "src/parse/expr.mxy"
                     if (depth > 0) {
-#line 199 "src/parse/expr.mxy"
+#line 203 "src/parse/expr.mxy"
                         (j++);
                     }
                 }
-#line 201 "src/parse/expr.mxy"
+#line 205 "src/parse/expr.mxy"
                 if (depth != 0) {
-#line 201 "src/parse/expr.mxy"
+#line 205 "src/parse/expr.mxy"
                     fail(str->loc, "unterminated '\\(' in string interpolation");
                 }
-#line 202 "src/parse/expr.mxy"
+#line 206 "src/parse/expr.mxy"
                 if (piece.len) {
-#line 203 "src/parse/expr.mxy"
+#line 207 "src/parse/expr.mxy"
                     Node *p = mk(N_STR, str->loc);
-#line 204 "src/parse/expr.mxy"
+#line 208 "src/parse/expr.mxy"
                     (p->text = buf_take((&piece)));
-#line 205 "src/parse/expr.mxy"
+#line 209 "src/parse/expr.mxy"
                     vec_push(n->list, p);
                 }
-#line 207 "src/parse/expr.mxy"
-                char *src = xstrndup((s + start), ((size_t)(j - start)));
-#line 208 "src/parse/expr.mxy"
-                Loc where = str->loc;
-#line 209 "src/parse/expr.mxy"
-                (where.col += (1 + start));
-#line 210 "src/parse/expr.mxy"
-                TokenVec toks = lex_fragment(src, where);
 #line 211 "src/parse/expr.mxy"
-                Parser saved = P;
+                char *src = xstrndup((s + start), ((size_t)(j - start)));
 #line 212 "src/parse/expr.mxy"
-                (P.toks = toks.items);
+                Loc where = str->loc;
 #line 213 "src/parse/expr.mxy"
-                (P.len = toks.len);
+                (where.col += (1 + start));
 #line 214 "src/parse/expr.mxy"
-                (P.pos = 0);
+                TokenVec toks = lex_fragment(src, where);
 #line 215 "src/parse/expr.mxy"
+                Parser saved = P;
+#line 216 "src/parse/expr.mxy"
+                (P.toks = toks.items);
+#line 217 "src/parse/expr.mxy"
+                (P.len = toks.len);
+#line 218 "src/parse/expr.mxy"
+                (P.pos = 0);
+#line 219 "src/parse/expr.mxy"
                 Node *e = parse_expr();
-#line 216 "src/parse/expr.mxy"
+#line 220 "src/parse/expr.mxy"
                 if (!at(T_EOF)) {
-#line 216 "src/parse/expr.mxy"
+#line 220 "src/parse/expr.mxy"
                     fail(peek()->loc, "unexpected %s in interpolation", peek()->text);
                 }
-#line 217 "src/parse/expr.mxy"
-                (P = saved);
-#line 218 "src/parse/expr.mxy"
-                vec_push(n->list, e);
-#line 219 "src/parse/expr.mxy"
-                free(src);
-#line 220 "src/parse/expr.mxy"
-                (i = (j + 1));
 #line 221 "src/parse/expr.mxy"
-                continue;
-            }
+                (P = saved);
+#line 222 "src/parse/expr.mxy"
+                vec_push(n->list, e);
 #line 223 "src/parse/expr.mxy"
-            if ((s[i] == '\\') && s[(i + 1)]) {
+                free(src);
 #line 224 "src/parse/expr.mxy"
-                buf_putn((&piece), (s + i), 2);
+                (i = (j + 1));
 #line 225 "src/parse/expr.mxy"
-                (i += 2);
-#line 226 "src/parse/expr.mxy"
                 continue;
             }
+#line 227 "src/parse/expr.mxy"
+            if ((s[i] == '\\') && s[(i + 1)]) {
 #line 228 "src/parse/expr.mxy"
+                buf_putn((&piece), (s + i), 2);
+#line 229 "src/parse/expr.mxy"
+                (i += 2);
+#line 230 "src/parse/expr.mxy"
+                continue;
+            }
+#line 232 "src/parse/expr.mxy"
             buf_putc((&piece), s[(i++)]);
         }
     }
-#line 230 "src/parse/expr.mxy"
+#line 234 "src/parse/expr.mxy"
     if (piece.len || (n->list.len == 0)) {
-#line 231 "src/parse/expr.mxy"
+#line 235 "src/parse/expr.mxy"
         Node *p = mk(N_STR, str->loc);
-#line 232 "src/parse/expr.mxy"
+#line 236 "src/parse/expr.mxy"
         (p->text = buf_take((&piece)));
-#line 233 "src/parse/expr.mxy"
+#line 237 "src/parse/expr.mxy"
         vec_push(n->list, p);
     }
-#line 235 "src/parse/expr.mxy"
+#line 239 "src/parse/expr.mxy"
     buf_free((&piece));
-#line 236 "src/parse/expr.mxy"
+#line 240 "src/parse/expr.mxy"
     return n;
 }
 
-#line 239 "src/parse/expr.mxy"
+#line 243 "src/parse/expr.mxy"
 static int has_interp(const char *s) {
     {
-#line 240 "src/parse/expr.mxy"
+#line 244 "src/parse/expr.mxy"
         int i = 0;
-#line 240 "src/parse/expr.mxy"
+#line 244 "src/parse/expr.mxy"
         for (; s[i]; (i++)) {
-#line 241 "src/parse/expr.mxy"
+#line 245 "src/parse/expr.mxy"
             if ((s[i] == '\\') && (s[(i + 1)] == '(')) {
-#line 241 "src/parse/expr.mxy"
+#line 245 "src/parse/expr.mxy"
                 return 1;
             }
-#line 242 "src/parse/expr.mxy"
+#line 246 "src/parse/expr.mxy"
             if ((s[i] == '\\') && s[(i + 1)]) {
-#line 242 "src/parse/expr.mxy"
+#line 246 "src/parse/expr.mxy"
                 (i++);
             }
         }
     }
-#line 244 "src/parse/expr.mxy"
+#line 248 "src/parse/expr.mxy"
     return 0;
 }
 
-#line 247 "src/parse/expr.mxy"
-static Node *parse_string(void) {
-#line 248 "src/parse/expr.mxy"
-    Token *t = next();
-#line 249 "src/parse/expr.mxy"
-    Node *n = mk(N_STR, t->loc);
-#line 250 "src/parse/expr.mxy"
-    if (!at(T_STR)) {
 #line 251 "src/parse/expr.mxy"
+static Node *parse_string(void) {
+#line 252 "src/parse/expr.mxy"
+    Token *t = next();
+#line 253 "src/parse/expr.mxy"
+    Node *n = mk(N_STR, t->loc);
+#line 254 "src/parse/expr.mxy"
+    if (!at(T_STR)) {
+#line 255 "src/parse/expr.mxy"
         (n->text = xstrdup(t->text));
     } else {
-#line 253 "src/parse/expr.mxy"
-        Buf b = {0};
-#line 254 "src/parse/expr.mxy"
-        buf_put((&b), t->text);
-#line 255 "src/parse/expr.mxy"
-        while (at(T_STR)) {
-#line 256 "src/parse/expr.mxy"
-            buf_put((&b), "\" \"");
 #line 257 "src/parse/expr.mxy"
+        Buf b = {0};
+#line 258 "src/parse/expr.mxy"
+        buf_put((&b), t->text);
+#line 259 "src/parse/expr.mxy"
+        while (at(T_STR)) {
+#line 260 "src/parse/expr.mxy"
+            buf_put((&b), "\" \"");
+#line 261 "src/parse/expr.mxy"
             buf_put((&b), next()->text);
         }
-#line 259 "src/parse/expr.mxy"
+#line 263 "src/parse/expr.mxy"
         (n->text = buf_take((&b)));
     }
-#line 261 "src/parse/expr.mxy"
+#line 265 "src/parse/expr.mxy"
     if (has_interp(n->text)) {
-#line 261 "src/parse/expr.mxy"
+#line 265 "src/parse/expr.mxy"
         return parse_interp(n);
     }
-#line 262 "src/parse/expr.mxy"
+#line 266 "src/parse/expr.mxy"
     return n;
 }
 
-#line 265 "src/parse/expr.mxy"
-static char *parse_path(Token *first) {
-#line 266 "src/parse/expr.mxy"
-    Buf b = {0};
-#line 267 "src/parse/expr.mxy"
-    buf_put((&b), first->text);
-#line 268 "src/parse/expr.mxy"
-    while (at(P_COLONCOLON) && (peek_at(1)->kind == T_IDENT)) {
 #line 269 "src/parse/expr.mxy"
-        next();
+static char *parse_path(Token *first) {
 #line 270 "src/parse/expr.mxy"
-        buf_put((&b), "::");
+    Buf b = {0};
 #line 271 "src/parse/expr.mxy"
+    buf_put((&b), first->text);
+#line 272 "src/parse/expr.mxy"
+    while (at(P_COLONCOLON) && (peek_at(1)->kind == T_IDENT)) {
+#line 273 "src/parse/expr.mxy"
+        next();
+#line 274 "src/parse/expr.mxy"
+        buf_put((&b), "::");
+#line 275 "src/parse/expr.mxy"
         buf_put((&b), next()->text);
     }
-#line 273 "src/parse/expr.mxy"
+#line 277 "src/parse/expr.mxy"
     return buf_take((&b));
 }
 
-#line 276 "src/parse/expr.mxy"
+#line 280 "src/parse/expr.mxy"
 static Node *parse_primary(void) {
-#line 277 "src/parse/expr.mxy"
+#line 281 "src/parse/expr.mxy"
     Token *t = peek();
-#line 278 "src/parse/expr.mxy"
+#line 282 "src/parse/expr.mxy"
     switch (t->kind) {
-#line 279 "src/parse/expr.mxy"
+#line 283 "src/parse/expr.mxy"
     case T_INT:;
         {
-#line 280 "src/parse/expr.mxy"
+#line 284 "src/parse/expr.mxy"
             next();
-#line 281 "src/parse/expr.mxy"
+#line 285 "src/parse/expr.mxy"
             Node *n = mk(N_INT, t->loc);
-#line 282 "src/parse/expr.mxy"
+#line 286 "src/parse/expr.mxy"
             (n->text = xstrdup(t->text));
-#line 283 "src/parse/expr.mxy"
+#line 287 "src/parse/expr.mxy"
             return n;
         }
-#line 285 "src/parse/expr.mxy"
+#line 289 "src/parse/expr.mxy"
     case T_FLOAT:;
         {
-#line 286 "src/parse/expr.mxy"
+#line 290 "src/parse/expr.mxy"
             next();
-#line 287 "src/parse/expr.mxy"
+#line 291 "src/parse/expr.mxy"
             Node *n = mk(N_FLOAT, t->loc);
-#line 288 "src/parse/expr.mxy"
+#line 292 "src/parse/expr.mxy"
             (n->text = xstrdup(t->text));
-#line 289 "src/parse/expr.mxy"
+#line 293 "src/parse/expr.mxy"
             return n;
         }
-#line 291 "src/parse/expr.mxy"
+#line 295 "src/parse/expr.mxy"
     case T_CHAR:;
         {
-#line 292 "src/parse/expr.mxy"
+#line 296 "src/parse/expr.mxy"
             next();
-#line 293 "src/parse/expr.mxy"
+#line 297 "src/parse/expr.mxy"
             Node *n = mk(N_CHAR, t->loc);
-#line 294 "src/parse/expr.mxy"
+#line 298 "src/parse/expr.mxy"
             (n->text = xstrdup(t->text));
-#line 295 "src/parse/expr.mxy"
+#line 299 "src/parse/expr.mxy"
             return n;
         }
-#line 297 "src/parse/expr.mxy"
+#line 301 "src/parse/expr.mxy"
     case T_STR:;
-#line 298 "src/parse/expr.mxy"
+#line 302 "src/parse/expr.mxy"
         return parse_string();
-#line 299 "src/parse/expr.mxy"
+#line 303 "src/parse/expr.mxy"
     case K_TRUE:;
-#line 299 "src/parse/expr.mxy"
+#line 303 "src/parse/expr.mxy"
     case K_FALSE:;
         {
-#line 300 "src/parse/expr.mxy"
+#line 304 "src/parse/expr.mxy"
             next();
-#line 301 "src/parse/expr.mxy"
+#line 305 "src/parse/expr.mxy"
             Node *n = mk(N_BOOL, t->loc);
-#line 302 "src/parse/expr.mxy"
+#line 306 "src/parse/expr.mxy"
             (n->op = (t->kind == K_TRUE));
-#line 303 "src/parse/expr.mxy"
+#line 307 "src/parse/expr.mxy"
             return n;
         }
-#line 305 "src/parse/expr.mxy"
+#line 309 "src/parse/expr.mxy"
     case K_NULL:;
-#line 306 "src/parse/expr.mxy"
+#line 310 "src/parse/expr.mxy"
         next();
-#line 307 "src/parse/expr.mxy"
+#line 311 "src/parse/expr.mxy"
         return mk(N_NULL, t->loc);
-#line 308 "src/parse/expr.mxy"
+#line 312 "src/parse/expr.mxy"
     case K_STRING:;
         {
-#line 310 "src/parse/expr.mxy"
-            next();
-#line 311 "src/parse/expr.mxy"
-            if (!at(P_LPAREN)) {
-#line 311 "src/parse/expr.mxy"
-                fail(t->loc, "'string' is a type; did you mean string(value)?");
-            }
-#line 312 "src/parse/expr.mxy"
-            Node *id = mk(N_IDENT, t->loc);
-#line 313 "src/parse/expr.mxy"
-            (id->name = xstrdup("string"));
 #line 314 "src/parse/expr.mxy"
+            next();
+#line 315 "src/parse/expr.mxy"
+            Node *id = mk(N_IDENT, t->loc);
+#line 316 "src/parse/expr.mxy"
+            (id->name = xstrdup("string"));
+#line 317 "src/parse/expr.mxy"
             return id;
         }
-#line 316 "src/parse/expr.mxy"
+#line 319 "src/parse/expr.mxy"
     case P_LBRACKET:;
         {
-#line 317 "src/parse/expr.mxy"
-            next();
-#line 318 "src/parse/expr.mxy"
-            Node *n = mk(N_LIST, t->loc);
-#line 319 "src/parse/expr.mxy"
-            while (!at(P_RBRACKET)) {
 #line 320 "src/parse/expr.mxy"
+            next();
+#line 321 "src/parse/expr.mxy"
+            Node *n = mk(N_LIST, t->loc);
+#line 322 "src/parse/expr.mxy"
+            while (!at(P_RBRACKET)) {
+#line 323 "src/parse/expr.mxy"
                 vec_push(n->list, parse_initializer());
-#line 321 "src/parse/expr.mxy"
+#line 324 "src/parse/expr.mxy"
                 if (!accept(P_COMMA)) {
-#line 321 "src/parse/expr.mxy"
+#line 324 "src/parse/expr.mxy"
                     break;
                 }
             }
-#line 323 "src/parse/expr.mxy"
+#line 326 "src/parse/expr.mxy"
             expect(P_RBRACKET, "']' to close the list literal");
-#line 324 "src/parse/expr.mxy"
+#line 327 "src/parse/expr.mxy"
             return n;
         }
-#line 326 "src/parse/expr.mxy"
+#line 329 "src/parse/expr.mxy"
     case P_LBRACE:;
-#line 327 "src/parse/expr.mxy"
+#line 330 "src/parse/expr.mxy"
         return parse_initializer();
-#line 328 "src/parse/expr.mxy"
+#line 331 "src/parse/expr.mxy"
     case P_LPAREN:;
         {
-#line 329 "src/parse/expr.mxy"
+#line 332 "src/parse/expr.mxy"
             if (lambda_ahead()) {
-#line 329 "src/parse/expr.mxy"
+#line 332 "src/parse/expr.mxy"
                 return parse_lambda();
             }
-#line 330 "src/parse/expr.mxy"
+#line 333 "src/parse/expr.mxy"
             int unknown_ptr_cast = 0;
-#line 331 "src/parse/expr.mxy"
+#line 334 "src/parse/expr.mxy"
             if (((!is_type_start_at(1)) && (peek_at(1)->kind == T_IDENT)) && (peek_at(2)->kind == P_STAR)) {
-#line 332 "src/parse/expr.mxy"
+#line 335 "src/parse/expr.mxy"
                 int j = 2;
-#line 333 "src/parse/expr.mxy"
+#line 336 "src/parse/expr.mxy"
                 while (peek_at(j)->kind == P_STAR) {
-#line 333 "src/parse/expr.mxy"
+#line 336 "src/parse/expr.mxy"
                     (j++);
                 }
-#line 334 "src/parse/expr.mxy"
+#line 337 "src/parse/expr.mxy"
                 (unknown_ptr_cast = (peek_at(j)->kind == P_RPAREN));
             } else {
-#line 335 "src/parse/expr.mxy"
-                if ((((!is_type_start_at(1)) && (peek_at(1)->kind == T_IDENT)) && (peek_at(2)->kind == P_RPAREN)) && str_ends(peek_at(1)->text, "_t")) {
-#line 337 "src/parse/expr.mxy"
-                    TokKind k = peek_at(3)->kind;
 #line 338 "src/parse/expr.mxy"
+                if ((((!is_type_start_at(1)) && (peek_at(1)->kind == T_IDENT)) && (peek_at(2)->kind == P_RPAREN)) && str_ends(peek_at(1)->text, "_t")) {
+#line 340 "src/parse/expr.mxy"
+                    TokKind k = peek_at(3)->kind;
+#line 341 "src/parse/expr.mxy"
                     (unknown_ptr_cast = (((((k == T_IDENT) || (k == T_INT)) || (k == T_FLOAT)) || (k == T_CHAR)) || (k == P_LPAREN)));
                 }
             }
-#line 340 "src/parse/expr.mxy"
-            if (is_type_start_at(1) || unknown_ptr_cast) {
-#line 341 "src/parse/expr.mxy"
-                next();
-#line 342 "src/parse/expr.mxy"
-                TypeRef *type;
 #line 343 "src/parse/expr.mxy"
-                if (unknown_ptr_cast) {
+            if (is_type_start_at(1) || unknown_ptr_cast) {
 #line 344 "src/parse/expr.mxy"
-                    Token *name = next();
+                next();
 #line 345 "src/parse/expr.mxy"
-                    (type = tref_new(TR_NAME, name->loc));
+                TypeRef *type;
 #line 346 "src/parse/expr.mxy"
-                    (type->name = xstrdup(name->text));
+                if (unknown_ptr_cast) {
 #line 347 "src/parse/expr.mxy"
-                    while (at(P_STAR)) {
+                    Token *name = next();
 #line 348 "src/parse/expr.mxy"
-                        TypeRef *p = tref_new(TR_PTR, next()->loc);
+                    (type = tref_new(TR_NAME, name->loc));
 #line 349 "src/parse/expr.mxy"
-                        (p->inner = type);
+                    (type->name = xstrdup(name->text));
 #line 350 "src/parse/expr.mxy"
+                    while (at(P_STAR)) {
+#line 351 "src/parse/expr.mxy"
+                        TypeRef *p = tref_new(TR_PTR, next()->loc);
+#line 352 "src/parse/expr.mxy"
+                        (p->inner = type);
+#line 353 "src/parse/expr.mxy"
                         (type = p);
                     }
                 } else {
-#line 353 "src/parse/expr.mxy"
+#line 356 "src/parse/expr.mxy"
                     (type = parse_type_name());
                 }
-#line 355 "src/parse/expr.mxy"
-                expect(P_RPAREN, "')' after type");
-#line 356 "src/parse/expr.mxy"
-                if (at(P_LBRACE)) {
-#line 357 "src/parse/expr.mxy"
-                    Node *n = mk(N_COMPOUND, t->loc);
 #line 358 "src/parse/expr.mxy"
-                    (n->tref = type);
+                expect(P_RPAREN, "')' after type");
 #line 359 "src/parse/expr.mxy"
-                    (n->b = parse_initializer());
+                if (at(P_LBRACE)) {
 #line 360 "src/parse/expr.mxy"
+                    Node *n = mk(N_COMPOUND, t->loc);
+#line 361 "src/parse/expr.mxy"
+                    (n->tref = type);
+#line 362 "src/parse/expr.mxy"
+                    (n->b = parse_initializer());
+#line 363 "src/parse/expr.mxy"
                     return n;
                 }
-#line 362 "src/parse/expr.mxy"
-                Node *n = mk(N_CAST, t->loc);
-#line 363 "src/parse/expr.mxy"
-                (n->tref = type);
-#line 364 "src/parse/expr.mxy"
-                (n->a = parse_unary());
 #line 365 "src/parse/expr.mxy"
+                Node *n = mk(N_CAST, t->loc);
+#line 366 "src/parse/expr.mxy"
+                (n->tref = type);
+#line 367 "src/parse/expr.mxy"
+                (n->a = parse_unary());
+#line 368 "src/parse/expr.mxy"
                 return n;
             }
-#line 367 "src/parse/expr.mxy"
-            next();
-#line 368 "src/parse/expr.mxy"
-            int saved = P.no_struct_lit;
-#line 369 "src/parse/expr.mxy"
-            (P.no_struct_lit = 0);
 #line 370 "src/parse/expr.mxy"
-            Node *inner = parse_expr();
+            next();
 #line 371 "src/parse/expr.mxy"
-            (P.no_struct_lit = saved);
+            int saved = P.no_struct_lit;
 #line 372 "src/parse/expr.mxy"
-            expect(P_RPAREN, "')'");
+            (P.no_struct_lit = 0);
 #line 373 "src/parse/expr.mxy"
-            (inner->flags |= F_PARENS);
+            Node *inner = parse_expr();
 #line 374 "src/parse/expr.mxy"
+            (P.no_struct_lit = saved);
+#line 375 "src/parse/expr.mxy"
+            expect(P_RPAREN, "')'");
+#line 376 "src/parse/expr.mxy"
+            (inner->flags |= F_PARENS);
+#line 377 "src/parse/expr.mxy"
             return inner;
         }
-#line 376 "src/parse/expr.mxy"
+#line 379 "src/parse/expr.mxy"
     case T_IDENT:;
         {
-#line 377 "src/parse/expr.mxy"
-            next();
-#line 378 "src/parse/expr.mxy"
-            if (((strcmp(t->text, "Ok") == 0) || (strcmp(t->text, "Err") == 0)) && at(P_LPAREN)) {
-#line 379 "src/parse/expr.mxy"
-                Node *n = mk(((t->text[0] == 'O') ? N_OK : N_ERR), t->loc);
 #line 380 "src/parse/expr.mxy"
-                next();
+            next();
 #line 381 "src/parse/expr.mxy"
-                (n->a = (at(P_RPAREN) ? NULL : parse_assign()));
+            if (((strcmp(t->text, "Ok") == 0) || (strcmp(t->text, "Err") == 0)) && at(P_LPAREN)) {
 #line 382 "src/parse/expr.mxy"
-                expect(P_RPAREN, "')'");
+                Node *n = mk(((t->text[0] == 'O') ? N_OK : N_ERR), t->loc);
 #line 383 "src/parse/expr.mxy"
+                next();
+#line 384 "src/parse/expr.mxy"
+                (n->a = (at(P_RPAREN) ? NULL : parse_assign()));
+#line 385 "src/parse/expr.mxy"
+                expect(P_RPAREN, "')'");
+#line 386 "src/parse/expr.mxy"
                 return n;
             }
-#line 385 "src/parse/expr.mxy"
-            char *name = parse_path(t);
-#line 386 "src/parse/expr.mxy"
-            Loc loc = t->loc;
-#line 387 "src/parse/expr.mxy"
-            (loc.span = ((int)strlen(name)));
 #line 388 "src/parse/expr.mxy"
-            if (at(P_LBRACE) && (!P.no_struct_lit)) {
+            char *name = parse_path(t);
 #line 389 "src/parse/expr.mxy"
-                const char *last = strrchr(name, ':');
+            Loc loc = t->loc;
 #line 390 "src/parse/expr.mxy"
-                (last = (last ? (last + 1) : name));
+            (loc.span = ((int)strlen(name)));
 #line 391 "src/parse/expr.mxy"
-                if (types_has(last)) {
+            if (at(P_LBRACE) && (!P.no_struct_lit)) {
 #line 392 "src/parse/expr.mxy"
-                    Node *n = mk(N_STRUCTLIT, loc);
+                const char *last = strrchr(name, ':');
 #line 393 "src/parse/expr.mxy"
-                    (n->tref = tref_new(TR_NAME, loc));
+                (last = (last ? (last + 1) : name));
 #line 394 "src/parse/expr.mxy"
-                    (n->tref->name = name);
+                if (types_has(last)) {
 #line 395 "src/parse/expr.mxy"
-                    (n->b = parse_initializer());
+                    Node *n = mk(N_STRUCTLIT, loc);
 #line 396 "src/parse/expr.mxy"
+                    (n->tref = tref_new(TR_NAME, loc));
+#line 397 "src/parse/expr.mxy"
+                    (n->tref->name = name);
+#line 398 "src/parse/expr.mxy"
+                    (n->b = parse_initializer());
+#line 399 "src/parse/expr.mxy"
                     return n;
                 }
             }
-#line 399 "src/parse/expr.mxy"
+#line 402 "src/parse/expr.mxy"
             Node *n = mk(N_IDENT, loc);
-#line 400 "src/parse/expr.mxy"
+#line 403 "src/parse/expr.mxy"
             (n->name = name);
-#line 401 "src/parse/expr.mxy"
+#line 404 "src/parse/expr.mxy"
             return n;
         }
-#line 403 "src/parse/expr.mxy"
+#line 406 "src/parse/expr.mxy"
     default:;
-#line 404 "src/parse/expr.mxy"
+#line 407 "src/parse/expr.mxy"
         break;
     }
-#line 406 "src/parse/expr.mxy"
+#line 409 "src/parse/expr.mxy"
     if (t->kind == T_EOF) {
-#line 406 "src/parse/expr.mxy"
+#line 409 "src/parse/expr.mxy"
         fail(t->loc, "unexpected end of file in expression");
     }
-#line 407 "src/parse/expr.mxy"
+#line 410 "src/parse/expr.mxy"
     fail(t->loc, "unexpected '%s' in expression", t->text);
 }
 
-#line 411 "src/parse/expr.mxy"
+#line 414 "src/parse/expr.mxy"
 static int type_arg_ahead(void) {
-#line 412 "src/parse/expr.mxy"
-    switch (peek()->kind) {
-#line 413 "src/parse/expr.mxy"
-    case K_VOID:;
-#line 413 "src/parse/expr.mxy"
-    case K_CHAR:;
-#line 413 "src/parse/expr.mxy"
-    case K_SHORT:;
-#line 413 "src/parse/expr.mxy"
-    case K_INT:;
-#line 413 "src/parse/expr.mxy"
-    case K_LONG:;
-#line 413 "src/parse/expr.mxy"
-    case K_FLOAT:;
-#line 413 "src/parse/expr.mxy"
-    case K_DOUBLE:;
-#line 414 "src/parse/expr.mxy"
-    case K_SIGNED:;
-#line 414 "src/parse/expr.mxy"
-    case K_UNSIGNED:;
-#line 414 "src/parse/expr.mxy"
-    case K_BOOL:;
-#line 414 "src/parse/expr.mxy"
-    case K_STRUCT:;
-#line 414 "src/parse/expr.mxy"
-    case K_UNION:;
-#line 414 "src/parse/expr.mxy"
-    case K_ENUM:;
-#line 414 "src/parse/expr.mxy"
-    case K_CONST:;
 #line 415 "src/parse/expr.mxy"
-    case K_VOLATILE:;
+    switch (peek()->kind) {
 #line 416 "src/parse/expr.mxy"
-        return 1;
+    case K_VOID:;
+#line 416 "src/parse/expr.mxy"
+    case K_CHAR:;
+#line 416 "src/parse/expr.mxy"
+    case K_SHORT:;
+#line 416 "src/parse/expr.mxy"
+    case K_INT:;
+#line 416 "src/parse/expr.mxy"
+    case K_LONG:;
+#line 416 "src/parse/expr.mxy"
+    case K_FLOAT:;
+#line 416 "src/parse/expr.mxy"
+    case K_DOUBLE:;
 #line 417 "src/parse/expr.mxy"
+    case K_SIGNED:;
+#line 417 "src/parse/expr.mxy"
+    case K_UNSIGNED:;
+#line 417 "src/parse/expr.mxy"
+    case K_BOOL:;
+#line 417 "src/parse/expr.mxy"
+    case K_STRUCT:;
+#line 417 "src/parse/expr.mxy"
+    case K_UNION:;
+#line 417 "src/parse/expr.mxy"
+    case K_ENUM:;
+#line 417 "src/parse/expr.mxy"
+    case K_CONST:;
+#line 418 "src/parse/expr.mxy"
+    case K_VOLATILE:;
+#line 419 "src/parse/expr.mxy"
+        return 1;
+#line 420 "src/parse/expr.mxy"
     case T_IDENT:;
         {
-#line 418 "src/parse/expr.mxy"
+#line 421 "src/parse/expr.mxy"
             if (!is_type_name(peek())) {
-#line 418 "src/parse/expr.mxy"
+#line 421 "src/parse/expr.mxy"
                 return 0;
             }
-#line 419 "src/parse/expr.mxy"
+#line 422 "src/parse/expr.mxy"
             TokKind n = peek_at(1)->kind;
-#line 420 "src/parse/expr.mxy"
+#line 423 "src/parse/expr.mxy"
             return (((n == P_COMMA) || (n == P_RPAREN)) || (n == P_STAR));
         }
-#line 422 "src/parse/expr.mxy"
+#line 425 "src/parse/expr.mxy"
     default:;
-#line 423 "src/parse/expr.mxy"
+#line 426 "src/parse/expr.mxy"
         return 0;
     }
 }
 
-#line 427 "src/parse/expr.mxy"
+#line 430 "src/parse/expr.mxy"
 static Node *parse_postfix(void) {
-#line 428 "src/parse/expr.mxy"
+#line 431 "src/parse/expr.mxy"
     Node *e = parse_primary();
     {
-#line 429 "src/parse/expr.mxy"
-        for (; ; ) {
-#line 430 "src/parse/expr.mxy"
-            Token *t = peek();
-#line 431 "src/parse/expr.mxy"
-            if (t->kind == P_LPAREN) {
 #line 432 "src/parse/expr.mxy"
-                next();
+        for (; ; ) {
 #line 433 "src/parse/expr.mxy"
-                Node *call = mk(N_CALL, e->loc);
+            Token *t = peek();
 #line 434 "src/parse/expr.mxy"
-                (call->a = e);
+            if (t->kind == P_LPAREN) {
 #line 435 "src/parse/expr.mxy"
-                int saved = P.no_struct_lit;
+                next();
 #line 436 "src/parse/expr.mxy"
-                (P.no_struct_lit = 0);
+                Node *call = mk(N_CALL, e->loc);
 #line 437 "src/parse/expr.mxy"
-                while (!at(P_RPAREN)) {
+                (call->a = e);
 #line 438 "src/parse/expr.mxy"
-                    if (type_arg_ahead()) {
+                int saved = P.no_struct_lit;
 #line 439 "src/parse/expr.mxy"
-                        Node *ta = mk(N_TYPEARG, peek()->loc);
+                (P.no_struct_lit = 0);
 #line 440 "src/parse/expr.mxy"
-                        (ta->tref = parse_type_name());
+                while (!at(P_RPAREN)) {
 #line 441 "src/parse/expr.mxy"
+                    if (type_arg_ahead()) {
+#line 442 "src/parse/expr.mxy"
+                        Node *ta = mk(N_TYPEARG, peek()->loc);
+#line 443 "src/parse/expr.mxy"
+                        (ta->tref = parse_type_name());
+#line 444 "src/parse/expr.mxy"
                         vec_push(call->list, ta);
                     } else {
-#line 443 "src/parse/expr.mxy"
+#line 446 "src/parse/expr.mxy"
                         vec_push(call->list, (at(P_LBRACE) ? parse_initializer() : parse_assign()));
                     }
-#line 445 "src/parse/expr.mxy"
+#line 448 "src/parse/expr.mxy"
                     if (!accept(P_COMMA)) {
-#line 445 "src/parse/expr.mxy"
+#line 448 "src/parse/expr.mxy"
                         break;
                     }
                 }
-#line 447 "src/parse/expr.mxy"
-                (P.no_struct_lit = saved);
-#line 448 "src/parse/expr.mxy"
-                expect(P_RPAREN, "')' to close the argument list");
-#line 449 "src/parse/expr.mxy"
-                (e = call);
 #line 450 "src/parse/expr.mxy"
-                continue;
-            }
+                (P.no_struct_lit = saved);
+#line 451 "src/parse/expr.mxy"
+                expect(P_RPAREN, "')' to close the argument list");
 #line 452 "src/parse/expr.mxy"
-            if (t->kind == P_LBRACKET) {
+                (e = call);
 #line 453 "src/parse/expr.mxy"
-                next();
-#line 454 "src/parse/expr.mxy"
-                Node *n = mk(N_INDEX, t->loc);
-#line 455 "src/parse/expr.mxy"
-                (n->a = e);
-#line 456 "src/parse/expr.mxy"
-                (n->b = parse_expr());
-#line 457 "src/parse/expr.mxy"
-                expect(P_RBRACKET, "']'");
-#line 458 "src/parse/expr.mxy"
-                (e = n);
-#line 459 "src/parse/expr.mxy"
                 continue;
             }
-#line 461 "src/parse/expr.mxy"
-            if ((t->kind == P_DOT) || (t->kind == P_ARROW)) {
-#line 462 "src/parse/expr.mxy"
+#line 455 "src/parse/expr.mxy"
+            if (t->kind == P_LBRACKET) {
+#line 456 "src/parse/expr.mxy"
                 next();
-#line 463 "src/parse/expr.mxy"
-                Token *name = peek();
+#line 457 "src/parse/expr.mxy"
+                Node *n = mk(N_INDEX, t->loc);
+#line 458 "src/parse/expr.mxy"
+                (n->a = e);
+#line 459 "src/parse/expr.mxy"
+                (n->b = parse_expr());
+#line 460 "src/parse/expr.mxy"
+                expect(P_RBRACKET, "']'");
+#line 461 "src/parse/expr.mxy"
+                (e = n);
+#line 462 "src/parse/expr.mxy"
+                continue;
+            }
 #line 464 "src/parse/expr.mxy"
-                if ((name->kind != T_IDENT) && (!((name->kind >= K_AUTO) && (name->kind <= K_NULL)))) {
+            if ((t->kind == P_DOT) || (t->kind == P_ARROW)) {
 #line 465 "src/parse/expr.mxy"
+                next();
+#line 466 "src/parse/expr.mxy"
+                Token *name = peek();
+#line 467 "src/parse/expr.mxy"
+                if ((name->kind != T_IDENT) && (!((name->kind >= K_AUTO) && (name->kind <= K_NULL)))) {
+#line 468 "src/parse/expr.mxy"
                     fail(name->loc, "expected a field or method name after '%s'", t->text);
                 }
-#line 466 "src/parse/expr.mxy"
-                next();
-#line 467 "src/parse/expr.mxy"
-                Node *n = mk(N_MEMBER, name->loc);
-#line 468 "src/parse/expr.mxy"
-                (n->op = t->kind);
 #line 469 "src/parse/expr.mxy"
-                (n->a = e);
-#line 470 "src/parse/expr.mxy"
-                (n->name = xstrdup(name->text));
-#line 471 "src/parse/expr.mxy"
-                (e = n);
-#line 472 "src/parse/expr.mxy"
-                continue;
-            }
-#line 474 "src/parse/expr.mxy"
-            if ((t->kind == P_INC) || (t->kind == P_DEC)) {
-#line 475 "src/parse/expr.mxy"
                 next();
-#line 476 "src/parse/expr.mxy"
-                Node *n = mk(N_POSTFIX, t->loc);
-#line 477 "src/parse/expr.mxy"
+#line 470 "src/parse/expr.mxy"
+                Node *n = mk(N_MEMBER, name->loc);
+#line 471 "src/parse/expr.mxy"
                 (n->op = t->kind);
-#line 478 "src/parse/expr.mxy"
+#line 472 "src/parse/expr.mxy"
                 (n->a = e);
-#line 479 "src/parse/expr.mxy"
+#line 473 "src/parse/expr.mxy"
+                (n->name = xstrdup(name->text));
+#line 474 "src/parse/expr.mxy"
                 (e = n);
-#line 480 "src/parse/expr.mxy"
+#line 475 "src/parse/expr.mxy"
                 continue;
             }
+#line 477 "src/parse/expr.mxy"
+            if ((t->kind == P_INC) || (t->kind == P_DEC)) {
+#line 478 "src/parse/expr.mxy"
+                next();
+#line 479 "src/parse/expr.mxy"
+                Node *n = mk(N_POSTFIX, t->loc);
+#line 480 "src/parse/expr.mxy"
+                (n->op = t->kind);
+#line 481 "src/parse/expr.mxy"
+                (n->a = e);
 #line 482 "src/parse/expr.mxy"
+                (e = n);
+#line 483 "src/parse/expr.mxy"
+                continue;
+            }
+#line 485 "src/parse/expr.mxy"
             break;
         }
     }
-#line 484 "src/parse/expr.mxy"
+#line 487 "src/parse/expr.mxy"
     return e;
 }
 
-#line 487 "src/parse/expr.mxy"
+#line 490 "src/parse/expr.mxy"
 static int await_ahead(void) {
-#line 488 "src/parse/expr.mxy"
-    if (!at_word("await")) {
-#line 488 "src/parse/expr.mxy"
-        return 0;
-    }
-#line 489 "src/parse/expr.mxy"
-    Token *n = peek_at(1);
-#line 490 "src/parse/expr.mxy"
-    if (n->bol && (n->kind != T_IDENT)) {
-#line 490 "src/parse/expr.mxy"
-        return 0;
-    }
 #line 491 "src/parse/expr.mxy"
+    if (!at_word("await")) {
+#line 491 "src/parse/expr.mxy"
+        return 0;
+    }
+#line 492 "src/parse/expr.mxy"
+    Token *n = peek_at(1);
+#line 493 "src/parse/expr.mxy"
+    if (n->bol && (n->kind != T_IDENT)) {
+#line 493 "src/parse/expr.mxy"
+        return 0;
+    }
+#line 494 "src/parse/expr.mxy"
     return ((n->kind == T_IDENT) || (n->kind == P_LPAREN));
 }
 
-#line 494 "src/parse/expr.mxy"
+#line 497 "src/parse/expr.mxy"
 Node *parse_unary(void) {
-#line 495 "src/parse/expr.mxy"
+#line 498 "src/parse/expr.mxy"
     Token *t = peek();
-#line 496 "src/parse/expr.mxy"
+#line 499 "src/parse/expr.mxy"
     switch (t->kind) {
-#line 497 "src/parse/expr.mxy"
+#line 500 "src/parse/expr.mxy"
     case P_MINUS:;
-#line 497 "src/parse/expr.mxy"
+#line 500 "src/parse/expr.mxy"
     case P_PLUS:;
-#line 497 "src/parse/expr.mxy"
+#line 500 "src/parse/expr.mxy"
     case P_BANG:;
-#line 497 "src/parse/expr.mxy"
+#line 500 "src/parse/expr.mxy"
     case P_TILDE:;
-#line 497 "src/parse/expr.mxy"
+#line 500 "src/parse/expr.mxy"
     case P_STAR:;
-#line 497 "src/parse/expr.mxy"
+#line 500 "src/parse/expr.mxy"
     case P_AMP:;
-#line 498 "src/parse/expr.mxy"
+#line 501 "src/parse/expr.mxy"
     case P_INC:;
-#line 498 "src/parse/expr.mxy"
+#line 501 "src/parse/expr.mxy"
     case P_DEC:;
         {
-#line 499 "src/parse/expr.mxy"
-            next();
-#line 500 "src/parse/expr.mxy"
-            Node *n = mk(N_UNARY, t->loc);
-#line 501 "src/parse/expr.mxy"
-            (n->op = t->kind);
 #line 502 "src/parse/expr.mxy"
-            (n->a = parse_unary());
+            next();
 #line 503 "src/parse/expr.mxy"
+            Node *n = mk(N_UNARY, t->loc);
+#line 504 "src/parse/expr.mxy"
+            (n->op = t->kind);
+#line 505 "src/parse/expr.mxy"
+            (n->a = parse_unary());
+#line 506 "src/parse/expr.mxy"
             return n;
         }
-#line 505 "src/parse/expr.mxy"
+#line 508 "src/parse/expr.mxy"
     case K_SIZEOF:;
         {
-#line 506 "src/parse/expr.mxy"
-            next();
-#line 507 "src/parse/expr.mxy"
-            Node *n = mk(N_SIZEOF, t->loc);
-#line 508 "src/parse/expr.mxy"
-            if (at(P_LPAREN) && is_type_start_at(1)) {
 #line 509 "src/parse/expr.mxy"
-                next();
+            next();
 #line 510 "src/parse/expr.mxy"
-                (n->tref = parse_type_name());
+            Node *n = mk(N_SIZEOF, t->loc);
 #line 511 "src/parse/expr.mxy"
+            if (at(P_LPAREN) && is_type_start_at(1)) {
+#line 512 "src/parse/expr.mxy"
+                next();
+#line 513 "src/parse/expr.mxy"
+                (n->tref = parse_type_name());
+#line 514 "src/parse/expr.mxy"
                 expect(P_RPAREN, "')'");
             } else {
-#line 513 "src/parse/expr.mxy"
+#line 516 "src/parse/expr.mxy"
                 (n->a = parse_unary());
             }
-#line 515 "src/parse/expr.mxy"
+#line 518 "src/parse/expr.mxy"
             return n;
         }
-#line 517 "src/parse/expr.mxy"
+#line 520 "src/parse/expr.mxy"
     case K_ALIGNOF:;
         {
-#line 518 "src/parse/expr.mxy"
-            next();
-#line 519 "src/parse/expr.mxy"
-            Node *n = mk(N_ALIGNOF, t->loc);
-#line 520 "src/parse/expr.mxy"
-            expect(P_LPAREN, "'('");
 #line 521 "src/parse/expr.mxy"
-            (n->tref = parse_type_name());
+            next();
 #line 522 "src/parse/expr.mxy"
-            expect(P_RPAREN, "')'");
+            Node *n = mk(N_ALIGNOF, t->loc);
 #line 523 "src/parse/expr.mxy"
+            expect(P_LPAREN, "'('");
+#line 524 "src/parse/expr.mxy"
+            (n->tref = parse_type_name());
+#line 525 "src/parse/expr.mxy"
+            expect(P_RPAREN, "')'");
+#line 526 "src/parse/expr.mxy"
             return n;
         }
-#line 525 "src/parse/expr.mxy"
+#line 528 "src/parse/expr.mxy"
     default:;
-#line 526 "src/parse/expr.mxy"
+#line 529 "src/parse/expr.mxy"
         break;
     }
-#line 528 "src/parse/expr.mxy"
-    if (await_ahead()) {
-#line 529 "src/parse/expr.mxy"
-        next();
-#line 530 "src/parse/expr.mxy"
-        Node *n = mk(N_AWAIT, t->loc);
 #line 531 "src/parse/expr.mxy"
-        (n->a = parse_unary());
+    if (await_ahead()) {
 #line 532 "src/parse/expr.mxy"
+        next();
+#line 533 "src/parse/expr.mxy"
+        Node *n = mk(N_AWAIT, t->loc);
+#line 534 "src/parse/expr.mxy"
+        (n->a = parse_unary());
+#line 535 "src/parse/expr.mxy"
         return n;
     }
-#line 534 "src/parse/expr.mxy"
+#line 537 "src/parse/expr.mxy"
     return parse_postfix();
 }
 
@@ -21991,139 +22618,165 @@ static int moxy_type_at(int ahead) {
     return 0;
 }
 
-#line 237 "src/parse/state.mxy"
-int is_type_start_at(int ahead) {
 #line 238 "src/parse/state.mxy"
-    Token *t = peek_at(ahead);
+int name_at(int ahead) {
 #line 239 "src/parse/state.mxy"
-    if (is_type_keyword(t->kind)) {
-#line 239 "src/parse/state.mxy"
-        return 1;
-    }
+    TokKind k = peek_at(ahead)->kind;
 #line 240 "src/parse/state.mxy"
-    if (moxy_type_at(ahead)) {
-#line 240 "src/parse/state.mxy"
-        return 1;
-    }
-#line 241 "src/parse/state.mxy"
-    if (((t->kind == T_IDENT) && (strcmp(t->text, "weak") == 0)) && (peek_at((ahead + 1))->kind == T_IDENT)) {
-#line 241 "src/parse/state.mxy"
-        return 1;
-    }
-#line 242 "src/parse/state.mxy"
-    if (t->kind != T_IDENT) {
-#line 242 "src/parse/state.mxy"
-        return 0;
-    }
+    return (((k == T_IDENT) || (k == K_STRING)) || (k == K_NULL));
+}
+
+#line 243 "src/parse/state.mxy"
+static int string_type_at(int ahead) {
 #line 244 "src/parse/state.mxy"
-    int i = ahead;
+    TokKind n = peek_at((ahead + 1))->kind;
 #line 245 "src/parse/state.mxy"
-    while ((peek_at((i + 1))->kind == P_COLONCOLON) && (peek_at((i + 2))->kind == T_IDENT)) {
+    if (n == P_LBRACKET) {
 #line 245 "src/parse/state.mxy"
-        (i += 2);
+        return (peek_at((ahead + 2))->kind == P_RBRACKET);
     }
 #line 246 "src/parse/state.mxy"
-    return is_type_name(peek_at(i));
+    return ((((((((((n == T_IDENT) || (n == P_STAR)) || (n == P_RPAREN)) || (n == P_COMMA)) || (n == P_GT)) || (n == P_RBRACKET)) || (n == K_STRING)) || (n == K_NULL)) || (n == K_CONST)) || (n == K_VOLATILE));
 }
 
 #line 250 "src/parse/state.mxy"
-int is_decl_start(void) {
+int is_type_start_at(int ahead) {
 #line 251 "src/parse/state.mxy"
-    Token *t = peek();
+    Token *t = peek_at(ahead);
 #line 252 "src/parse/state.mxy"
-    switch (t->kind) {
+    if (t->kind == K_STRING) {
+#line 252 "src/parse/state.mxy"
+        return string_type_at(ahead);
+    }
 #line 253 "src/parse/state.mxy"
-    case K_STATIC:;
+    if (is_type_keyword(t->kind)) {
 #line 253 "src/parse/state.mxy"
-    case K_EXTERN:;
-#line 253 "src/parse/state.mxy"
-    case K_TYPEDEF:;
-#line 253 "src/parse/state.mxy"
-    case K_REGISTER:;
-#line 253 "src/parse/state.mxy"
-    case K_AUTO:;
+        return 1;
+    }
 #line 254 "src/parse/state.mxy"
-    case K_INLINE:;
+    if (moxy_type_at(ahead)) {
 #line 254 "src/parse/state.mxy"
-    case K_THREAD_LOCAL:;
-#line 254 "src/parse/state.mxy"
-    case K_NORETURN:;
+        return 1;
+    }
+#line 255 "src/parse/state.mxy"
+    if (((t->kind == T_IDENT) && (strcmp(t->text, "weak") == 0)) && (peek_at((ahead + 1))->kind == T_IDENT)) {
 #line 255 "src/parse/state.mxy"
         return 1;
+    }
 #line 256 "src/parse/state.mxy"
-    default:;
-#line 257 "src/parse/state.mxy"
-        break;
-    }
-#line 259 "src/parse/state.mxy"
     if (t->kind != T_IDENT) {
-#line 259 "src/parse/state.mxy"
-        return is_type_start_at(0);
-    }
-#line 260 "src/parse/state.mxy"
-    if (moxy_type_at(0)) {
-#line 260 "src/parse/state.mxy"
-        return 1;
-    }
-#line 261 "src/parse/state.mxy"
-    if ((strcmp(t->text, "await") == 0) && (!types_has("await"))) {
-#line 261 "src/parse/state.mxy"
+#line 256 "src/parse/state.mxy"
         return 0;
     }
-#line 262 "src/parse/state.mxy"
-    int i = 0;
-#line 263 "src/parse/state.mxy"
+#line 258 "src/parse/state.mxy"
+    int i = ahead;
+#line 259 "src/parse/state.mxy"
     while ((peek_at((i + 1))->kind == P_COLONCOLON) && (peek_at((i + 2))->kind == T_IDENT)) {
-#line 263 "src/parse/state.mxy"
+#line 259 "src/parse/state.mxy"
         (i += 2);
     }
+#line 260 "src/parse/state.mxy"
+    return is_type_name(peek_at(i));
+}
+
 #line 264 "src/parse/state.mxy"
-    Token *after = peek_at((i + 1));
+int is_decl_start(void) {
 #line 265 "src/parse/state.mxy"
-    if (is_type_name(peek_at(i))) {
+    Token *t = peek();
 #line 266 "src/parse/state.mxy"
-        if (((((after->kind == P_LBRACE) || (after->kind == P_LPAREN)) || (after->kind == P_DOT)) || (after->kind == P_ARROW)) || (after->kind == P_ASSIGN)) {
+    switch (t->kind) {
+#line 267 "src/parse/state.mxy"
+    case K_STATIC:;
+#line 267 "src/parse/state.mxy"
+    case K_EXTERN:;
+#line 267 "src/parse/state.mxy"
+    case K_TYPEDEF:;
+#line 267 "src/parse/state.mxy"
+    case K_REGISTER:;
+#line 267 "src/parse/state.mxy"
+    case K_AUTO:;
 #line 268 "src/parse/state.mxy"
-            return 0;
-        }
+    case K_INLINE:;
+#line 268 "src/parse/state.mxy"
+    case K_THREAD_LOCAL:;
+#line 268 "src/parse/state.mxy"
+    case K_NORETURN:;
 #line 269 "src/parse/state.mxy"
         return 1;
-    }
+#line 270 "src/parse/state.mxy"
+    default:;
 #line 271 "src/parse/state.mxy"
-    if (i > 0) {
-#line 271 "src/parse/state.mxy"
-        return 0;
+        break;
     }
 #line 273 "src/parse/state.mxy"
-    if (after->kind == T_IDENT) {
+    if (t->kind != T_IDENT) {
 #line 273 "src/parse/state.mxy"
-        return (!word_at(1, "in"));
+        return is_type_start_at(0);
     }
 #line 274 "src/parse/state.mxy"
-    if (after->kind == P_STAR) {
-#line 275 "src/parse/state.mxy"
-        int j = 1;
-#line 276 "src/parse/state.mxy"
-        while (peek_at(j)->kind == P_STAR) {
-#line 276 "src/parse/state.mxy"
-            (j++);
-        }
-#line 277 "src/parse/state.mxy"
-        if (peek_at(j)->kind != T_IDENT) {
-#line 277 "src/parse/state.mxy"
-            return 0;
-        }
-#line 278 "src/parse/state.mxy"
-        TokKind k = peek_at((j + 1))->kind;
-#line 279 "src/parse/state.mxy"
-        return ((((k == P_SEMI) || (k == P_ASSIGN)) || (k == P_COMMA)) || (k == P_LBRACKET));
-    }
-#line 281 "src/parse/state.mxy"
-    if (((after->kind == P_LBRACKET) && (peek_at(2)->kind == P_RBRACKET)) && (peek_at(3)->kind == T_IDENT)) {
-#line 281 "src/parse/state.mxy"
+    if (moxy_type_at(0)) {
+#line 274 "src/parse/state.mxy"
         return 1;
     }
+#line 275 "src/parse/state.mxy"
+    if ((strcmp(t->text, "await") == 0) && (!types_has("await"))) {
+#line 275 "src/parse/state.mxy"
+        return 0;
+    }
+#line 276 "src/parse/state.mxy"
+    int i = 0;
+#line 277 "src/parse/state.mxy"
+    while ((peek_at((i + 1))->kind == P_COLONCOLON) && (peek_at((i + 2))->kind == T_IDENT)) {
+#line 277 "src/parse/state.mxy"
+        (i += 2);
+    }
+#line 278 "src/parse/state.mxy"
+    Token *after = peek_at((i + 1));
+#line 279 "src/parse/state.mxy"
+    if (is_type_name(peek_at(i))) {
+#line 280 "src/parse/state.mxy"
+        if (((((after->kind == P_LBRACE) || (after->kind == P_LPAREN)) || (after->kind == P_DOT)) || (after->kind == P_ARROW)) || (after->kind == P_ASSIGN)) {
 #line 282 "src/parse/state.mxy"
+            return 0;
+        }
+#line 283 "src/parse/state.mxy"
+        return 1;
+    }
+#line 285 "src/parse/state.mxy"
+    if (i > 0) {
+#line 285 "src/parse/state.mxy"
+        return 0;
+    }
+#line 287 "src/parse/state.mxy"
+    if (after->kind == T_IDENT) {
+#line 287 "src/parse/state.mxy"
+        return (!word_at(1, "in"));
+    }
+#line 288 "src/parse/state.mxy"
+    if (after->kind == P_STAR) {
+#line 289 "src/parse/state.mxy"
+        int j = 1;
+#line 290 "src/parse/state.mxy"
+        while (peek_at(j)->kind == P_STAR) {
+#line 290 "src/parse/state.mxy"
+            (j++);
+        }
+#line 291 "src/parse/state.mxy"
+        if (peek_at(j)->kind != T_IDENT) {
+#line 291 "src/parse/state.mxy"
+            return 0;
+        }
+#line 292 "src/parse/state.mxy"
+        TokKind k = peek_at((j + 1))->kind;
+#line 293 "src/parse/state.mxy"
+        return ((((k == P_SEMI) || (k == P_ASSIGN)) || (k == P_COMMA)) || (k == P_LBRACKET));
+    }
+#line 295 "src/parse/state.mxy"
+    if (((after->kind == P_LBRACKET) && (peek_at(2)->kind == P_RBRACKET)) && (peek_at(3)->kind == T_IDENT)) {
+#line 295 "src/parse/state.mxy"
+        return 1;
+    }
+#line 296 "src/parse/state.mxy"
     return 0;
 }
 
@@ -23066,233 +23719,239 @@ static void top_directive(Token *t, NodeList *out, const char *ns) {
 #line 128 "src/parse/top.mxy"
                     (d->text = xstrdup(t->text));
 #line 129 "src/parse/top.mxy"
-                    (d->cond = current_cond());
+                    (d->pos = (P.pos - 1));
 #line 130 "src/parse/top.mxy"
-                    (d->ns = xstrdup(ns));
+                    (d->cond = current_cond());
 #line 131 "src/parse/top.mxy"
+                    (d->ns = xstrdup(ns));
+#line 132 "src/parse/top.mxy"
                     vec_push((*out), d);
                 }
             }
         }
     }
-#line 133 "src/parse/top.mxy"
+#line 134 "src/parse/top.mxy"
     free(w);
 }
 
-#line 136 "src/parse/top.mxy"
-static void at_type(void) {
 #line 137 "src/parse/top.mxy"
-    next();
+static void at_type(void) {
 #line 138 "src/parse/top.mxy"
     next();
 #line 139 "src/parse/top.mxy"
-    while (at(T_IDENT)) {
+    next();
 #line 140 "src/parse/top.mxy"
+    while (at(T_IDENT)) {
+#line 141 "src/parse/top.mxy"
         parse_register_type(next()->text);
-#line 141 "src/parse/top.mxy"
+#line 142 "src/parse/top.mxy"
         if (!accept(P_COMMA)) {
-#line 141 "src/parse/top.mxy"
+#line 142 "src/parse/top.mxy"
             break;
         }
     }
-#line 143 "src/parse/top.mxy"
+#line 144 "src/parse/top.mxy"
     accept(P_SEMI);
 }
 
-#line 148 "src/parse/top.mxy"
-static void add_decl(NodeList *out, Node *n, const char *ns) {
 #line 149 "src/parse/top.mxy"
-    (n->cond = current_cond());
+static void add_decl(NodeList *out, Node *n, const char *ns, int start) {
 #line 150 "src/parse/top.mxy"
-    (n->ns = xstrdup(ns));
+    (n->pos = start);
 #line 151 "src/parse/top.mxy"
+    (n->cond = current_cond());
+#line 152 "src/parse/top.mxy"
+    (n->ns = xstrdup(ns));
+#line 153 "src/parse/top.mxy"
     vec_push((*out), n);
 }
 
-#line 154 "src/parse/top.mxy"
-static void parse_top_one(NodeList *out, const char *ns) {
-#line 155 "src/parse/top.mxy"
-    Token *t = peek();
 #line 156 "src/parse/top.mxy"
-    if (t->kind == T_DIRECTIVE) {
+static void parse_top_one(NodeList *out, const char *ns) {
 #line 157 "src/parse/top.mxy"
-        next();
+    int start = P.pos;
 #line 158 "src/parse/top.mxy"
-        top_directive(t, out, ns);
+    Token *t = peek();
 #line 159 "src/parse/top.mxy"
-        return;
-    }
+    if (t->kind == T_DIRECTIVE) {
+#line 160 "src/parse/top.mxy"
+        next();
 #line 161 "src/parse/top.mxy"
-    if (accept(P_SEMI)) {
-#line 161 "src/parse/top.mxy"
-        return;
-    }
+        top_directive(t, out, ns);
 #line 162 "src/parse/top.mxy"
-    if ((t->kind == P_AT) && word_at(1, "type")) {
-#line 163 "src/parse/top.mxy"
-        at_type();
+        return;
+    }
+#line 164 "src/parse/top.mxy"
+    if (accept(P_SEMI)) {
 #line 164 "src/parse/top.mxy"
         return;
     }
+#line 165 "src/parse/top.mxy"
+    if ((t->kind == P_AT) && word_at(1, "type")) {
 #line 166 "src/parse/top.mxy"
-    if ((at_word("namespace") && (peek_at(1)->kind == T_IDENT)) && ((peek_at(2)->kind == P_LBRACE) || (peek_at(2)->kind == P_COLONCOLON))) {
-#line 168 "src/parse/top.mxy"
-        next();
+        at_type();
+#line 167 "src/parse/top.mxy"
+        return;
+    }
 #line 169 "src/parse/top.mxy"
-        Buf path = {0};
-#line 170 "src/parse/top.mxy"
-        if (*ns) {
+    if ((at_word("namespace") && (peek_at(1)->kind == T_IDENT)) && ((peek_at(2)->kind == P_LBRACE) || (peek_at(2)->kind == P_COLONCOLON))) {
 #line 171 "src/parse/top.mxy"
-            buf_put((&path), ns);
-#line 172 "src/parse/top.mxy"
-            buf_put((&path), "::");
-        }
-#line 174 "src/parse/top.mxy"
-        buf_put((&path), next()->text);
-#line 175 "src/parse/top.mxy"
-        while (accept(P_COLONCOLON)) {
-#line 176 "src/parse/top.mxy"
-            buf_put((&path), "::");
-#line 177 "src/parse/top.mxy"
-            buf_put((&path), expect(T_IDENT, "a namespace name")->text);
-        }
-#line 179 "src/parse/top.mxy"
-        expect(P_LBRACE, "'{'");
-#line 180 "src/parse/top.mxy"
-        char *inner = buf_take((&path));
-#line 181 "src/parse/top.mxy"
-        parse_top_list(out, inner, 1);
-#line 182 "src/parse/top.mxy"
-        expect(P_RBRACE, "'}' to close the namespace");
-#line 183 "src/parse/top.mxy"
-        free(inner);
-#line 184 "src/parse/top.mxy"
-        return;
-    }
-#line 186 "src/parse/top.mxy"
-    if ((at_word("using") && (peek_at(1)->kind == T_IDENT)) && ((peek_at(2)->kind == P_SEMI) || (peek_at(2)->kind == P_COLONCOLON))) {
-#line 188 "src/parse/top.mxy"
-        Token *kw = next();
-#line 189 "src/parse/top.mxy"
-        Buf path = {0};
-#line 190 "src/parse/top.mxy"
-        buf_put((&path), next()->text);
-#line 191 "src/parse/top.mxy"
-        while (accept(P_COLONCOLON)) {
-#line 192 "src/parse/top.mxy"
-            buf_put((&path), "::");
-#line 193 "src/parse/top.mxy"
-            buf_put((&path), expect(T_IDENT, "a namespace name")->text);
-        }
-#line 195 "src/parse/top.mxy"
-        expect(P_SEMI, "';'");
-#line 196 "src/parse/top.mxy"
-        Node *u = mk(N_USING, kw->loc);
-#line 197 "src/parse/top.mxy"
-        (u->name = buf_take((&path)));
-#line 198 "src/parse/top.mxy"
-        add_decl(out, u, ns);
-#line 199 "src/parse/top.mxy"
-        return;
-    }
-#line 201 "src/parse/top.mxy"
-    if (t->kind == K_STATIC_ASSERT) {
-#line 202 "src/parse/top.mxy"
-        add_decl(out, parse_stmt(), ns);
-#line 203 "src/parse/top.mxy"
-        return;
-    }
-#line 205 "src/parse/top.mxy"
-    int is_ref = 0;
-#line 206 "src/parse/top.mxy"
-    if (at_word("ref") && (peek_at(1)->kind == K_STRUCT)) {
-#line 207 "src/parse/top.mxy"
         next();
+#line 172 "src/parse/top.mxy"
+        Buf path = {0};
+#line 173 "src/parse/top.mxy"
+        if (*ns) {
+#line 174 "src/parse/top.mxy"
+            buf_put((&path), ns);
+#line 175 "src/parse/top.mxy"
+            buf_put((&path), "::");
+        }
+#line 177 "src/parse/top.mxy"
+        buf_put((&path), next()->text);
+#line 178 "src/parse/top.mxy"
+        while (accept(P_COLONCOLON)) {
+#line 179 "src/parse/top.mxy"
+            buf_put((&path), "::");
+#line 180 "src/parse/top.mxy"
+            buf_put((&path), expect(T_IDENT, "a namespace name")->text);
+        }
+#line 182 "src/parse/top.mxy"
+        expect(P_LBRACE, "'{'");
+#line 183 "src/parse/top.mxy"
+        char *inner = buf_take((&path));
+#line 184 "src/parse/top.mxy"
+        parse_top_list(out, inner, 1);
+#line 185 "src/parse/top.mxy"
+        expect(P_RBRACE, "'}' to close the namespace");
+#line 186 "src/parse/top.mxy"
+        free(inner);
+#line 187 "src/parse/top.mxy"
+        return;
+    }
+#line 189 "src/parse/top.mxy"
+    if ((at_word("using") && (peek_at(1)->kind == T_IDENT)) && ((peek_at(2)->kind == P_SEMI) || (peek_at(2)->kind == P_COLONCOLON))) {
+#line 191 "src/parse/top.mxy"
+        Token *kw = next();
+#line 192 "src/parse/top.mxy"
+        Buf path = {0};
+#line 193 "src/parse/top.mxy"
+        buf_put((&path), next()->text);
+#line 194 "src/parse/top.mxy"
+        while (accept(P_COLONCOLON)) {
+#line 195 "src/parse/top.mxy"
+            buf_put((&path), "::");
+#line 196 "src/parse/top.mxy"
+            buf_put((&path), expect(T_IDENT, "a namespace name")->text);
+        }
+#line 198 "src/parse/top.mxy"
+        expect(P_SEMI, "';'");
+#line 199 "src/parse/top.mxy"
+        Node *u = mk(N_USING, kw->loc);
+#line 200 "src/parse/top.mxy"
+        (u->name = buf_take((&path)));
+#line 201 "src/parse/top.mxy"
+        add_decl(out, u, ns, start);
+#line 202 "src/parse/top.mxy"
+        return;
+    }
+#line 204 "src/parse/top.mxy"
+    if (t->kind == K_STATIC_ASSERT) {
+#line 205 "src/parse/top.mxy"
+        add_decl(out, parse_stmt(), ns, start);
+#line 206 "src/parse/top.mxy"
+        return;
+    }
 #line 208 "src/parse/top.mxy"
+    int is_ref = 0;
+#line 209 "src/parse/top.mxy"
+    if (at_word("ref") && (peek_at(1)->kind == K_STRUCT)) {
+#line 210 "src/parse/top.mxy"
+        next();
+#line 211 "src/parse/top.mxy"
         (is_ref = 1);
     }
-#line 210 "src/parse/top.mxy"
+#line 213 "src/parse/top.mxy"
     if (moxy_enum_ahead()) {
-#line 211 "src/parse/top.mxy"
-        add_decl(out, parse_moxy_enum(), ns);
-#line 212 "src/parse/top.mxy"
+#line 214 "src/parse/top.mxy"
+        add_decl(out, parse_moxy_enum(), ns, start);
+#line 215 "src/parse/top.mxy"
         return;
     }
-#line 214 "src/parse/top.mxy"
+#line 217 "src/parse/top.mxy"
     Node *group = parse_decl_group(1);
     {
-#line 215 "src/parse/top.mxy"
+#line 218 "src/parse/top.mxy"
         int i = 0;
-#line 215 "src/parse/top.mxy"
+#line 218 "src/parse/top.mxy"
         for (; i < group->list.len; (i++)) {
-#line 216 "src/parse/top.mxy"
+#line 219 "src/parse/top.mxy"
             Node *d = group->list.items[i];
-#line 217 "src/parse/top.mxy"
+#line 220 "src/parse/top.mxy"
             if (is_ref && (d->kind == N_STRUCT)) {
-#line 217 "src/parse/top.mxy"
+#line 220 "src/parse/top.mxy"
                 (d->flags |= F_REF);
             }
-#line 218 "src/parse/top.mxy"
-            add_decl(out, d, ns);
+#line 221 "src/parse/top.mxy"
+            add_decl(out, d, ns, start);
         }
     }
-#line 220 "src/parse/top.mxy"
+#line 223 "src/parse/top.mxy"
     free(group->list.items);
-#line 221 "src/parse/top.mxy"
+#line 224 "src/parse/top.mxy"
     free(group);
 }
 
-#line 224 "src/parse/top.mxy"
+#line 227 "src/parse/top.mxy"
 static void parse_top_list(NodeList *out, const char *ns, int until_brace) {
-#line 225 "src/parse/top.mxy"
+#line 228 "src/parse/top.mxy"
     while ((!at(T_EOF)) && (!(until_brace && at(P_RBRACE)))) {
-#line 225 "src/parse/top.mxy"
+#line 228 "src/parse/top.mxy"
         parse_top_one(out, ns);
     }
 }
 
-#line 228 "src/parse/top.mxy"
+#line 231 "src/parse/top.mxy"
 void parse_register_type(const char *name) {
-#line 228 "src/parse/top.mxy"
+#line 231 "src/parse/top.mxy"
     types_add(name);
 }
 
-#line 230 "src/parse/top.mxy"
-Node *parse_program(TokenVec toks) {
-#line 231 "src/parse/top.mxy"
-    memset((&P), 0, sizeof(P));
-#line 232 "src/parse/top.mxy"
-    (P.toks = toks.items);
 #line 233 "src/parse/top.mxy"
-    (P.len = toks.len);
+Node *parse_program(TokenVec toks) {
 #line 234 "src/parse/top.mxy"
-    (conds.len = 0);
+    memset((&P), 0, sizeof(P));
 #line 235 "src/parse/top.mxy"
-    types_reset();
+    (P.toks = toks.items);
 #line 236 "src/parse/top.mxy"
-    types_prescan();
+    (P.len = toks.len);
 #line 237 "src/parse/top.mxy"
-    Node *prog = node_new(N_BLOCK, toks.items[0].loc);
+    (conds.len = 0);
 #line 238 "src/parse/top.mxy"
+    types_reset();
+#line 239 "src/parse/top.mxy"
+    types_prescan();
+#line 240 "src/parse/top.mxy"
+    Node *prog = node_new(N_BLOCK, toks.items[0].loc);
+#line 241 "src/parse/top.mxy"
     parse_top_list((&prog->list), "", 0);
-#line 239 "src/parse/top.mxy"
+#line 242 "src/parse/top.mxy"
     if (conds.len) {
-#line 239 "src/parse/top.mxy"
+#line 242 "src/parse/top.mxy"
         fail(peek()->loc, "unterminated #if block");
     }
-#line 240 "src/parse/top.mxy"
+#line 243 "src/parse/top.mxy"
     return prog;
 }
 
-#line 243 "src/parse/top.mxy"
-Node *parse_expression_tokens(TokenVec toks) {
-#line 244 "src/parse/top.mxy"
-    memset((&P), 0, sizeof(P));
-#line 245 "src/parse/top.mxy"
-    (P.toks = toks.items);
 #line 246 "src/parse/top.mxy"
-    (P.len = toks.len);
+Node *parse_expression_tokens(TokenVec toks) {
 #line 247 "src/parse/top.mxy"
+    memset((&P), 0, sizeof(P));
+#line 248 "src/parse/top.mxy"
+    (P.toks = toks.items);
+#line 249 "src/parse/top.mxy"
+    (P.len = toks.len);
+#line 250 "src/parse/top.mxy"
     return parse_expr();
 }
 
@@ -23650,7 +24309,7 @@ int parse_specifiers(Specs *out) {
 #line 114 "src/parse/types.mxy"
             case K_STRING:;
 #line 115 "src/parse/types.mxy"
-                if (base || named) {
+                if ((base || named) || ((t->kind == K_STRING) && ((sign || shorts) || longs))) {
 #line 115 "src/parse/types.mxy"
                     break;
                 }
@@ -24028,7 +24687,7 @@ TypeRef *parse_declarator(TypeRef *base, char **name, ParamList *fparams, Loc *n
         return inner;
     }
 #line 287 "src/parse/types.mxy"
-    if (at(T_IDENT) && name) {
+    if (name_at(0) && name) {
 #line 288 "src/parse/types.mxy"
         Token *t = next();
 #line 289 "src/parse/types.mxy"
@@ -24069,233 +24728,235 @@ Node *parse_struct_body(Node *s) {
 #line 306 "src/parse/types.mxy"
             Node *d = node_new(N_DIRECTIVE, peek()->loc);
 #line 307 "src/parse/types.mxy"
-            (d->text = xstrdup(next()->text));
+            (d->pos = P.pos);
 #line 308 "src/parse/types.mxy"
-            vec_push(s->list, d);
+            (d->text = xstrdup(next()->text));
 #line 309 "src/parse/types.mxy"
-            continue;
-        }
-#line 311 "src/parse/types.mxy"
-        if (accept(P_SEMI)) {
-#line 311 "src/parse/types.mxy"
+            vec_push(s->list, d);
+#line 310 "src/parse/types.mxy"
             continue;
         }
 #line 312 "src/parse/types.mxy"
-        Specs sp;
+        if (accept(P_SEMI)) {
+#line 312 "src/parse/types.mxy"
+            continue;
+        }
 #line 313 "src/parse/types.mxy"
+        Specs sp;
+#line 314 "src/parse/types.mxy"
         Loc loc = peek()->loc;
-#line 314 "src/parse/types.mxy"
+#line 315 "src/parse/types.mxy"
         if (!parse_specifiers((&sp))) {
-#line 314 "src/parse/types.mxy"
+#line 315 "src/parse/types.mxy"
             fail(loc, "expected a field declaration");
         }
-#line 315 "src/parse/types.mxy"
+#line 316 "src/parse/types.mxy"
         if (at(P_SEMI)) {
-#line 317 "src/parse/types.mxy"
-            Node *f = node_new(N_FIELD, loc);
 #line 318 "src/parse/types.mxy"
-            (f->tref = sp.base);
+            Node *f = node_new(N_FIELD, loc);
 #line 319 "src/parse/types.mxy"
-            vec_push(s->list, f);
+            (f->tref = sp.base);
 #line 320 "src/parse/types.mxy"
-            next();
+            vec_push(s->list, f);
 #line 321 "src/parse/types.mxy"
+            next();
+#line 322 "src/parse/types.mxy"
             continue;
         }
         {
-#line 323 "src/parse/types.mxy"
-            for (; ; ) {
 #line 324 "src/parse/types.mxy"
-                Node *f = node_new(N_FIELD, loc);
+            for (; ; ) {
 #line 325 "src/parse/types.mxy"
-                char *name = NULL;
+                Node *f = node_new(N_FIELD, loc);
 #line 326 "src/parse/types.mxy"
-                (f->tref = parse_declarator(sp.base, (&name), NULL, (&f->loc)));
+                char *name = NULL;
 #line 327 "src/parse/types.mxy"
-                (f->name = name);
+                (f->tref = parse_declarator(sp.base, (&name), NULL, (&f->loc)));
 #line 328 "src/parse/types.mxy"
+                (f->name = name);
+#line 329 "src/parse/types.mxy"
                 (f->flags |= (sp.storage & F_WEAK));
-#line 329 "src/parse/types.mxy"
+#line 330 "src/parse/types.mxy"
                 if (accept(P_COLON)) {
-#line 329 "src/parse/types.mxy"
+#line 330 "src/parse/types.mxy"
                     (f->a = parse_ternary());
                 }
-#line 330 "src/parse/types.mxy"
+#line 331 "src/parse/types.mxy"
                 vec_push(s->list, f);
-#line 331 "src/parse/types.mxy"
+#line 332 "src/parse/types.mxy"
                 if (!accept(P_COMMA)) {
-#line 331 "src/parse/types.mxy"
+#line 332 "src/parse/types.mxy"
                     break;
                 }
             }
         }
-#line 333 "src/parse/types.mxy"
+#line 334 "src/parse/types.mxy"
         expect(P_SEMI, "';'");
     }
-#line 335 "src/parse/types.mxy"
-    expect(P_RBRACE, "'}'");
 #line 336 "src/parse/types.mxy"
+    expect(P_RBRACE, "'}'");
+#line 337 "src/parse/types.mxy"
     return s;
 }
 
-#line 339 "src/parse/types.mxy"
-Node *parse_cenum_body(Node *e) {
 #line 340 "src/parse/types.mxy"
-    expect(P_LBRACE, "'{'");
+Node *parse_cenum_body(Node *e) {
 #line 341 "src/parse/types.mxy"
-    (e->flags |= F_BODY);
+    expect(P_LBRACE, "'{'");
 #line 342 "src/parse/types.mxy"
-    while (!at(P_RBRACE)) {
+    (e->flags |= F_BODY);
 #line 343 "src/parse/types.mxy"
-        Token *n = expect(T_IDENT, "an enumerator name");
+    while (!at(P_RBRACE)) {
 #line 344 "src/parse/types.mxy"
-        Node *en = node_new(N_ENUMERATOR, n->loc);
+        Token *n = expect(T_IDENT, "an enumerator name");
 #line 345 "src/parse/types.mxy"
+        Node *en = node_new(N_ENUMERATOR, n->loc);
+#line 346 "src/parse/types.mxy"
         (en->name = xstrdup(n->text));
-#line 346 "src/parse/types.mxy"
+#line 347 "src/parse/types.mxy"
         if (accept(P_ASSIGN)) {
-#line 346 "src/parse/types.mxy"
+#line 347 "src/parse/types.mxy"
             (en->a = parse_ternary());
         }
-#line 347 "src/parse/types.mxy"
+#line 348 "src/parse/types.mxy"
         vec_push(e->list, en);
-#line 348 "src/parse/types.mxy"
+#line 349 "src/parse/types.mxy"
         if (!accept(P_COMMA)) {
-#line 348 "src/parse/types.mxy"
+#line 349 "src/parse/types.mxy"
             break;
         }
     }
-#line 350 "src/parse/types.mxy"
-    expect(P_RBRACE, "'}'");
 #line 351 "src/parse/types.mxy"
+    expect(P_RBRACE, "'}'");
+#line 352 "src/parse/types.mxy"
     return e;
 }
 
-#line 355 "src/parse/types.mxy"
+#line 356 "src/parse/types.mxy"
 int moxy_enum_ahead(void) {
-#line 356 "src/parse/types.mxy"
-    if (((!at(K_ENUM)) || (peek_at(1)->kind != T_IDENT)) || (peek_at(2)->kind != P_LBRACE)) {
-#line 356 "src/parse/types.mxy"
-        return 0;
-    }
 #line 357 "src/parse/types.mxy"
-    int open = (P.pos + 2);
-#line 358 "src/parse/types.mxy"
-    int close = match_paren(open);
-#line 359 "src/parse/types.mxy"
-    if (close < 0) {
-#line 359 "src/parse/types.mxy"
+    if (((!at(K_ENUM)) || (peek_at(1)->kind != T_IDENT)) || (peek_at(2)->kind != P_LBRACE)) {
+#line 357 "src/parse/types.mxy"
         return 0;
     }
+#line 358 "src/parse/types.mxy"
+    int open = (P.pos + 2);
+#line 359 "src/parse/types.mxy"
+    int close = match_paren(open);
 #line 360 "src/parse/types.mxy"
+    if (close < 0) {
+#line 360 "src/parse/types.mxy"
+        return 0;
+    }
+#line 361 "src/parse/types.mxy"
     int depth = 0;
     {
-#line 361 "src/parse/types.mxy"
-        int i = (open + 1);
-#line 361 "src/parse/types.mxy"
-        for (; i < close; (i++)) {
 #line 362 "src/parse/types.mxy"
-            TokKind k = P.toks[i].kind;
+        int i = (open + 1);
+#line 362 "src/parse/types.mxy"
+        for (; i < close; (i++)) {
 #line 363 "src/parse/types.mxy"
+            TokKind k = P.toks[i].kind;
+#line 364 "src/parse/types.mxy"
             if (k == P_LPAREN) {
-#line 364 "src/parse/types.mxy"
+#line 365 "src/parse/types.mxy"
                 if (depth == 0) {
-#line 364 "src/parse/types.mxy"
+#line 365 "src/parse/types.mxy"
                     return 1;
                 }
-#line 365 "src/parse/types.mxy"
+#line 366 "src/parse/types.mxy"
                 (depth++);
             }
-#line 367 "src/parse/types.mxy"
+#line 368 "src/parse/types.mxy"
             if (k == P_RPAREN) {
-#line 367 "src/parse/types.mxy"
+#line 368 "src/parse/types.mxy"
                 (depth--);
             }
-#line 368 "src/parse/types.mxy"
+#line 369 "src/parse/types.mxy"
             if ((k == P_ASSIGN) && (depth == 0)) {
-#line 368 "src/parse/types.mxy"
+#line 369 "src/parse/types.mxy"
                 return 0;
             }
         }
     }
-#line 370 "src/parse/types.mxy"
-    TokKind after = P.toks[(close + 1)].kind;
 #line 371 "src/parse/types.mxy"
+    TokKind after = P.toks[(close + 1)].kind;
+#line 372 "src/parse/types.mxy"
     return (((after != P_SEMI) && (after != T_IDENT)) && (after != P_STAR));
 }
 
-#line 374 "src/parse/types.mxy"
-Node *parse_moxy_enum(void) {
 #line 375 "src/parse/types.mxy"
-    Token *kw = next();
+Node *parse_moxy_enum(void) {
 #line 376 "src/parse/types.mxy"
-    Token *name = expect(T_IDENT, "an enum name");
+    Token *kw = next();
 #line 377 "src/parse/types.mxy"
-    Node *e = node_new(N_ENUM, kw->loc);
+    Token *name = expect(T_IDENT, "an enum name");
 #line 378 "src/parse/types.mxy"
-    (e->name = xstrdup(name->text));
+    Node *e = node_new(N_ENUM, kw->loc);
 #line 379 "src/parse/types.mxy"
-    expect(P_LBRACE, "'{'");
+    (e->name = xstrdup(name->text));
 #line 380 "src/parse/types.mxy"
-    while (!at(P_RBRACE)) {
+    expect(P_LBRACE, "'{'");
 #line 381 "src/parse/types.mxy"
-        Token *vn = expect(T_IDENT, "a variant name");
+    while (!at(P_RBRACE)) {
 #line 382 "src/parse/types.mxy"
-        Node *v = node_new(N_VARIANT, vn->loc);
+        Token *vn = expect(T_IDENT, "a variant name");
 #line 383 "src/parse/types.mxy"
-        (v->name = xstrdup(vn->text));
+        Node *v = node_new(N_VARIANT, vn->loc);
 #line 384 "src/parse/types.mxy"
-        if (accept(P_LPAREN)) {
+        (v->name = xstrdup(vn->text));
 #line 385 "src/parse/types.mxy"
-            int idx = 0;
+        if (accept(P_LPAREN)) {
 #line 386 "src/parse/types.mxy"
-            while (!at(P_RPAREN)) {
+            int idx = 0;
 #line 387 "src/parse/types.mxy"
-                Loc loc = peek()->loc;
+            while (!at(P_RPAREN)) {
 #line 388 "src/parse/types.mxy"
-                TypeRef *t = parse_type_name();
+                Loc loc = peek()->loc;
 #line 389 "src/parse/types.mxy"
-                char *fname = NULL;
+                TypeRef *t = parse_type_name();
 #line 390 "src/parse/types.mxy"
-                Loc floc = loc;
+                char *fname = NULL;
 #line 391 "src/parse/types.mxy"
-                if (at(T_IDENT)) {
+                Loc floc = loc;
 #line 392 "src/parse/types.mxy"
-                    (floc = peek()->loc);
+                if (at(T_IDENT)) {
 #line 393 "src/parse/types.mxy"
+                    (floc = peek()->loc);
+#line 394 "src/parse/types.mxy"
                     (fname = xstrdup(next()->text));
                 } else {
-#line 395 "src/parse/types.mxy"
+#line 396 "src/parse/types.mxy"
                     (fname = xfmt("_%d", idx));
                 }
-#line 397 "src/parse/types.mxy"
-                Param p = {fname, t, floc, NULL};
 #line 398 "src/parse/types.mxy"
-                vec_push(v->params, p);
+                Param p = {fname, t, floc, NULL};
 #line 399 "src/parse/types.mxy"
+                vec_push(v->params, p);
+#line 400 "src/parse/types.mxy"
                 (idx++);
-#line 400 "src/parse/types.mxy"
+#line 401 "src/parse/types.mxy"
                 if (!accept(P_COMMA)) {
-#line 400 "src/parse/types.mxy"
+#line 401 "src/parse/types.mxy"
                     break;
                 }
             }
-#line 402 "src/parse/types.mxy"
+#line 403 "src/parse/types.mxy"
             expect(P_RPAREN, "')'");
         }
-#line 404 "src/parse/types.mxy"
+#line 405 "src/parse/types.mxy"
         vec_push(e->list, v);
-#line 405 "src/parse/types.mxy"
+#line 406 "src/parse/types.mxy"
         if (!accept(P_COMMA)) {
-#line 405 "src/parse/types.mxy"
+#line 406 "src/parse/types.mxy"
             break;
         }
     }
-#line 407 "src/parse/types.mxy"
-    expect(P_RBRACE, "'}'");
 #line 408 "src/parse/types.mxy"
-    accept(P_SEMI);
+    expect(P_RBRACE, "'}'");
 #line 409 "src/parse/types.mxy"
+    accept(P_SEMI);
+#line 410 "src/parse/types.mxy"
     return e;
 }
 
@@ -24671,20 +25332,20 @@ int cmd_build_file(int argc, char **argv) {
 #line 122 "src/cli/file.mxy"
     char *tmp = make_temp_dir();
 #line 123 "src/cli/file.mxy"
-    mxy_str __v10;
+    mxy_str __v11;
 #line 123 "src/cli/file.mxy"
     if (tmp) {
 #line 123 "src/cli/file.mxy"
-        __v10 = mxy_str_from(tmp);
+        __v11 = mxy_str_from(tmp);
 #line 123 "src/cli/file.mxy"
     } else {
 #line 123 "src/cli/file.mxy"
-        __v10 = mxy_str_retain(((mxy_str)__mxy_s21.s));
+        __v11 = mxy_str_retain(((mxy_str)__mxy_s21.s));
 #line 123 "src/cli/file.mxy"
     }
 #line 123 "src/cli/file.mxy"
-    char *cpath = xfmt("%s/%s.c", __v10, stem);
-    mxy_str_release(__v10);
+    char *cpath = xfmt("%s/%s.c", __v11, stem);
+    mxy_str_release(__v11);
 #line 124 "src/cli/file.mxy"
     int rc = build_binary((&a), out, cpath);
 #line 125 "src/cli/file.mxy"
@@ -25283,371 +25944,411 @@ static int binary_op(const char *s) {
     return 0;
 }
 
-#line 161 "src/fmt/fmt.mxy"
-static int space_between(const FTok *p, const FTok *t, const FTok *n, LineState *ls, const MoxyConfig *cfg, int was_unary) {
-#line 163 "src/fmt/fmt.mxy"
-    int maybe_unary = ((t->kind == F_OP) && (((((((is(t, "-") || is(t, "+")) || is(t, "*")) || is(t, "&")) || is(t, "!")) || is(t, "~")) || is(t, "++")) || is(t, "--")));
 #line 165 "src/fmt/fmt.mxy"
+static int space_between(const FTok *p, const FTok *t, const FTok *n, LineState *ls, const MoxyConfig *cfg, int was_unary) {
+#line 167 "src/fmt/fmt.mxy"
+    int maybe_unary = ((t->kind == F_OP) && (((((((is(t, "-") || is(t, "+")) || is(t, "*")) || is(t, "&")) || is(t, "!")) || is(t, "~")) || is(t, "++")) || is(t, "--")));
+#line 169 "src/fmt/fmt.mxy"
     if ((maybe_unary && ((!p) || (!valueish(p)))) && (!((p && (is(t, "++") || is(t, "--"))) && valueish(p)))) {
-#line 166 "src/fmt/fmt.mxy"
+#line 170 "src/fmt/fmt.mxy"
         (ls->unary_prev = 1);
     }
-#line 167 "src/fmt/fmt.mxy"
-    if (!p) {
-#line 167 "src/fmt/fmt.mxy"
-        return 0;
-    }
-#line 168 "src/fmt/fmt.mxy"
-    if ((t->kind == F_LCOMMENT) || (t->kind == F_BCOMMENT)) {
-#line 168 "src/fmt/fmt.mxy"
-        return 1;
-    }
-#line 169 "src/fmt/fmt.mxy"
-    const char *T = t->text;
-#line 169 "src/fmt/fmt.mxy"
-    const char *Pt = p->text;
-#line 170 "src/fmt/fmt.mxy"
-    if (is(t, ",") || is(t, ";")) {
-#line 170 "src/fmt/fmt.mxy"
-        return 0;
-    }
 #line 171 "src/fmt/fmt.mxy"
-    if (is(t, ")") || is(t, "]")) {
-#line 171 "src/fmt/fmt.mxy"
-        return 0;
-    }
+    if (is(t, "(")) {
 #line 172 "src/fmt/fmt.mxy"
-    if (((((is(t, ".") || is(t, "->")) || is(t, "::")) || is(t, "..")) || is(t, "..=")) || is(t, "...")) {
+        if (ls->depth < 32) {
 #line 172 "src/fmt/fmt.mxy"
-        return (is(t, "...") && is(p, ","));
-    }
+            (ls->fnparen[ls->depth] = (p && is(p, "fn")));
+        }
 #line 173 "src/fmt/fmt.mxy"
-    if (((((((((is(p, ".") || is(p, "->")) || is(p, "::")) || is(p, "(")) || is(p, "[")) || is(p, "@")) || is(p, "..")) || is(p, "..=")) || is(p, "!")) || is(p, "~")) {
+        (ls->depth++);
+    } else {
+#line 174 "src/fmt/fmt.mxy"
+        if (is(t, ")")) {
 #line 175 "src/fmt/fmt.mxy"
-        return 0;
-    }
+            if (ls->depth > 0) {
+#line 175 "src/fmt/fmt.mxy"
+                (ls->depth--);
+            }
 #line 176 "src/fmt/fmt.mxy"
-    if (was_unary) {
-#line 176 "src/fmt/fmt.mxy"
-        return 0;
-    }
-#line 177 "src/fmt/fmt.mxy"
-    if (is(p, ",")) {
-#line 177 "src/fmt/fmt.mxy"
-        return cfg->space_after_comma;
+            (ls->closed_fn = ((ls->depth < 32) && ls->fnparen[ls->depth]));
+        }
     }
 #line 178 "src/fmt/fmt.mxy"
-    if ((is(t, "<") && (p->kind == F_WORD)) && (is(p, "Result") || is(p, "Future"))) {
+    if (!p) {
+#line 178 "src/fmt/fmt.mxy"
+        return 0;
+    }
 #line 179 "src/fmt/fmt.mxy"
-        (ls->generic++);
-#line 180 "src/fmt/fmt.mxy"
-        return 0;
+    if ((t->kind == F_LCOMMENT) || (t->kind == F_BCOMMENT)) {
+#line 179 "src/fmt/fmt.mxy"
+        return 1;
     }
+#line 181 "src/fmt/fmt.mxy"
+    if ((is(t, "->") && is(p, ")")) && ls->closed_fn) {
 #line 182 "src/fmt/fmt.mxy"
-    if (ls->generic && is(p, "<")) {
-#line 182 "src/fmt/fmt.mxy"
-        return 0;
-    }
+        (ls->fn_arrow = 1);
 #line 183 "src/fmt/fmt.mxy"
-    if (ls->generic && (is(t, ">") || is(t, ">>"))) {
-#line 184 "src/fmt/fmt.mxy"
-        (ls->generic -= (is(t, ">>") ? 2 : 1));
+        return 1;
+    }
 #line 185 "src/fmt/fmt.mxy"
-        if (ls->generic < 0) {
-#line 185 "src/fmt/fmt.mxy"
-            (ls->generic = 0);
-        }
+    if (ls->fn_arrow) {
 #line 186 "src/fmt/fmt.mxy"
+        (ls->fn_arrow = 0);
+#line 187 "src/fmt/fmt.mxy"
+        return 1;
+    }
+#line 189 "src/fmt/fmt.mxy"
+    const char *T = t->text;
+#line 189 "src/fmt/fmt.mxy"
+    const char *Pt = p->text;
+#line 190 "src/fmt/fmt.mxy"
+    if (is(t, ",") || is(t, ";")) {
+#line 190 "src/fmt/fmt.mxy"
         return 0;
     }
-#line 188 "src/fmt/fmt.mxy"
-    if (is(t, "(")) {
-#line 189 "src/fmt/fmt.mxy"
-        if (word_in(p, paren_words)) {
-#line 189 "src/fmt/fmt.mxy"
-            return cfg->space_after_keyword;
-        }
-#line 190 "src/fmt/fmt.mxy"
-        if (((p->kind == F_WORD) || is(p, ")")) || is(p, "]")) {
-#line 190 "src/fmt/fmt.mxy"
-            return 0;
-        }
 #line 191 "src/fmt/fmt.mxy"
-        return 1;
+    if (is(t, ")") || is(t, "]")) {
+#line 191 "src/fmt/fmt.mxy"
+        return 0;
     }
 #line 193 "src/fmt/fmt.mxy"
-    if (is(t, "[")) {
+    if (is(t, ".") && (is(p, "{") || is(p, ","))) {
 #line 193 "src/fmt/fmt.mxy"
-        return (!((p->kind == F_WORD) || valueish(p)));
-    }
-#line 194 "src/fmt/fmt.mxy"
-    if (is(t, "{")) {
-#line 194 "src/fmt/fmt.mxy"
-        return ((((p->kind == F_WORD) && (!word_in(p, op_words))) && (!word_in(p, paren_words))) ? t->space_before : 1);
-    }
-#line 195 "src/fmt/fmt.mxy"
-    if (is(t, "}")) {
-#line 195 "src/fmt/fmt.mxy"
-        return (is(p, "{") ? t->space_before : 1);
-    }
-#line 196 "src/fmt/fmt.mxy"
-    if (is(p, "{")) {
-#line 196 "src/fmt/fmt.mxy"
         return 1;
     }
-#line 197 "src/fmt/fmt.mxy"
-    if ((is(t, "++") || is(t, "--")) && valueish(p)) {
+#line 194 "src/fmt/fmt.mxy"
+    if (((((is(t, ".") || is(t, "->")) || is(t, "::")) || is(t, "..")) || is(t, "..=")) || is(t, "...")) {
+#line 194 "src/fmt/fmt.mxy"
+        return (is(t, "...") && is(p, ","));
+    }
+#line 195 "src/fmt/fmt.mxy"
+    if (((((((((is(p, ".") || is(p, "->")) || is(p, "::")) || is(p, "(")) || is(p, "[")) || is(p, "@")) || is(p, "..")) || is(p, "..=")) || is(p, "!")) || is(p, "~")) {
 #line 197 "src/fmt/fmt.mxy"
         return 0;
     }
 #line 198 "src/fmt/fmt.mxy"
-    if (is(t, "?")) {
+    if (was_unary) {
+#line 198 "src/fmt/fmt.mxy"
+        return 0;
+    }
 #line 199 "src/fmt/fmt.mxy"
-        (ls->ternary++);
+    if (is(p, ",")) {
+#line 199 "src/fmt/fmt.mxy"
+        return cfg->space_after_comma;
+    }
 #line 200 "src/fmt/fmt.mxy"
-        return 1;
-    }
+    if ((is(t, "<") && (p->kind == F_WORD)) && (is(p, "Result") || is(p, "Future"))) {
+#line 201 "src/fmt/fmt.mxy"
+        (ls->generic++);
 #line 202 "src/fmt/fmt.mxy"
-    if (is(p, "?")) {
-#line 202 "src/fmt/fmt.mxy"
-        return 1;
+        return 0;
     }
-#line 203 "src/fmt/fmt.mxy"
-    if (is(t, ":")) {
 #line 204 "src/fmt/fmt.mxy"
-        if (ls->ternary) {
+    if (ls->generic && is(p, "<")) {
+#line 204 "src/fmt/fmt.mxy"
+        return 0;
+    }
 #line 205 "src/fmt/fmt.mxy"
-            (ls->ternary--);
+    if (ls->generic && (is(t, ">") || is(t, ">>"))) {
 #line 206 "src/fmt/fmt.mxy"
-            return 1;
+        (ls->generic -= (is(t, ">>") ? 2 : 1));
+#line 207 "src/fmt/fmt.mxy"
+        if (ls->generic < 0) {
+#line 207 "src/fmt/fmt.mxy"
+            (ls->generic = 0);
         }
 #line 208 "src/fmt/fmt.mxy"
         return 0;
     }
 #line 210 "src/fmt/fmt.mxy"
-    if (is(p, ":")) {
-#line 210 "src/fmt/fmt.mxy"
+    if (is(t, "(")) {
+#line 211 "src/fmt/fmt.mxy"
+        if (word_in(p, paren_words)) {
+#line 211 "src/fmt/fmt.mxy"
+            return cfg->space_after_keyword;
+        }
+#line 212 "src/fmt/fmt.mxy"
+        if (((p->kind == F_WORD) || is(p, ")")) || is(p, "]")) {
+#line 212 "src/fmt/fmt.mxy"
+            return 0;
+        }
+#line 213 "src/fmt/fmt.mxy"
         return 1;
     }
-#line 211 "src/fmt/fmt.mxy"
-    if ((t->kind == F_OP) && (((((((is(t, "-") || is(t, "+")) || is(t, "*")) || is(t, "&")) || is(t, "!")) || is(t, "~")) || is(t, "++")) || is(t, "--"))) {
-#line 213 "src/fmt/fmt.mxy"
-        int unary = (!valueish(p));
-#line 214 "src/fmt/fmt.mxy"
-        if ((is(t, "*") || is(t, "&")) && ((p->kind == F_WORD) || is(p, ")"))) {
 #line 215 "src/fmt/fmt.mxy"
-            int after = ((n && n->space_before) && (n->newlines == 0));
+    if (is(t, "[")) {
+#line 215 "src/fmt/fmt.mxy"
+        return (!((p->kind == F_WORD) || valueish(p)));
+    }
 #line 216 "src/fmt/fmt.mxy"
+    if (is(t, "{")) {
+#line 216 "src/fmt/fmt.mxy"
+        return ((((p->kind == F_WORD) && (!word_in(p, op_words))) && (!word_in(p, paren_words))) ? t->space_before : 1);
+    }
+#line 217 "src/fmt/fmt.mxy"
+    if (is(t, "}")) {
+#line 217 "src/fmt/fmt.mxy"
+        return (is(p, "{") ? t->space_before : 1);
+    }
+#line 218 "src/fmt/fmt.mxy"
+    if (is(p, "{")) {
+#line 218 "src/fmt/fmt.mxy"
+        return 1;
+    }
+#line 219 "src/fmt/fmt.mxy"
+    if ((is(t, "++") || is(t, "--")) && valueish(p)) {
+#line 219 "src/fmt/fmt.mxy"
+        return 0;
+    }
+#line 220 "src/fmt/fmt.mxy"
+    if (is(t, "?")) {
+#line 221 "src/fmt/fmt.mxy"
+        (ls->ternary++);
+#line 222 "src/fmt/fmt.mxy"
+        return 1;
+    }
+#line 224 "src/fmt/fmt.mxy"
+    if (is(p, "?")) {
+#line 224 "src/fmt/fmt.mxy"
+        return 1;
+    }
+#line 225 "src/fmt/fmt.mxy"
+    if (is(t, ":")) {
+#line 226 "src/fmt/fmt.mxy"
+        if (ls->ternary) {
+#line 227 "src/fmt/fmt.mxy"
+            (ls->ternary--);
+#line 228 "src/fmt/fmt.mxy"
+            return 1;
+        }
+#line 230 "src/fmt/fmt.mxy"
+        return 0;
+    }
+#line 232 "src/fmt/fmt.mxy"
+    if (is(p, ":")) {
+#line 232 "src/fmt/fmt.mxy"
+        return 1;
+    }
+#line 233 "src/fmt/fmt.mxy"
+    if ((t->kind == F_OP) && (((((((is(t, "-") || is(t, "+")) || is(t, "*")) || is(t, "&")) || is(t, "!")) || is(t, "~")) || is(t, "++")) || is(t, "--"))) {
+#line 235 "src/fmt/fmt.mxy"
+        int unary = (!valueish(p));
+#line 236 "src/fmt/fmt.mxy"
+        if ((is(t, "*") || is(t, "&")) && ((p->kind == F_WORD) || is(p, ")"))) {
+#line 237 "src/fmt/fmt.mxy"
+            int after = ((n && n->space_before) && (n->newlines == 0));
+#line 238 "src/fmt/fmt.mxy"
             (unary = (t->space_before && (!after)));
-#line 217 "src/fmt/fmt.mxy"
+#line 239 "src/fmt/fmt.mxy"
             if ((!t->space_before) && after) {
-#line 217 "src/fmt/fmt.mxy"
+#line 239 "src/fmt/fmt.mxy"
                 (unary = 1);
             }
         }
-#line 219 "src/fmt/fmt.mxy"
+#line 241 "src/fmt/fmt.mxy"
         if (unary) {
-#line 220 "src/fmt/fmt.mxy"
+#line 242 "src/fmt/fmt.mxy"
             (ls->unary_prev = 1);
-#line 221 "src/fmt/fmt.mxy"
+#line 243 "src/fmt/fmt.mxy"
             return 1;
         }
-#line 223 "src/fmt/fmt.mxy"
+#line 245 "src/fmt/fmt.mxy"
         return cfg->space_around_ops;
     }
-#line 225 "src/fmt/fmt.mxy"
+#line 247 "src/fmt/fmt.mxy"
     if ((t->kind == F_OP) && binary_op(T)) {
-#line 225 "src/fmt/fmt.mxy"
+#line 247 "src/fmt/fmt.mxy"
         return cfg->space_around_ops;
     }
-#line 226 "src/fmt/fmt.mxy"
+#line 248 "src/fmt/fmt.mxy"
     if ((p->kind == F_OP) && binary_op(Pt)) {
-#line 226 "src/fmt/fmt.mxy"
+#line 248 "src/fmt/fmt.mxy"
         return cfg->space_around_ops;
     }
-#line 227 "src/fmt/fmt.mxy"
+#line 249 "src/fmt/fmt.mxy"
     if ((p->kind != F_OP) && (t->kind != F_OP)) {
-#line 227 "src/fmt/fmt.mxy"
+#line 249 "src/fmt/fmt.mxy"
         return 1;
     }
-#line 228 "src/fmt/fmt.mxy"
+#line 250 "src/fmt/fmt.mxy"
     return t->space_before;
 }
 
-#line 231 "src/fmt/fmt.mxy"
+#line 253 "src/fmt/fmt.mxy"
 char *fmt_source(const char *src, const MoxyConfig *cfg) {
-#line 232 "src/fmt/fmt.mxy"
+#line 254 "src/fmt/fmt.mxy"
     FTokVec toks = scan(src);
-#line 233 "src/fmt/fmt.mxy"
+#line 255 "src/fmt/fmt.mxy"
     Buf out = {0};
-#line 234 "src/fmt/fmt.mxy"
+#line 256 "src/fmt/fmt.mxy"
     int depth = 0;
-#line 234 "src/fmt/fmt.mxy"
+#line 256 "src/fmt/fmt.mxy"
     int parens = 0;
-#line 235 "src/fmt/fmt.mxy"
+#line 257 "src/fmt/fmt.mxy"
     LineState ls = {0};
-#line 236 "src/fmt/fmt.mxy"
+#line 258 "src/fmt/fmt.mxy"
     const FTok *prev = NULL;
     {
-#line 237 "src/fmt/fmt.mxy"
+#line 259 "src/fmt/fmt.mxy"
         int i = 0;
-#line 237 "src/fmt/fmt.mxy"
+#line 259 "src/fmt/fmt.mxy"
         for (; i < toks.len; (i++)) {
-#line 238 "src/fmt/fmt.mxy"
+#line 260 "src/fmt/fmt.mxy"
             FTok *t = (&toks.items[i]);
-#line 239 "src/fmt/fmt.mxy"
+#line 261 "src/fmt/fmt.mxy"
             FTok *n = (((i + 1) < toks.len) ? (&toks.items[(i + 1)]) : NULL);
-#line 240 "src/fmt/fmt.mxy"
+#line 262 "src/fmt/fmt.mxy"
             int first = ((t->newlines > 0) || (i == 0));
-#line 241 "src/fmt/fmt.mxy"
+#line 263 "src/fmt/fmt.mxy"
             if (first) {
-#line 242 "src/fmt/fmt.mxy"
+#line 264 "src/fmt/fmt.mxy"
                 if (i > 0) {
-#line 243 "src/fmt/fmt.mxy"
+#line 265 "src/fmt/fmt.mxy"
                     int nl = ((t->newlines > 3) ? 3 : t->newlines);
                     {
-#line 244 "src/fmt/fmt.mxy"
+#line 266 "src/fmt/fmt.mxy"
                         int k = 0;
-#line 244 "src/fmt/fmt.mxy"
+#line 266 "src/fmt/fmt.mxy"
                         for (; k < nl; (k++)) {
-#line 244 "src/fmt/fmt.mxy"
+#line 266 "src/fmt/fmt.mxy"
                             buf_putc((&out), '\n');
                         }
                     }
                 } else {
                     {
-#line 246 "src/fmt/fmt.mxy"
+#line 268 "src/fmt/fmt.mxy"
                         int k = 0;
-#line 246 "src/fmt/fmt.mxy"
+#line 268 "src/fmt/fmt.mxy"
                         for (; (k < t->newlines) && (k < 2); (k++)) {
-#line 246 "src/fmt/fmt.mxy"
+#line 268 "src/fmt/fmt.mxy"
                             buf_putc((&out), '\n');
                         }
                     }
                 }
-#line 248 "src/fmt/fmt.mxy"
+#line 270 "src/fmt/fmt.mxy"
                 memset((&ls), 0, sizeof(ls));
-#line 249 "src/fmt/fmt.mxy"
+#line 271 "src/fmt/fmt.mxy"
                 (prev = NULL);
-#line 250 "src/fmt/fmt.mxy"
+#line 272 "src/fmt/fmt.mxy"
                 if (t->kind == F_DIRECTIVE) {
-#line 251 "src/fmt/fmt.mxy"
+#line 273 "src/fmt/fmt.mxy"
                     buf_put((&out), t->text);
-#line 252 "src/fmt/fmt.mxy"
+#line 274 "src/fmt/fmt.mxy"
                     continue;
                 }
-#line 254 "src/fmt/fmt.mxy"
+#line 276 "src/fmt/fmt.mxy"
                 int d = depth;
-#line 255 "src/fmt/fmt.mxy"
+#line 277 "src/fmt/fmt.mxy"
                 if (is(t, "}")) {
-#line 255 "src/fmt/fmt.mxy"
+#line 277 "src/fmt/fmt.mxy"
                     (d--);
                 }
-#line 256 "src/fmt/fmt.mxy"
+#line 278 "src/fmt/fmt.mxy"
                 int extra = (((parens > 0) && (!(is(t, ")") || is(t, "]")))) ? 1 : 0);
-#line 257 "src/fmt/fmt.mxy"
+#line 279 "src/fmt/fmt.mxy"
                 if (d < 0) {
-#line 257 "src/fmt/fmt.mxy"
+#line 279 "src/fmt/fmt.mxy"
                     (d = 0);
                 }
                 {
-#line 258 "src/fmt/fmt.mxy"
+#line 280 "src/fmt/fmt.mxy"
                     int k = 0;
-#line 258 "src/fmt/fmt.mxy"
+#line 280 "src/fmt/fmt.mxy"
                     for (; k < ((d + extra) * cfg->indent); (k++)) {
-#line 258 "src/fmt/fmt.mxy"
+#line 280 "src/fmt/fmt.mxy"
                         buf_putc((&out), ' ');
                     }
                 }
             }
-#line 260 "src/fmt/fmt.mxy"
+#line 282 "src/fmt/fmt.mxy"
             int was_unary = ls.unary_prev;
-#line 261 "src/fmt/fmt.mxy"
+#line 283 "src/fmt/fmt.mxy"
             (ls.unary_prev = 0);
-#line 262 "src/fmt/fmt.mxy"
+#line 284 "src/fmt/fmt.mxy"
             int sp = space_between(prev, t, n, (&ls), cfg, was_unary);
-#line 263 "src/fmt/fmt.mxy"
+#line 285 "src/fmt/fmt.mxy"
             if ((!first) && sp) {
-#line 263 "src/fmt/fmt.mxy"
+#line 285 "src/fmt/fmt.mxy"
                 buf_putc((&out), ' ');
             }
-#line 264 "src/fmt/fmt.mxy"
+#line 286 "src/fmt/fmt.mxy"
             buf_put((&out), t->text);
-#line 265 "src/fmt/fmt.mxy"
+#line 287 "src/fmt/fmt.mxy"
             if (is(t, "{")) {
-#line 265 "src/fmt/fmt.mxy"
+#line 287 "src/fmt/fmt.mxy"
                 (depth++);
             } else {
-#line 266 "src/fmt/fmt.mxy"
+#line 288 "src/fmt/fmt.mxy"
                 if (is(t, "}")) {
-#line 266 "src/fmt/fmt.mxy"
+#line 288 "src/fmt/fmt.mxy"
                     (depth = ((depth > 0) ? (depth - 1) : 0));
                 } else {
-#line 267 "src/fmt/fmt.mxy"
+#line 289 "src/fmt/fmt.mxy"
                     if (is(t, "(") || is(t, "[")) {
-#line 267 "src/fmt/fmt.mxy"
+#line 289 "src/fmt/fmt.mxy"
                         (parens++);
                     } else {
-#line 268 "src/fmt/fmt.mxy"
+#line 290 "src/fmt/fmt.mxy"
                         if (is(t, ")") || is(t, "]")) {
-#line 268 "src/fmt/fmt.mxy"
+#line 290 "src/fmt/fmt.mxy"
                             (parens = ((parens > 0) ? (parens - 1) : 0));
                         }
                     }
                 }
             }
-#line 269 "src/fmt/fmt.mxy"
+#line 291 "src/fmt/fmt.mxy"
             (prev = t);
         }
     }
-#line 271 "src/fmt/fmt.mxy"
+#line 293 "src/fmt/fmt.mxy"
     if (cfg->trailing_newline) {
-#line 271 "src/fmt/fmt.mxy"
+#line 293 "src/fmt/fmt.mxy"
         buf_putc((&out), '\n');
     }
-#line 272 "src/fmt/fmt.mxy"
+#line 294 "src/fmt/fmt.mxy"
     char *res = buf_take((&out));
     {
-#line 273 "src/fmt/fmt.mxy"
+#line 295 "src/fmt/fmt.mxy"
         int i = 0;
-#line 273 "src/fmt/fmt.mxy"
+#line 295 "src/fmt/fmt.mxy"
         for (; i < toks.len; (i++)) {
-#line 273 "src/fmt/fmt.mxy"
+#line 295 "src/fmt/fmt.mxy"
             free(toks.items[i].text);
         }
     }
-#line 274 "src/fmt/fmt.mxy"
+#line 296 "src/fmt/fmt.mxy"
     free(toks.items);
-#line 275 "src/fmt/fmt.mxy"
+#line 297 "src/fmt/fmt.mxy"
     if (cfg->max_line_length > 0) {
-#line 276 "src/fmt/fmt.mxy"
+#line 298 "src/fmt/fmt.mxy"
         int line = 1;
-#line 276 "src/fmt/fmt.mxy"
+#line 298 "src/fmt/fmt.mxy"
         int col = 0;
         {
-#line 277 "src/fmt/fmt.mxy"
+#line 299 "src/fmt/fmt.mxy"
             const char *p = res;
-#line 277 "src/fmt/fmt.mxy"
+#line 299 "src/fmt/fmt.mxy"
             for (; *p; (p++)) {
-#line 278 "src/fmt/fmt.mxy"
+#line 300 "src/fmt/fmt.mxy"
                 if ((*p) == '\n') {
-#line 279 "src/fmt/fmt.mxy"
+#line 301 "src/fmt/fmt.mxy"
                     if (col > cfg->max_line_length) {
-#line 279 "src/fmt/fmt.mxy"
+#line 301 "src/fmt/fmt.mxy"
                         fprintf(stderr, "warning: line %d is longer than %d\n", line, cfg->max_line_length);
                     }
-#line 280 "src/fmt/fmt.mxy"
+#line 302 "src/fmt/fmt.mxy"
                     (line++);
-#line 281 "src/fmt/fmt.mxy"
+#line 303 "src/fmt/fmt.mxy"
                     (col = 0);
                 } else {
-#line 283 "src/fmt/fmt.mxy"
+#line 305 "src/fmt/fmt.mxy"
                     (col++);
                 }
             }
         }
     }
-#line 287 "src/fmt/fmt.mxy"
+#line 309 "src/fmt/fmt.mxy"
     return res;
 }
 
@@ -26948,20 +27649,20 @@ static Outcome run_one(const char *path, int sanitize, int release, char **why) 
 #line 199 "src/cli/test.mxy"
                             (result = T_FAIL);
 #line 200 "src/cli/test.mxy"
-                            mxy_str __v11;
+                            mxy_str __v12;
 #line 200 "src/cli/test.mxy"
                             if (got) {
 #line 200 "src/cli/test.mxy"
-                                __v11 = mxy_str_from(got);
+                                __v12 = mxy_str_from(got);
 #line 200 "src/cli/test.mxy"
                             } else {
 #line 200 "src/cli/test.mxy"
-                                __v11 = mxy_str_retain(((mxy_str)__mxy_s1.s));
+                                __v12 = mxy_str_retain(((mxy_str)__mxy_s1.s));
 #line 200 "src/cli/test.mxy"
                             }
 #line 200 "src/cli/test.mxy"
-                            fprintf(stderr, "--- expected\n%s--- got\n%s", want, __v11);
-                            mxy_str_release(__v11);
+                            fprintf(stderr, "--- expected\n%s--- got\n%s", want, __v12);
+                            mxy_str_release(__v12);
                         }
                     }
                 }
@@ -27054,20 +27755,20 @@ int run_tests(StrList *paths, int sanitize, int release) {
 #line 239 "src/cli/test.mxy"
                 (failed++);
 #line 240 "src/cli/test.mxy"
-                mxy_str __v12;
+                mxy_str __v13;
 #line 240 "src/cli/test.mxy"
                 if (why) {
 #line 240 "src/cli/test.mxy"
-                    __v12 = mxy_str_from(why);
+                    __v13 = mxy_str_from(why);
 #line 240 "src/cli/test.mxy"
                 } else {
 #line 240 "src/cli/test.mxy"
-                    __v12 = mxy_str_retain(((mxy_str)__mxy_s12.s));
+                    __v13 = mxy_str_retain(((mxy_str)__mxy_s12.s));
 #line 240 "src/cli/test.mxy"
                 }
 #line 240 "src/cli/test.mxy"
-                printf("FAILED (%s)\n", __v12);
-                mxy_str_release(__v12);
+                printf("FAILED (%s)\n", __v13);
+                mxy_str_release(__v13);
 #line 241 "src/cli/test.mxy"
                 vec_push(failures, files.items[i]);
             }

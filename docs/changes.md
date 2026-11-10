@@ -1,5 +1,29 @@
 # Changes
 
+## 0.3.1
+
+### Compiler
+
+- The compiler is written in Moxy and compiles itself. `make` bootstraps from `bootstrap/moxy.c`, so building from source still needs only a C compiler; `make verify` checks that the result reproduces itself exactly.
+- 0.3.0's release binaries failed to build against an outdated goose; goose is now pinned to a version that also builds with gcc 14.
+
+### C compatibility
+
+- A macro that is redefined or `#undef`'d means what it meant where it is used, as in C; before, the last definition applied everywhere. Macros defined once stay visible to the whole program.
+- Your macros no longer reach Moxy's runtime, so a name like `#define len 3` is safe.
+- A variable or function can share a struct's name: `static struct config config;`, or `struct timer` beside `int timer()`.
+- Structs, unions and typedefs defined inside a function belong to that function, so two functions can each define their own `struct item`. Defining a struct inside a function no longer crashes the compiler.
+- A struct that is only declared (`struct handle;`) and used through pointers compiles; its name was missing from the generated C.
+- `string` and `null` can be used as names (`char *string`, a field called `null`); they keep their Moxy meaning everywhere else.
+- `p->field` works when `p` points to a type from a C header, as it does for values of those types.
+- C headers next to any `.mxy` file are found, in single-file builds, tests and projects.
+- An include never resolves to the including file, so a test can share its module's name (`tests/words.mxy` including `src/words.mxy`).
+- `_Noreturn` is kept in the generated C, and assignments used as conditions keep their parentheses, so the generated C compiles without warnings under `-Wall -Wextra`.
+
+### Tooling
+
+- The formatter keeps the spaces in closure types and designated initializers: `fn(int) -> int`, `Point{ .x = 1, .y = 2 }`.
+
 ## 0.3.0
 
 A rewrite of the compiler and runtime. Most 0.2 programs compile unchanged; the behavior changes below are deliberate.
@@ -40,21 +64,16 @@ A rewrite of the compiler and runtime. Most 0.2 programs compile unchanged; the 
 - `#if`/`#ifdef`/`#else` are honored around declarations and inside functions, so each branch can define the same function.
 - String literals passed to C functions stay plain C literals (format checking works).
 - Types can be passed to C macros (`va_arg(ap, int)`, `offsetof(T, f)`).
-- C headers next to any `.mxy` file are found, in single-file builds, tests and projects.
-- An include never resolves to the including file, so a test can share its module's name (`tests/words.mxy` including `src/words.mxy`).
 
 ### Safety
 
 - No fixed-size limits in the compiler: programs of any size, any number of declarations, statements, list items, enum variants, parameters, or string length.
 - List indexing is bounds-checked, and missing map keys panic with the key, instead of reading garbage.
 - A managed local declared directly under a `case` label, or a managed field in a union, is a compile error.
-- `p->field` works when `p` points to a type from a C header, as it does for values of those types.
-- `_Noreturn` is kept in the generated C, and assignments used as conditions keep their parentheses, so the generated C compiles without warnings under `-Wall -Wextra`.
 
 ### Tooling
 
 - `moxy` is the only executable: goose is linked in as a library. Build moxy with `make`.
-- The compiler is written in Moxy and compiles itself. `make` bootstraps from `bootstrap/moxy.c`, so building from source still needs only a C compiler; `make verify` checks that the result reproduces itself exactly.
 - `moxy test` runs `tests/**/*.mxy` and `*.test.mxy`, with `.out`, `.code` and `.err` expectations and `--sanitize`. The `_test.mxy` naming still works.
 - `moxy check`, `moxy emit`, `moxy run -- args`, and `-p member` for workspaces.
 - Library projects build `lib<name>.a` plus a C header.
